@@ -3,7 +3,7 @@ package rmhttp
 import "net/http"
 
 type NetHTTPApp struct {
-	app *App
+	App
 }
 
 func NewNetHTTP(c ...Config) *NetHTTPApp {
@@ -13,7 +13,7 @@ func NewNetHTTP(c ...Config) *NetHTTPApp {
 	}
 
 	return &NetHTTPApp{
-		app: New(config),
+		App: *New(config),
 	}
 }
 
@@ -23,7 +23,7 @@ func NewNetHTTP(c ...Config) *NetHTTPApp {
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
 func (nha *NetHTTPApp) HandleFunc(method string, pattern string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
-	return nha.app.HandleFunc(method, pattern, ConvertHandlerFunc(handlerFunc))
+	return nha.App.HandleFunc(method, pattern, ConvertHandlerFunc(handlerFunc))
 }
 
 // Handler to the specified route method and pattern.
@@ -31,5 +31,5 @@ func (nha *NetHTTPApp) HandleFunc(method string, pattern string, handlerFunc fun
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
 func (nha *NetHTTPApp) Handle(method string, pattern string, handler http.Handler) *Route {
-	return nha.app.Handle(method, pattern, ConvertHandler(handler))
+	return nha.App.Handle(method, pattern, ConvertHandler(handler))
 }
