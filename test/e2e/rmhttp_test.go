@@ -17,16 +17,29 @@ func Test_Handle(t *testing.T) {
 		name    string
 		method  string
 		pattern string
+		path    string
 		status  int
 		body    string
 		err     error
 	}{
-		{"GET the index", http.MethodGet, "/", http.StatusOK, "get body", nil},
-		{"POST to the index", http.MethodPost, "/", http.StatusOK, "post body", nil},
-		{"PUT to the index", http.MethodPut, "/", http.StatusOK, "put body", nil},
-		{"PATCH to the index", http.MethodPatch, "/", http.StatusOK, "patch body", nil},
-		{"DELETE to the index", http.MethodDelete, "/", http.StatusOK, "delete body", nil},
-		{"OPTIONS to the index", http.MethodOptions, "/", http.StatusNoContent, "", nil},
+		{"GET the index", http.MethodGet, "/", "/", http.StatusOK, "get body", nil},
+		{"POST to the index", http.MethodPost, "/", "/", http.StatusOK, "post body", nil},
+		{"PUT to the index", http.MethodPut, "/", "/", http.StatusOK, "put body", nil},
+		{"PATCH to the index", http.MethodPatch, "/", "/", http.StatusOK, "patch body", nil},
+		{"DELETE to the index", http.MethodDelete, "/", "/", http.StatusOK, "delete body", nil},
+		{"OPTIONS to the index", http.MethodOptions, "/", "/", http.StatusNoContent, "", nil},
+		{"GET /test", http.MethodGet, "/test", "/test", http.StatusOK, "get body", nil},
+		{"POST to /test", http.MethodPost, "/test", "/test", http.StatusOK, "post body", nil},
+		{"PUT to /test", http.MethodPut, "/test", "/test", http.StatusOK, "put body", nil},
+		{"PATCH to /test", http.MethodPatch, "/test", "/test", http.StatusOK, "patch body", nil},
+		{"DELETE to /test", http.MethodDelete, "/test", "/test", http.StatusOK, "delete body", nil},
+		{"OPTIONS to /test", http.MethodOptions, "/test", "/test", http.StatusNoContent, "", nil},
+		{"GET /test/{id}", http.MethodGet, "/test/{id}", "/test/105", http.StatusOK, "get body", nil},
+		{"POST to /test/{id}", http.MethodPost, "/test/{id}", "/test/105", http.StatusOK, "post body", nil},
+		{"PUT to /test/{id}", http.MethodPut, "/test/{id}", "/test/105", http.StatusOK, "put body", nil},
+		{"PATCH to /test/{id}", http.MethodPatch, "/test/{id}", "/test/105", http.StatusOK, "patch body", nil},
+		{"DELETE to /test/{id}", http.MethodDelete, "/test/{id}", "/test/105", http.StatusOK, "delete body", nil},
+		{"OPTIONS to /test/{id}", http.MethodOptions, "/test/{id}", "/test/105", http.StatusNoContent, "", nil},
 	}
 
 	app := rmhttp.New()
@@ -39,7 +52,7 @@ func Test_Handle(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			url := fmt.Sprintf("http://%s/handle", testAddress)
+			url := fmt.Sprintf("http://%s%s", testAddress, test.path)
 			req, err := http.NewRequest(test.method, url, nil)
 			if err != nil {
 				t.Errorf("failed to create request: %v", err)
