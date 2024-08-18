@@ -19,10 +19,17 @@ func Test_Handle(t *testing.T) {
 
 	// Add handlers for all of our tests
 	for _, test := range handlerTests {
-		route := app.Handle(test.method, test.pattern, rmhttp.HandlerFunc(createHandlerFunc(test.status, test.body, test.err)))
-		assert.Equal(t, fmt.Sprintf("%s %s", strings.ToUpper(test.method), strings.ToLower(test.pattern)), route.String())
+		route := app.Handle(
+			test.method,
+			test.pattern,
+			rmhttp.HandlerFunc(createHandlerFunc(test.status, test.body, test.err)),
+		)
+		assert.Equal(
+			t,
+			fmt.Sprintf("%s %s", strings.ToUpper(test.method), strings.ToLower(test.pattern)),
+			route.String(),
+		)
 	}
-
 	// Start the App and wait for it to be responsive
 	startServer(app)
 
@@ -61,8 +68,16 @@ func Test_HandleFunc(t *testing.T) {
 
 	// Add handlers for all of our tests
 	for _, test := range handlerTests {
-		route := app.HandleFunc(test.method, test.pattern, createHandlerFunc(test.status, test.body, test.err))
-		assert.Equal(t, fmt.Sprintf("%s %s", strings.ToUpper(test.method), strings.ToLower(test.pattern)), route.String())
+		route := app.HandleFunc(
+			test.method,
+			test.pattern,
+			createHandlerFunc(test.status, test.body, test.err),
+		)
+		assert.Equal(
+			t,
+			fmt.Sprintf("%s %s", strings.ToUpper(test.method), strings.ToLower(test.pattern)),
+			route.String(),
+		)
 	}
 
 	// Start the App and wait for it to be responsive

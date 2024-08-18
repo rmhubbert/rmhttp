@@ -62,14 +62,14 @@ func createNetHTTPHandlerFunc(status int, body string) func(http.ResponseWriter,
 // startServer starts the rmhttp.App in a go routine, and then calls waitForServer
 // in order to ensure that the app is running, before returning.
 func startServer(app *rmhttp.App) {
-	go app.Start()
+	go app.ListenAndServe()
 	waitForServer(defaultPort)
 }
 
 // startServer starts the rmhttp.NetHTTPApp in a go routine, and then calls waitForServer
 // in order to ensure that the app is running, before returning.
 func startNetHTTPServer(app *rmhttp.NetHTTPApp) {
-	go app.Start()
+	go app.ListenAndServe()
 	waitForServer(defaultPort)
 }
 

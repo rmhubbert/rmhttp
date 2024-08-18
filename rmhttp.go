@@ -54,7 +54,14 @@ func New(c ...Config) *App {
 	}
 
 	router := NewRouter(config.Logger)
-	server := NewServer(router, config.Host, config.Port, config.SSL.Cert, config.SSL.Key, config.Logger)
+	server := NewServer(
+		router,
+		config.Host,
+		config.Port,
+		config.SSL.Cert,
+		config.SSL.Key,
+		config.Logger,
+	)
 
 	return &App{
 		Server: server,
@@ -82,7 +89,11 @@ func (app *App) Handle(method string, pattern string, handler Handler) *Route {
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
-func (app *App) HandleFunc(method string, pattern string, handlerFunc func(http.ResponseWriter, *http.Request) error) *Route {
+func (app *App) HandleFunc(
+	method string,
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Route {
 	return app.Handle(method, pattern, HandlerFunc(handlerFunc))
 }
 
