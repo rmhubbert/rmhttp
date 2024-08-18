@@ -3,32 +3,35 @@ package e2e
 import (
 	"log"
 	"net"
-	"os"
+	"net/http"
 	"strconv"
-	"testing"
 	"time"
 
 	"github.com/rmhubbert/rmhttp"
 )
 
 var (
-	app         *rmhttp.App = rmhttp.New()
-	testAddress string      = "localhost:8080"
+	defaultPort        = 8080
+	testAddress string = "localhost:" + strconv.Itoa(defaultPort)
 )
 
-func TestMain(m *testing.M) {
-	go app.Start()
-	waitForServer(strconv.Itoa(app.Server.Port))
-
-	os.Exit(m.Run())
+func createHandlerFunc(status int, body string, err error) func(http.ResponseWriter, *http.Request) error {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		w.WriteHeader(status)
+		w.Write([]byte(body))
+		return err
+	}
 }
 
-// waitForServer attempts to establish a TCP connection to localhost:<port>
-// in a given amount of time. It returns upon a successful connection;
-// otherwise exits with an error.
-func waitForServer(port string) {
-	backoff := 50 * time.Millisecond
+// startServer starts the rmhttp.App in a go routine, anf then attempts to
+// establish a TCP connection to localhost:<port> in a given amount of
+// time. It returns upon a successful connection; otherwise exits
+// with an error.
+func startServer(app *rmhttp.App) {
+	go app.Start()
+	port := strconv.Itoa(defaultPort)
 
+	backoff := 50 * time.Millisecond
 	for i := 0; i < 10; i++ {
 		conn, err := net.DialTimeout("tcp", ":"+port, 1*time.Second)
 		if err != nil {

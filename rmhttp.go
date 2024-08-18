@@ -7,6 +7,7 @@
 package rmhttp
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
@@ -106,4 +107,8 @@ func (app *App) loadRoutes() {
 func (app *App) Start() error {
 	app.loadRoutes()
 	return app.Server.Start(false)
+}
+
+func (app *App) Shutdown() {
+	app.Server.Shutdown(context.Background())
 }
