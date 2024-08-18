@@ -103,9 +103,28 @@ func (app *App) loadRoutes() {
 	}
 }
 
+// compile prepares the app for starting by applying the middleware, processing the groups,
+// and loading the routes. It should be the last function to be called before starting
+// the server.
+func (app *App) compile() {
+	app.loadRoutes()
+}
+
+// ListenAndServe loads the registered routes, and then starts the Server, without SSL.
+func (app *App) ListenAndServe() error {
+	app.compile()
+	return app.Server.ListenAndServe()
+}
+
+// ListenAndServeTLS loads the registered routes, and then starts the Server, with SSL.
+func (app *App) ListenAndServeTLS() error {
+	app.compile()
+	return app.Server.ListenAndServeTLS(app.Server.SSLCert, app.Server.SSLKey)
+}
+
 // Start loads the registered routes, and then starts the Server with graceful shutdown management.
 func (app *App) Start() error {
-	app.loadRoutes()
+	app.compile()
 	return app.Server.Start(false)
 }
 
