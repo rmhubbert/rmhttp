@@ -104,6 +104,11 @@ func (app *App) HandleFunc(
 	return app.Handle(method, pattern, HandlerFunc(handlerFunc))
 }
 
+// Routes returns a map of the currently added Routable types
+func (app *App) Routes() map[string]Routable {
+	return app.routeService.routes
+}
+
 // addRoute saves the passed Routable object to an internal map, which will be used at server start
 // to register all of the application routes with the router.
 //
