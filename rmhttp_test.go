@@ -1,6 +1,10 @@
 package rmhttp
 
 import (
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,4 +42,64 @@ func Test_HandleFunc(t *testing.T) {
 	assert.Equal(t, "GET", route.Method(), "they should be equal")
 	assert.Equal(t, "/handlefunc", route.Pattern(), "they should be equal")
 	assert.NotNil(t, route.Handler(), "it should not be nil")
+}
+
+// Test_Routes checks that a list of current Routes is returned.
+func Test_Routes(t *testing.T) {
+	route := NewRoute(
+		"GET",
+		"/test",
+		HandlerFunc(createTestHandlerFunc(http.StatusOK, "test body", nil)),
+	)
+	app := New()
+	app.addRoute(route)
+
+	routes := app.Routes()
+	assert.Equal(t, 1, len(routes), "they should be equal")
+
+	r, ok := routes["GET /test"]
+	if !ok {
+		t.Error("route not found")
+	}
+
+	assert.Equal(t, r.Method(), "GET", "they should be equal")
+	assert.Equal(t, r.Pattern(), "/test", "they should be equal")
+}
+
+// Test_Compile checks that the Routes can be compiled and loaded into the router's
+// underlying http.ServeMux.
+func Test_Compile(t *testing.T) {
+	// Create the app
+	app := New()
+	// Create a handler to test with
+	app.HandleFunc(http.MethodGet, "/test", createTestHandlerFunc(http.StatusOK, "test body", nil))
+	// compile the routes
+	app.Compile()
+
+	// Create a request that would trigger our test handler
+	url := fmt.Sprintf("http://%s%s", testAddress, "/test")
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		t.Errorf("failed to create request: %v", err)
+	}
+
+	// Call Handler on the underlying http.ServeMux with the request we just created.
+	// Assuming that Compile worked correctly and registered our test handler with
+	// the mux, we should receive the handler back from this call.
+	handler, pattern := app.Router.Mux.Handler(req)
+	assert.Equal(t, "GET /test", pattern, "they should be the same")
+
+	// Lastly, call ServeHTTP on the handler so that we can inspect and confirm that
+	// the response status code and body are what would expect to see from the
+	// test handler.
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+	res := w.Result()
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		t.Errorf("failed to read response body: %v", err)
+	}
+	assert.Equal(t, "test body", string(body), "they should be equal")
+	assert.Equal(t, http.StatusOK, res.StatusCode, "they should be the same")
 }

@@ -2,6 +2,10 @@ package rmhttp
 
 import "net/http"
 
+const (
+	testAddress string = "localhost:8080"
+)
+
 // createHandlerFunc creates, initialises, and returns a rmhttp.HandlerFunc compatible function.
 func createTestHandlerFunc(
 	status int,
