@@ -8,6 +8,9 @@ import (
 	"os/signal"
 )
 
+// ------------------------------------------------------------------------------------------------
+// SERVER
+// ------------------------------------------------------------------------------------------------
 // A Server wraps the standard library net/http.Server. It provide default lifecycle management
 // and debugger logging on top of the expected http.Server behaviour.
 type Server struct {
@@ -20,8 +23,15 @@ type Server struct {
 	SSLKey  string
 }
 
-// NewServer initialises and returns a pointer to a Server.
-func NewServer(router http.Handler, host string, port int, SSLCert string, SSLKey string, logger Logger) *Server {
+// NewServer creates, initialises and returns a pointer to a Server.
+func NewServer(
+	router http.Handler,
+	host string,
+	port int,
+	SSLCert string,
+	SSLKey string,
+	logger Logger,
+) *Server {
 	srv := Server{
 		Server:  http.Server{},
 		Router:  router,
@@ -36,29 +46,31 @@ func NewServer(router http.Handler, host string, port int, SSLCert string, SSLKe
 	return &srv
 }
 
+// Address returns the server host and port as a formatted string ($HOST:$PORT).
 func (srv *Server) Address() string {
 	return fmt.Sprintf("%s:%d", srv.Host, srv.Port)
 }
 
-// ListenAndServe directly proxies the http.Server.ListenAndServe method. It starts the server without
-// TLS support on the configured address and port.
+// ListenAndServe directly proxies the http.Server.ListenAndServe method. It starts the server
+// without TLS support on the configured address and port.
 func (srv *Server) ListenAndServe() error {
 	return srv.Server.ListenAndServe()
 }
 
-// ListenAndServeTLS directly proxies the http.Server.ListenAndServeTLS method. It starts the server with
-// TLS support on the configured address and port.
+// ListenAndServeTLS directly proxies the http.Server.ListenAndServeTLS method. It starts the
+// server with TLS support on the configured address and port.
 func (srv *Server) ListenAndServeTLS(cert string, key string) error {
 	return srv.Server.ListenAndServeTLS(cert, key)
 }
 
-// Shutdown directly proxies the net/http.Server.Shutdown method. It will stop
-// the Server, if running.
+// Shutdown directly proxies the net/http.Server.Shutdown method. It will stop the Server, if
+// running.
 func (srv *Server) Shutdown(ctx context.Context) error {
 	return srv.Server.Shutdown(ctx)
 }
 
-// handleLifeCycle
+// Start starts and manages the lifecycle of the underlyinh http.Server, facilitating graceful
+// shutdowns and optional SSL support.
 func (srv *Server) Start(useTLS bool) error {
 	idleConnsClosed := make(chan struct{})
 	go func() {

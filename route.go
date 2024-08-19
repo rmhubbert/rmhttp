@@ -39,7 +39,7 @@ type Route struct {
 // lowercase.
 func NewRoute(method string, pattern string, handler Handler) *Route {
 	m := strings.ToUpper(method)
-	if !slices.Contains(validHTTPMethods(), m) {
+	if !slices.Contains(ValidHTTPMethods(), m) {
 		method = http.MethodGet
 	}
 	return &Route{
@@ -99,7 +99,7 @@ func (rts *routeService) addRoute(route Routable) {
 }
 
 // compileRoutes applies middleware, timeouts and headers to each registered route before passing
-// them to the Router, which in turn registers each Route with the underlying http.ServeMux.
+// them to the Router, which in turn registers each Route with the underlying http.ServeMux
 func (rts *routeService) compileRoutes() {
 	for _, route := range rts.routes {
 		rts.router.Handle(route)

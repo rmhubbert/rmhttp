@@ -11,7 +11,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Test_Handler tests binding an rmhttp.Handler to  aspecific method & pattern
+// ------------------------------------------------------------------------------------------------
+// NET HTTP COMPATIBLE APP E2E TESTS
+// ------------------------------------------------------------------------------------------------
+// Test_Handler tests binding an http.Handler to a method & pattern with a selection of route
+// patterns, methods and status codes.
 func Test_NetHTTPHandle(t *testing.T) {
 	// Set up the App
 	app := rmhttp.NewNetHTTP()
@@ -19,8 +23,16 @@ func Test_NetHTTPHandle(t *testing.T) {
 
 	// Add handlers for all of our tests
 	for _, test := range handlerTests {
-		route := app.Handle(test.method, test.pattern, http.HandlerFunc(createNetHTTPHandlerFunc(test.status, test.body)))
-		assert.Equal(t, fmt.Sprintf("%s %s", strings.ToUpper(test.method), strings.ToLower(test.pattern)), route.String())
+		route := app.Handle(
+			test.method,
+			test.pattern,
+			http.HandlerFunc(createNetHTTPHandlerFunc(test.status, test.body)),
+		)
+		assert.Equal(
+			t,
+			fmt.Sprintf("%s %s", strings.ToUpper(test.method), strings.ToLower(test.pattern)),
+			route.String(),
+		)
 	}
 
 	// Start the NetHTTPApp and wait for it to be responsive
@@ -52,8 +64,8 @@ func Test_NetHTTPHandle(t *testing.T) {
 	}
 }
 
-// Test_HandlerFunc tests binding an rmhttp.HandlerFunc compatible function to
-// a specific method & pattern
+// Test_HandlerFunc tests binding an http.Handler to a method & pattern with a selection of route
+// patterns, methods and status codes.
 func Test_NetHTTPHandleFunc(t *testing.T) {
 	// Set up the App
 	app := rmhttp.NewNetHTTP()
@@ -61,8 +73,16 @@ func Test_NetHTTPHandleFunc(t *testing.T) {
 
 	// Add handlers for all of our tests
 	for _, test := range handlerTests {
-		route := app.HandleFunc(test.method, test.pattern, createNetHTTPHandlerFunc(test.status, test.body))
-		assert.Equal(t, fmt.Sprintf("%s %s", strings.ToUpper(test.method), strings.ToLower(test.pattern)), route.String())
+		route := app.HandleFunc(
+			test.method,
+			test.pattern,
+			createNetHTTPHandlerFunc(test.status, test.body),
+		)
+		assert.Equal(
+			t,
+			fmt.Sprintf("%s %s", strings.ToUpper(test.method), strings.ToLower(test.pattern)),
+			route.String(),
+		)
 	}
 
 	// Start the NetHTTPApp and wait for it to be responsive

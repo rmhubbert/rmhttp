@@ -11,7 +11,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Test_Handler tests binding an rmhttp.Handler to a method & pattern
+// ------------------------------------------------------------------------------------------------
+// APP E2E TESTS
+// ------------------------------------------------------------------------------------------------
+// Test_Handler tests binding an rmhttp.Handler to a method & pattern with a selection of route
+// patterns, methods and status codes.
 func Test_Handle(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New()
@@ -59,8 +63,8 @@ func Test_Handle(t *testing.T) {
 	}
 }
 
-// Test_HandlerFunc tests binding an rmhttp.HandlerFunc compatible function to
-// a specific method & pattern
+// Test_HandlerFunc tests binding an rmhttp.Handler to a method & pattern with a selection of route
+// patterns, methods and status codes.
 func Test_HandleFunc(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New()

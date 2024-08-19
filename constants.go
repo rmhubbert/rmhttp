@@ -2,9 +2,12 @@ package rmhttp
 
 import "net/http"
 
-// validHTTPMethods returns slice of strings containing all of the HTTP methods
-// that rmhttp will accept.
-func validHTTPMethods() []string {
+// ------------------------------------------------------------------------------------------------
+// PACKAGE CONSTANTS AND FUNCTIONS THAT RETURN COLLECTIONS OF CONSTANTS
+// ------------------------------------------------------------------------------------------------
+// ValidHTTPMethods returns a slice of strings containing all of the HTTP methods that rmhttp will
+// accept.
+func ValidHTTPMethods() []string {
 	return []string{
 		http.MethodGet,
 		http.MethodPost,
