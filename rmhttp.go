@@ -14,20 +14,22 @@ import (
 	"strings"
 )
 
-// App encapsulates the application and provides the public API, as well as orchestrating
-// the core library functionality.
+// ------------------------------------------------------------------------------------------------
+// APP
+// ------------------------------------------------------------------------------------------------
+// App encapsulates the application and provides the public API, as well as orchestrating the core
+// library functionality.
 type App struct {
-	Server *Server
-	Router *Router
-	routes map[string]*Route
+	Server       *Server
+	Router       *Router
+	routeService *routeService
 }
 
-// New initialises and returns a new instance of rmhttp. An optional configuration can
-// be passed to configure many parts of the system, such as cors, SSL, and timeouts.
+// New initialises and returns a new instance of rmhttp. An optional configuration can be passed to
+// configure many parts of the system, such as cors, SSL, and timeouts.
 //
-// If you chose not to pass in a configuration, rmhttp will first attempt to load
-// configuration values from environment variables, and if they're not found,
-// will apply sensible defaults.
+// If you chose not to pass in a configuration, rmhttp will first attempt to load configuration
+// values from environment variables, and if they're not found, will apply sensible defaults.
 func New(c ...Config) *App {
 	cfg := Config{}
 	if len(c) > 0 {
@@ -64,9 +66,9 @@ func New(c ...Config) *App {
 	)
 
 	return &App{
-		Server: server,
-		Router: router,
-		routes: make(map[string]*Route),
+		Server:       server,
+		Router:       router,
+		routeService: newRouteService(router),
 	}
 }
 
@@ -97,48 +99,41 @@ func (app *App) HandleFunc(
 	return app.Handle(method, pattern, HandlerFunc(handlerFunc))
 }
 
-// addRoute saves the passed Route pointer to an internal map, which will be used at server start
+// addRoute saves the passed Routable object to an internal map, which will be used at server start
 // to register all of the application routes with the router.
 //
 // This allows us to overwrite Routes prior to application start without causing the underlying
 // http.ServeMux to throw an error.
-func (app *App) addRoute(route *Route) {
-	app.routes[route.String()] = route
+func (app *App) addRoute(route Routable) {
+	app.routeService.addRoute(route)
 }
 
-// loadRoutes passes each registered route to the Router, which in turn registers each Route
-// with the underlying http.ServeMux
-func (app *App) loadRoutes() {
-	for _, route := range app.routes {
-		app.Router.handle(route)
-	}
+// Compile prepares the app for starting by applying the middleware, processing the groups, and
+// loading the routes. It should be the last function to be called before starting the server.
+func (app *App) Compile() {
+	app.routeService.compileRoutes()
 }
 
-// compile prepares the app for starting by applying the middleware, processing the groups,
-// and loading the routes. It should be the last function to be called before starting
-// the server.
-func (app *App) compile() {
-	app.loadRoutes()
-}
-
-// ListenAndServe loads the registered routes, and then starts the Server, without SSL.
+// ListenAndServe compiles and loads the registered routes, and then starts the Server without SSL.
 func (app *App) ListenAndServe() error {
-	app.compile()
+	app.Compile()
 	return app.Server.ListenAndServe()
 }
 
-// ListenAndServeTLS loads the registered routes, and then starts the Server, with SSL.
+// ListenAndServeTLS compiles and loads the registered routes, and then starts the Server with SSL.
 func (app *App) ListenAndServeTLS() error {
-	app.compile()
+	app.Compile()
 	return app.Server.ListenAndServeTLS(app.Server.SSLCert, app.Server.SSLKey)
 }
 
-// Start loads the registered routes, and then starts the Server with graceful shutdown management.
+// Start compiles and loads the registered routes, and then starts the Server with graceful
+// shutdown management.
 func (app *App) Start() error {
-	app.compile()
+	app.Compile()
 	return app.Server.Start(false)
 }
 
+// Shutdown stops the Server.
 func (app *App) Shutdown() {
 	app.Server.Shutdown(context.Background())
 }
