@@ -25,8 +25,8 @@ type App struct {
 	routeService *routeService
 }
 
-// New initialises and returns a new instance of rmhttp. An optional configuration can be passed to
-// configure many parts of the system, such as cors, SSL, and timeouts.
+// New creates, initialises and returns a pointer to a new App. An optional configuration can be
+// passed to configure many parts of the system, such as cors, SSL, and timeouts.
 //
 // If you chose not to pass in a configuration, rmhttp will first attempt to load configuration
 // values from environment variables, and if they're not found, will apply sensible defaults.
