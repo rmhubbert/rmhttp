@@ -1,23 +1,18 @@
 package rmhttp
 
 import (
-	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-// A simple handlerFunc
-var h HandlerFunc = HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("test body"))
-	return nil
-})
-
+// ------------------------------------------------------------------------------------------------
+// RMHTTP TESTS
+// ------------------------------------------------------------------------------------------------
 // Test_Handle checks that a handler can be successfully added to the App
 func Test_Handle(t *testing.T) {
 	app := New()
-	app.Handle("get", "/handle", h)
+	app.Handle("get", "/handle", HandlerFunc(createTestHandlerFunc(200, "test body", nil)))
 	routes := app.Routes()
 	assert.Equal(t, 1, len(routes), "they should be equal")
 
@@ -32,7 +27,7 @@ func Test_Handle(t *testing.T) {
 // Test_HandleFunc checks that a handlerFunc can be successfully added to the App
 func Test_HandleFunc(t *testing.T) {
 	app := New()
-	app.HandleFunc("get", "/handlefunc", h)
+	app.HandleFunc("get", "/handlefunc", createTestHandlerFunc(200, "test body", nil))
 
 	routes := app.Routes()
 	assert.Equal(t, 1, len(routes), "they should be equal")

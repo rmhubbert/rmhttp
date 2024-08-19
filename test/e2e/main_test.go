@@ -95,8 +95,8 @@ var handlerTests = []struct {
 	},
 }
 
-// createHandlerFunc creates, initialises, and returns a rmhttp.HandlerFunc compatible function.
-func createHandlerFunc(
+// createTestHandlerFunc creates, initialises, and returns a rmhttp.HandlerFunc compatible function.
+func createTestHandlerFunc(
 	status int,
 	body string,
 	err error,
@@ -108,9 +108,12 @@ func createHandlerFunc(
 	}
 }
 
-// createNetHTTPHandlerFunc creates, initialises, and returns a http.HandlerFunc compatible
+// createTestNetHTTPHandlerFunc creates, initialises, and returns a http.HandlerFunc compatible
 // function.
-func createNetHTTPHandlerFunc(status int, body string) func(http.ResponseWriter, *http.Request) {
+func createTestNetHTTPHandlerFunc(
+	status int,
+	body string,
+) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
 		w.Write([]byte(body))

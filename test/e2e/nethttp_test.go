@@ -26,7 +26,7 @@ func Test_NetHTTPHandle(t *testing.T) {
 		route := app.Handle(
 			test.method,
 			test.pattern,
-			http.HandlerFunc(createNetHTTPHandlerFunc(test.status, test.body)),
+			http.HandlerFunc(createTestNetHTTPHandlerFunc(test.status, test.body)),
 		)
 		assert.Equal(
 			t,
@@ -76,7 +76,7 @@ func Test_NetHTTPHandleFunc(t *testing.T) {
 		route := app.HandleFunc(
 			test.method,
 			test.pattern,
-			createNetHTTPHandlerFunc(test.status, test.body),
+			createTestNetHTTPHandlerFunc(test.status, test.body),
 		)
 		assert.Equal(
 			t,

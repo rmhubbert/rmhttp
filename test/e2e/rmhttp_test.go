@@ -26,7 +26,7 @@ func Test_Handle(t *testing.T) {
 		route := app.Handle(
 			test.method,
 			test.pattern,
-			rmhttp.HandlerFunc(createHandlerFunc(test.status, test.body, test.err)),
+			rmhttp.HandlerFunc(createTestHandlerFunc(test.status, test.body, test.err)),
 		)
 		assert.Equal(
 			t,
@@ -75,7 +75,7 @@ func Test_HandleFunc(t *testing.T) {
 		route := app.HandleFunc(
 			test.method,
 			test.pattern,
-			createHandlerFunc(test.status, test.body, test.err),
+			createTestHandlerFunc(test.status, test.body, test.err),
 		)
 		assert.Equal(
 			t,
