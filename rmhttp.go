@@ -121,7 +121,13 @@ func (app *App) addRoute(route Routable) {
 // Compile prepares the app for starting by applying the middleware, processing the groups, and
 // loading the routes. It should be the last function to be called before starting the server.
 func (app *App) Compile() {
-	app.routeService.compileRoutes()
+	// Temporary code. This will move into the group service at some point.
+	routes := app.Routes()
+	routeSlice := []Routable{}
+	for _, route := range routes {
+		routeSlice = append(routeSlice, route)
+	}
+	app.routeService.loadRoutes(routeSlice)
 }
 
 // ListenAndServe compiles and loads the registered routes, and then starts the Server without SSL.
