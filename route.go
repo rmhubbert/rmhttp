@@ -116,13 +116,15 @@ func (route *Route) String() string {
 type routeService struct {
 	router *Router
 	routes map[string]Routable
+	logger Logger
 }
 
 // newRouteService creates, initialises, and then returns a pointer to a new routeService.
-func newRouteService(router *Router) *routeService {
+func newRouteService(router *Router, logger Logger) *routeService {
 	return &routeService{
 		router: router,
 		routes: make(map[string]Routable),
+		logger: logger,
 	}
 }
 

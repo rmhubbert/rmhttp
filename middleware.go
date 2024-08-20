@@ -10,11 +10,15 @@ type Usable interface {
 	Handler() Handler
 }
 
-func newMiddlewareService() *middlewareService {
-	return &middlewareService{}
+func newMiddlewareService(logger Logger) *middlewareService {
+	return &middlewareService{
+		logger: logger,
+	}
 }
 
-type middlewareService struct{}
+type middlewareService struct {
+	logger Logger
+}
 
 func (mws *middlewareService) ApplyMiddleware(u Usable) Usable {
 	return u

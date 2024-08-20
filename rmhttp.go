@@ -30,6 +30,7 @@ type App struct {
 	routeService      *routeService
 	middlewareService *middlewareService
 	timeoutService    *timeoutService
+	headerService     *headerService
 }
 
 // New creates, initialises and returns a pointer to a new App. An optional configuration can be
@@ -75,9 +76,10 @@ func New(c ...Config) *App {
 	return &App{
 		Server:            server,
 		Router:            router,
-		routeService:      newRouteService(router),
-		middlewareService: newMiddlewareService(),
-		timeoutService:    newTimeoutService(),
+		routeService:      newRouteService(router, config.Logger),
+		middlewareService: newMiddlewareService(config.Logger),
+		timeoutService:    newTimeoutService(config.Timeout, config.Logger),
+		headerService:     newHeaderService(config.Logger),
 	}
 }
 

@@ -14,11 +14,17 @@ type Timeoutable interface {
 
 type Timeout time.Duration
 
-func newTimeoutService() *timeoutService {
-	return &timeoutService{}
+func newTimeoutService(config TimeoutConfig, logger Logger) *timeoutService {
+	return &timeoutService{
+		config: config,
+		logger: logger,
+	}
 }
 
-type timeoutService struct{}
+type timeoutService struct {
+	config TimeoutConfig
+	logger Logger
+}
 
 func (tos *timeoutService) ApplyTimeout(t Timeoutable) Timeoutable {
 	return t
