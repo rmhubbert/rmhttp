@@ -15,8 +15,9 @@ type Routable interface {
 	Method() string
 	Pattern() string
 	Handler() Handler
-	fmt.Stringer
 	Usable
+	Timeoutable
+	fmt.Stringer
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -33,6 +34,7 @@ type Route struct {
 	pattern    string
 	handler    Handler
 	middleware []func(Handler) Handler
+	timeout    Timeout
 }
 
 // NewRoute validates the input, then creates, initialises and returns a pointer to a Route. The
@@ -61,7 +63,8 @@ func (route *Route) Pattern() string {
 	return route.pattern
 }
 
-// Handler implements part of the Routable & Usable interfaces. It returns the Route's handler.
+// Handler implements part of the Routable, Timoutable & Usable interfaces. It returns the Route's
+// handler.
 func (route *Route) Handler() Handler {
 	return route.handler
 }
@@ -71,25 +74,30 @@ func (route *Route) Middleware() []func(Handler) Handler {
 	return route.middleware
 }
 
+// Handler implements the Timeoutable interface. It returns the Route's timeout.
+func (route *Route) Timeout() Timeout {
+	return route.timeout
+}
+
 // Use adds middleware handlers to the receiver Route.
 //
 // Each middleware handler will be wrapped to create a call stack with the order in which the
-// middleware is added being maintained. So, for example, if the user added GZIP and
-// Sentry middleware via this method, the resulting callstack would be as follows -
+// middleware is added being maintained. So, for example, if the user added A and B
+// middleware via this method, the resulting callstack would be as follows -
 //
-// Middleware 1 -> Middleware 2 -> Route Handler -> Middleware 2 -> Middleware 1
+// Middleware A -> Middleware B -> Route Handler -> Middleware B -> Middleware A
 //
-// (This actually a slight simplication, as internal middleware such as HTTP Logging, CORS,
-// HTTP Error Handling and Route Panic Recovery may also be inserted into the call stack, depending
+// (This actually a slight simplication, as internal middleware such as HTTP Logging, CORS, HTTP
+// Error Handling and Route Panic Recovery may also be inserted into the call stack, depending
 // on how the App is configured).
 //
-// The middlewareFuncs argument is variadic, allowing the user to add multiple
-// middleware functions in a single call.
+// The middlewares argument is variadic, allowing the user to add multiple middleware functions
+// in a single call.
 //
-// This method will return a pointer to the receiver Route, allowing the user to chain
-// any of the other builder methods that Route implements.
-func (route *Route) Use(middlewareFuncs ...func(Handler) Handler) *Route {
-	route.middleware = append(route.middleware, middlewareFuncs...)
+// This method will return a pointer to the receiver Route, allowing the user to chain any of the
+// other builder methods that Route implements.
+func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
+	route.middleware = append(route.middleware, middlewares...)
 	return route
 }
 
@@ -127,10 +135,9 @@ func (rts *routeService) addRoute(route Routable) {
 	rts.routes[route.String()] = route
 }
 
-// compileRoutes applies middleware, timeouts and headers to each registered route before passing
-// them to the Router, which in turn registers each Route with the underlying http.ServeMux
-func (rts *routeService) compileRoutes() {
-	for _, route := range rts.routes {
+// loadRoutes registers each Route with the underlying http.ServeMux
+func (rts *routeService) loadRoutes(routes []Routable) {
+	for _, route := range routes {
 		rts.router.Handle(route)
 	}
 }
