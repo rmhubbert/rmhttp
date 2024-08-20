@@ -10,12 +10,13 @@ import (
 // ------------------------------------------------------------------------------------------------
 // ROUTABLE INTERFACE
 // ------------------------------------------------------------------------------------------------
-// The Routable interface allows any type that impements it to be used as a route within rmhttp.
+// The Routable interface allows any type that implements it to be used as a route within rmhttp.
 type Routable interface {
 	Method() string
 	Pattern() string
 	Handler() Handler
 	fmt.Stringer
+	Usable
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -26,11 +27,12 @@ type Routable interface {
 // pattern a handler should be bound to, the Route also allows the enclosed handler
 // to be configured with their own timeout, headers, and middleware.
 //
-// Route implements the rmhttp.Routable and standard library Stringer interfaces.
+// Route implements the Routable, Usable and standard library Stringer interfaces.
 type Route struct {
-	method  string
-	pattern string
-	handler Handler
+	method     string
+	pattern    string
+	handler    Handler
+	middleware []func(Handler) Handler
 }
 
 // NewRoute validates the input, then creates, initialises and returns a pointer to a Route. The
@@ -59,9 +61,36 @@ func (route *Route) Pattern() string {
 	return route.pattern
 }
 
-// Handler implements part of the Routable interface. It returns the Route's handler.
+// Handler implements part of the Routable & Usable interfaces. It returns the Route's handler.
 func (route *Route) Handler() Handler {
 	return route.handler
+}
+
+// Middleware implements part of the Usable interface. It returns the Route's middleware.
+func (route *Route) Middleware() []func(Handler) Handler {
+	return route.middleware
+}
+
+// Use adds middleware handlers to the receiver Route.
+//
+// Each middleware handler will be wrapped to create a call stack with the order in which the
+// middleware is added being maintained. So, for example, if the user added GZIP and
+// Sentry middleware via this method, the resulting callstack would be as follows -
+//
+// Middleware 1 -> Middleware 2 -> Route Handler -> Middleware 2 -> Middleware 1
+//
+// (This actually a slight simplication, as internal middleware such as HTTP Logging, CORS,
+// HTTP Error Handling and Route Panic Recovery may also be inserted into the call stack, depending
+// on how the App is configured).
+//
+// The middlewareFuncs argument is variadic, allowing the user to add multiple
+// middleware functions in a single call.
+//
+// This method will return a pointer to the receiver Route, allowing the user to chain
+// any of the other builder methods that Route implements.
+func (route *Route) Use(middlewareFuncs ...func(Handler) Handler) *Route {
+	route.middleware = append(route.middleware, middlewareFuncs...)
+	return route
 }
 
 // String implements the Stringer interface. It is used internally to calculate a string signature
