@@ -19,7 +19,9 @@ import (
 func Test_NetHTTPHandle(t *testing.T) {
 	// Set up the App
 	app := rmhttp.NewNetHTTP()
-	defer app.Shutdown()
+	defer func() {
+		_ = app.Shutdown()
+	}()
 
 	// Add handlers for all of our tests
 	for _, test := range handlerTests {
@@ -69,7 +71,9 @@ func Test_NetHTTPHandle(t *testing.T) {
 func Test_NetHTTPHandleFunc(t *testing.T) {
 	// Set up the App
 	app := rmhttp.NewNetHTTP()
-	defer app.Shutdown()
+	defer func() {
+		_ = app.Shutdown()
+	}()
 
 	// Add handlers for all of our tests
 	for _, test := range handlerTests {

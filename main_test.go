@@ -14,7 +14,7 @@ func createTestHandlerFunc(
 ) func(http.ResponseWriter, *http.Request) error {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(status)
-		w.Write([]byte(body))
+		_, _ = w.Write([]byte(body))
 		return err
 	}
 }
@@ -27,7 +27,7 @@ func createTestNetHTTPHandlerFunc(
 ) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
-		w.Write([]byte(body))
+		_, _ = w.Write([]byte(body))
 	}
 }
 

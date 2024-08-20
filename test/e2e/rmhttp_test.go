@@ -19,8 +19,9 @@ import (
 func Test_Handle(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New()
-	defer app.Shutdown()
-
+	defer func() {
+		_ = app.Shutdown()
+	}()
 	// Add handlers for all of our tests
 	for _, test := range handlerTests {
 		route := app.Handle(
@@ -68,7 +69,9 @@ func Test_Handle(t *testing.T) {
 func Test_HandleFunc(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New()
-	defer app.Shutdown()
+	defer func() {
+		_ = app.Shutdown()
+	}()
 
 	// Add handlers for all of our tests
 	for _, test := range handlerTests {

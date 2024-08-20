@@ -25,9 +25,11 @@ import (
 // App encapsulates the application and provides the public API, as well as orchestrating the core
 // library functionality.
 type App struct {
-	Server       *Server
-	Router       *Router
-	routeService *routeService
+	Server            *Server
+	Router            *Router
+	routeService      *routeService
+	middlewareService *middlewareService
+	timeoutService    *timeoutService
 }
 
 // New creates, initialises and returns a pointer to a new App. An optional configuration can be
@@ -71,9 +73,11 @@ func New(c ...Config) *App {
 	)
 
 	return &App{
-		Server:       server,
-		Router:       router,
-		routeService: newRouteService(router),
+		Server:            server,
+		Router:            router,
+		routeService:      newRouteService(router),
+		middlewareService: newMiddlewareService(),
+		timeoutService:    newTimeoutService(),
 	}
 }
 
@@ -91,7 +95,7 @@ func (app *App) Handle(method string, pattern string, handler Handler) *Route {
 	return route
 }
 
-// HandleFunc converst the passed handler function to a rmhttp.HandlerFunc, and then binds it to
+// HandleFunc converts the passed handler function to a rmhttp.HandlerFunc, and then binds it to
 // the specified route method and pattern.
 //
 // This method will return a pointer to the new Route, allowing the user to chain
@@ -150,6 +154,6 @@ func (app *App) Start() error {
 }
 
 // Shutdown stops the Server.
-func (app *App) Shutdown() {
-	app.Server.Shutdown(context.Background())
+func (app *App) Shutdown() error {
+	return app.Server.Shutdown(context.Background())
 }

@@ -10,6 +10,10 @@ type Usable interface {
 	Handler() Handler
 }
 
+func newMiddlewareService() *middlewareService {
+	return &middlewareService{}
+}
+
 type middlewareService struct{}
 
 func (mws *middlewareService) ApplyMiddleware(u Usable) Usable {

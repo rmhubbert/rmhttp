@@ -14,6 +14,10 @@ type Timeoutable interface {
 
 type Timeout time.Duration
 
+func newTimeoutService() *timeoutService {
+	return &timeoutService{}
+}
+
 type timeoutService struct{}
 
 func (tos *timeoutService) ApplyTimeout(t Timeoutable) Timeoutable {
