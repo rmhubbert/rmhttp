@@ -120,6 +120,16 @@ func createTestNetHTTPHandlerFunc(
 	}
 }
 
+// createTestMiddlewareFunc creates, initialises and returns a rmhttp compatible middleware function
+func createTestMiddlewareHandler(header string, value string) func(rmhttp.Handler) rmhttp.Handler {
+	return func(next rmhttp.Handler) rmhttp.Handler {
+		return rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+			w.Header().Add(header, value)
+			return next.ServeHTTPWithError(w, r)
+		})
+	}
+}
+
 // startServer starts the rmhttp.App in a go routine, and then calls waitForServer in order to
 // ensure that the app is running, before returning.
 func startServer(app *rmhttp.App) {

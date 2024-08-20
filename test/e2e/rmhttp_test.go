@@ -112,3 +112,6 @@ func Test_HandleFunc(t *testing.T) {
 		})
 	}
 }
+
+// Test_Middleware tests applying middleware to a handler
+func Test_Route_Middleware(t *testing.T) {}

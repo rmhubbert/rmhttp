@@ -72,12 +72,14 @@ func Test_Compile(t *testing.T) {
 	// Create the app
 	app := New()
 	// Create a handler to test with
-	app.HandleFunc(http.MethodGet, "/test", createTestHandlerFunc(http.StatusOK, "test body", nil))
+	testPattern := "/test"
+	testBody := "test body"
+	app.HandleFunc(http.MethodGet, testPattern, createTestHandlerFunc(http.StatusOK, testBody, nil))
 	// compile the routes
 	app.Compile()
 
 	// Create a request that would trigger our test handler
-	url := fmt.Sprintf("http://%s%s", testAddress, "/test")
+	url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		t.Errorf("failed to create request: %v", err)
@@ -87,7 +89,12 @@ func Test_Compile(t *testing.T) {
 	// Assuming that Compile worked correctly and registered our test handler with
 	// the mux, we should receive the handler back from this call.
 	handler, pattern := app.Router.Mux.Handler(req)
-	assert.Equal(t, "GET /test", pattern, "they should be the same")
+	assert.Equal(
+		t,
+		fmt.Sprintf("%s %s", http.MethodGet, testPattern),
+		pattern,
+		"they should be the same",
+	)
 
 	// Lastly, call ServeHTTP on the handler so that we can inspect and confirm that
 	// the response status code and body are what would expect to see from the
@@ -100,6 +107,6 @@ func Test_Compile(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to read response body: %v", err)
 	}
-	assert.Equal(t, "test body", string(body), "they should be equal")
+	assert.Equal(t, testBody, string(body), "they should be equal")
 	assert.Equal(t, http.StatusOK, res.StatusCode, "they should be the same")
 }

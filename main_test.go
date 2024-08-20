@@ -30,3 +30,13 @@ func createTestNetHTTPHandlerFunc(
 		w.Write([]byte(body))
 	}
 }
+
+// createTestMiddlewareFunc creates, initialises and returns a rmhttp compatible middleware function
+func createTestMiddlewareHandler(header string, value string) func(Handler) Handler {
+	return func(next Handler) Handler {
+		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+			w.Header().Add(header, value)
+			return next.ServeHTTPWithError(w, r)
+		})
+	}
+}
