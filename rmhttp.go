@@ -110,17 +110,17 @@ func (app *App) HandleFunc(
 	return app.Handle(method, pattern, HandlerFunc(handlerFunc))
 }
 
-// Routes returns a map of the currently added Routable types
-func (app *App) Routes() map[string]Routable {
+// Routes returns a map of the currently added Routes
+func (app *App) Routes() map[string]*Route {
 	return app.routeService.routes
 }
 
-// addRoute saves the passed Routable object to an internal map, which will be used at server start
+// addRoute saves the passed Route object to an internal map, which will be used at server start
 // to register all of the application routes with the router.
 //
 // This allows us to overwrite Routes prior to application start without causing the underlying
 // http.ServeMux to throw an error.
-func (app *App) addRoute(route Routable) {
+func (app *App) addRoute(route *Route) {
 	app.routeService.addRoute(route)
 }
 
@@ -129,7 +129,7 @@ func (app *App) addRoute(route Routable) {
 func (app *App) Compile() {
 	// Temporary code. This will move into the group service at some point.
 	routes := app.Routes()
-	routeSlice := []Routable{}
+	routeSlice := []*Route{}
 	for _, route := range routes {
 		routeSlice = append(routeSlice, route)
 	}

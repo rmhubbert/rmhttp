@@ -8,33 +8,19 @@ import (
 )
 
 // ------------------------------------------------------------------------------------------------
-// ROUTABLE INTERFACE
-// ------------------------------------------------------------------------------------------------
-// The Routable interface allows any type that implements it to be used as a route within rmhttp.
-type Routable interface {
-	Method() string
-	Pattern() string
-	Handler() Handler
-	Usable
-	Timeoutable
-	fmt.Stringer
-}
-
-// ------------------------------------------------------------------------------------------------
 // ROUTE
 // ------------------------------------------------------------------------------------------------
 // A Route encapsulates all of the information that the router will need to satisfy an HTTP
 // request. Alongside supplying standard information such as what HTTP method and URL
 // pattern a handler should be bound to, the Route also allows the enclosed handler
 // to be configured with their own timeout, headers, and middleware.
-//
-// Route implements the Routable, Usable and standard library Stringer interfaces.
 type Route struct {
 	method     string
 	pattern    string
 	handler    Handler
 	middleware []func(Handler) Handler
 	timeout    Timeout
+	headers    map[string]string
 }
 
 // NewRoute validates the input, then creates, initialises and returns a pointer to a Route. The
@@ -53,30 +39,34 @@ func NewRoute(method string, pattern string, handler Handler) *Route {
 	}
 }
 
-// Method implements part of the Routable interface. It returns the Route's method.
+// Method returns the Route's method.
 func (route *Route) Method() string {
 	return route.method
 }
 
-// Pattern implements part of the Routable interface. It returns the Route's pattern.
+// Pattern returns the Route's pattern.
 func (route *Route) Pattern() string {
 	return route.pattern
 }
 
-// Handler implements part of the Routable, Timoutable & Usable interfaces. It returns the Route's
-// handler.
+// Handler returns the Route's handler.
 func (route *Route) Handler() Handler {
 	return route.handler
 }
 
-// Middleware implements part of the Usable interface. It returns the Route's middleware.
+// Middleware returns the Route's middleware.
 func (route *Route) Middleware() []func(Handler) Handler {
 	return route.middleware
 }
 
-// Handler implements the Timeoutable interface. It returns the Route's timeout.
+// Handler returns the Route's timeout.
 func (route *Route) Timeout() Timeout {
 	return route.timeout
+}
+
+// Headers returns the Route's optional headers.
+func (route *Route) Headers() map[string]string {
+	return route.headers
 }
 
 // Use adds middleware handlers to the receiver Route.
@@ -101,8 +91,7 @@ func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
 	return route
 }
 
-// String implements the Stringer interface. It is used internally to calculate a string signature
-// for use as map keys, etc.
+// String is used internally to calculate a string signature for use as map keys, etc.
 func (route *Route) String() string {
 	return fmt.Sprint(route.Method(), " ", route.Pattern())
 }
@@ -110,12 +99,12 @@ func (route *Route) String() string {
 // ------------------------------------------------------------------------------------------------
 // ROUTE SERVICE
 // ------------------------------------------------------------------------------------------------
-// routeService supplies functionality for managing Routable objects in the application. This
+// routeService supplies functionality for managing Route objects in the application. This
 // includes providing interfaces for adding and removing routes, as well as applying route
 // specific timeouts, middleware and headers.
 type routeService struct {
 	router *Router
-	routes map[string]Routable
+	routes map[string]*Route
 	logger Logger
 }
 
@@ -123,22 +112,22 @@ type routeService struct {
 func newRouteService(router *Router, logger Logger) *routeService {
 	return &routeService{
 		router: router,
-		routes: make(map[string]Routable),
+		routes: make(map[string]*Route),
 		logger: logger,
 	}
 }
 
-// addRoute saves the passed Routable object to an internal map, which will be used at server start
+// addRoute saves the passed Route object to an internal map, which will be used at server start
 // to register all of the application routes with the router.
 //
 // This allows us to modify Routes prior to application start without causing the underlying
 // http.ServeMux to throw an error.
-func (rts *routeService) addRoute(route Routable) {
+func (rts *routeService) addRoute(route *Route) {
 	rts.routes[route.String()] = route
 }
 
 // loadRoutes registers each Route with the underlying http.ServeMux
-func (rts *routeService) loadRoutes(routes []Routable) {
+func (rts *routeService) loadRoutes(routes []*Route) {
 	for _, route := range routes {
 		rts.router.Handle(route)
 	}

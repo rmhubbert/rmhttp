@@ -43,6 +43,6 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handle registers the passed Route with the underlying HTTP request multiplexer.
-func (rt *Router) Handle(route Routable) {
+func (rt *Router) Handle(route *Route) {
 	rt.Mux.Handle(fmt.Sprintf("%s %s", route.Method(), route.Pattern()), route.Handler())
 }
