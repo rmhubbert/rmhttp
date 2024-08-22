@@ -14,6 +14,7 @@ import (
 // ------------------------------------------------------------------------------------------------
 // APP E2E TESTS
 // ------------------------------------------------------------------------------------------------
+
 // Test_Handler tests binding an rmhttp.Handler to a method & pattern with a selection of route
 // patterns, methods and status codes.
 func Test_Handle(t *testing.T) {

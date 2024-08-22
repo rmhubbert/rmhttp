@@ -10,6 +10,7 @@ import (
 // ------------------------------------------------------------------------------------------------
 // ROUTE
 // ------------------------------------------------------------------------------------------------
+
 // A Route encapsulates all of the information that the router will need to satisfy an HTTP
 // request. Alongside supplying standard information such as what HTTP method and URL
 // pattern a handler should be bound to, the Route also allows the enclosed handler
@@ -99,6 +100,7 @@ func (route *Route) String() string {
 // ------------------------------------------------------------------------------------------------
 // ROUTE SERVICE
 // ------------------------------------------------------------------------------------------------
+
 // routeService supplies functionality for managing Route objects in the application. This
 // includes providing interfaces for adding and removing routes, as well as applying route
 // specific timeouts, middleware and headers.

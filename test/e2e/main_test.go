@@ -13,6 +13,7 @@ import (
 // ------------------------------------------------------------------------------------------------
 // CONVENIENCE FUNCTIONS, CONSTANTS AND VARIABLES FOR E2E TESTING
 // ------------------------------------------------------------------------------------------------
+
 const (
 	defaultPort int    = 8080
 	testAddress string = "localhost:8080"
@@ -108,39 +109,22 @@ func createTestHandlerFunc(
 	}
 }
 
-// createTestNetHTTPHandlerFunc creates, initialises, and returns a http.HandlerFunc compatible
-// function.
-func createTestNetHTTPHandlerFunc(
-	status int,
-	body string,
-) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(status)
-		_, _ = w.Write([]byte(body))
-	}
-}
-
 // createTestMiddlewareFunc creates, initialises and returns a rmhttp compatible middleware function
-func createTestMiddlewareHandler(header string, value string) func(rmhttp.Handler) rmhttp.Handler {
-	return func(next rmhttp.Handler) rmhttp.Handler {
-		return rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-			w.Header().Add(header, value)
-			return next.ServeHTTPWithError(w, r)
-		})
-	}
-}
+// func createTestMiddlewareHandler(header string, value string) func(rmhttp.Handler) rmhttp.Handler {
+// 	return func(next rmhttp.Handler) rmhttp.Handler {
+// 		return rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+// 			w.Header().Add(header, value)
+// 			return next.ServeHTTPWithError(w, r)
+// 		})
+// 	}
+// }
 
 // startServer starts the rmhttp.App in a go routine, and then calls waitForServer in order to
 // ensure that the app is running, before returning.
 func startServer(app *rmhttp.App) {
-	go app.ListenAndServe()
-	waitForServer(defaultPort)
-}
-
-// startServer starts the rmhttp.NetHTTPApp in a go routine, and then calls waitForServer in order
-// to ensure that the app is running, before returning.
-func startNetHTTPServer(app *rmhttp.NetHTTPApp) {
-	go app.ListenAndServe()
+	go func() {
+		_ = app.ListenAndServe()
+	}()
 	waitForServer(defaultPort)
 }
 

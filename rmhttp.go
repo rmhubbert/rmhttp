@@ -22,6 +22,7 @@ import (
 // ------------------------------------------------------------------------------------------------
 // APP
 // ------------------------------------------------------------------------------------------------
+
 // App encapsulates the application and provides the public API, as well as orchestrating the core
 // library functionality.
 type App struct {
@@ -30,7 +31,6 @@ type App struct {
 	routeService      *routeService
 	middlewareService *middlewareService
 	timeoutService    *timeoutService
-	headerService     *headerService
 }
 
 // New creates, initialises and returns a pointer to a new App. An optional configuration can be
@@ -79,7 +79,6 @@ func New(c ...Config) *App {
 		routeService:      newRouteService(router, config.Logger),
 		middlewareService: newMiddlewareService(config.Logger),
 		timeoutService:    newTimeoutService(config.Timeout, config.Logger),
-		headerService:     newHeaderService(config.Logger),
 	}
 }
 

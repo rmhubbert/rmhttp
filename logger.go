@@ -3,6 +3,7 @@ package rmhttp
 // ------------------------------------------------------------------------------------------------
 // LOGGER INTERFACE
 // ------------------------------------------------------------------------------------------------
+
 // A Logger receives a message and optional args with the intention of logging the message and args
 // with an importance level defined by which method is called.
 //
