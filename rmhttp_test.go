@@ -13,16 +13,17 @@ import (
 // ------------------------------------------------------------------------------------------------
 // RMHTTP TESTS
 // ------------------------------------------------------------------------------------------------
+
 // Test_Handle checks that a handler can be successfully added to the App
 func Test_Handle(t *testing.T) {
 	app := New()
 	app.Handle("get", "/handle", HandlerFunc(createTestHandlerFunc(200, "test body", nil)))
 	routes := app.Routes()
-	assert.Equal(t, 1, len(routes), "they should be equal")
+	assert.Len(t, routes, 1, "they should be equal")
 
 	expectedKey := "GET /handle"
 	route, ok := routes[expectedKey]
-	assert.Equal(t, true, ok, "they should be equal")
+	assert.True(t, ok, "they should be equal")
 	assert.Equal(t, "GET", route.Method(), "they should be equal")
 	assert.Equal(t, "/handle", route.Pattern(), "they should be equal")
 	assert.NotNil(t, route.Handler(), "it should not be nil")
@@ -34,11 +35,11 @@ func Test_HandleFunc(t *testing.T) {
 	app.HandleFunc("get", "/handlefunc", createTestHandlerFunc(200, "test body", nil))
 
 	routes := app.Routes()
-	assert.Equal(t, 1, len(routes), "they should be equal")
+	assert.Len(t, routes, 1, "they should be equal")
 
 	expectedKey := "GET /handlefunc"
 	route, ok := routes[expectedKey]
-	assert.Equal(t, true, ok, "they should be equal")
+	assert.True(t, ok, "they should be equal")
 	assert.Equal(t, "GET", route.Method(), "they should be equal")
 	assert.Equal(t, "/handlefunc", route.Pattern(), "they should be equal")
 	assert.NotNil(t, route.Handler(), "it should not be nil")
@@ -55,15 +56,15 @@ func Test_Routes(t *testing.T) {
 	app.addRoute(route)
 
 	routes := app.Routes()
-	assert.Equal(t, 1, len(routes), "they should be equal")
+	assert.Len(t, routes, 1, "they should be equal")
 
 	r, ok := routes["GET /test"]
 	if !ok {
 		t.Error("route not found")
 	}
 
-	assert.Equal(t, r.Method(), "GET", "they should be equal")
-	assert.Equal(t, r.Pattern(), "/test", "they should be equal")
+	assert.Equal(t, "GET", r.Method(), "they should be equal")
+	assert.Equal(t, "/test", r.Pattern(), "they should be equal")
 }
 
 // Test_Compile checks that the Routes can be compiled and loaded into the router's
