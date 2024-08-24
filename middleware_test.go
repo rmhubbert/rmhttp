@@ -28,7 +28,7 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 
 	preMw := createTestMiddlewareHandler("x-pre1", "pre1")
 	postMw := createTestMiddlewareHandler("x-post1", "post1")
-	mws.addPost(preMw)
+	mws.addPre(preMw)
 	mws.addPost(postMw)
 
 	// Apply the route middleware
