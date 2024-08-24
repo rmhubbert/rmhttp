@@ -19,7 +19,7 @@ type Route struct {
 	method     string
 	pattern    string
 	handler    Handler
-	middleware []func(Handler) Handler
+	middleware []MiddlewareFunc
 	timeout    Timeout
 	headers    map[string]string
 }
@@ -40,36 +40,6 @@ func NewRoute(method string, pattern string, handler Handler) *Route {
 	}
 }
 
-// Method returns the Route's method.
-func (route *Route) Method() string {
-	return route.method
-}
-
-// Pattern returns the Route's pattern.
-func (route *Route) Pattern() string {
-	return route.pattern
-}
-
-// Handler returns the Route's handler.
-func (route *Route) Handler() Handler {
-	return route.handler
-}
-
-// Middleware returns the Route's middleware.
-func (route *Route) Middleware() []func(Handler) Handler {
-	return route.middleware
-}
-
-// Handler returns the Route's timeout.
-func (route *Route) Timeout() Timeout {
-	return route.timeout
-}
-
-// Headers returns the Route's optional headers.
-func (route *Route) Headers() map[string]string {
-	return route.headers
-}
-
 // Use adds middleware handlers to the receiver Route.
 //
 // Each middleware handler will be wrapped to create a call stack with the order in which the
@@ -88,13 +58,15 @@ func (route *Route) Headers() map[string]string {
 // This method will return a pointer to the receiver Route, allowing the user to chain any of the
 // other builder methods that Route implements.
 func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
-	route.middleware = append(route.middleware, middlewares...)
+	for _, mw := range middlewares {
+		route.middleware = append(route.middleware, MiddlewareFunc(mw))
+	}
 	return route
 }
 
 // String is used internally to calculate a string signature for use as map keys, etc.
 func (route *Route) String() string {
-	return fmt.Sprint(route.Method(), " ", route.Pattern())
+	return fmt.Sprint(route.method, " ", route.pattern)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -105,15 +77,13 @@ func (route *Route) String() string {
 // includes providing interfaces for adding and removing routes, as well as applying route
 // specific timeouts, middleware and headers.
 type routeService struct {
-	router *Router
 	routes map[string]*Route
 	logger Logger
 }
 
 // newRouteService creates, initialises, and then returns a pointer to a new routeService.
-func newRouteService(router *Router, logger Logger) *routeService {
+func newRouteService(logger Logger) *routeService {
 	return &routeService{
-		router: router,
 		routes: make(map[string]*Route),
 		logger: logger,
 	}
@@ -129,8 +99,8 @@ func (rts *routeService) addRoute(route *Route) {
 }
 
 // loadRoutes registers each Route with the underlying http.ServeMux
-func (rts *routeService) loadRoutes(routes []*Route) {
+func (rts *routeService) loadRoutes(routes []*Route, router *Router) {
 	for _, route := range routes {
-		rts.router.Handle(route)
+		router.Handle(route)
 	}
 }

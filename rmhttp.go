@@ -26,6 +26,7 @@ import (
 // App encapsulates the application and provides the public API, as well as orchestrating the core
 // library functionality.
 type App struct {
+	logger            Logger
 	Server            *Server
 	Router            *Router
 	routeService      *routeService
@@ -76,7 +77,8 @@ func New(c ...Config) *App {
 	return &App{
 		Server:            server,
 		Router:            router,
-		routeService:      newRouteService(router, config.Logger),
+		logger:            config.Logger,
+		routeService:      newRouteService(config.Logger),
 		middlewareService: newMiddlewareService(config.Logger),
 		timeoutService:    newTimeoutService(config.Timeout, config.Logger),
 	}
@@ -130,9 +132,11 @@ func (app *App) Compile() {
 	routes := app.Routes()
 	routeSlice := []*Route{}
 	for _, route := range routes {
+		route.handler = app.middlewareService.applyMiddleware(route.handler, route.middleware)
 		routeSlice = append(routeSlice, route)
 	}
-	app.routeService.loadRoutes(routeSlice)
+
+	app.routeService.loadRoutes(routeSlice, app.Router)
 }
 
 // ListenAndServe compiles and loads the registered routes, and then starts the Server without SSL.
