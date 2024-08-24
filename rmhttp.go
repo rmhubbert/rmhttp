@@ -128,7 +128,8 @@ func (app *App) addRoute(route *Route) {
 // Compile prepares the app for starting by applying the middleware, processing the groups, and
 // loading the routes. It should be the last function to be called before starting the server.
 func (app *App) Compile() {
-	// Temporary code. This will move into the group service at some point.
+	app.routeService.compileRoutes()
+
 	routes := app.Routes()
 	routeSlice := []*Route{}
 	for _, route := range routes {

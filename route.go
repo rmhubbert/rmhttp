@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"time"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -37,6 +38,7 @@ func NewRoute(method string, pattern string, handler Handler) *Route {
 		method:  method,
 		pattern: strings.ToLower(pattern),
 		handler: handler,
+		headers: make(map[string]string),
 	}
 }
 
@@ -48,7 +50,7 @@ func NewRoute(method string, pattern string, handler Handler) *Route {
 //
 // Middleware A -> Middleware B -> Route Handler -> Middleware B -> Middleware A
 //
-// (This actually a slight simplication, as internal middleware such as HTTP Logging, CORS, HTTP
+// (This actually a slight simplification, as internal middleware such as HTTP Logging, CORS, HTTP
 // Error Handling and Route Panic Recovery may also be inserted into the call stack, depending
 // on how the App is configured).
 //
@@ -61,6 +63,24 @@ func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
 	for _, mw := range middlewares {
 		route.middleware = append(route.middleware, MiddlewareFunc(mw))
 	}
+	return route
+}
+
+// WithTimeout sets a request timeout amount for this route.
+//
+// This method will return a pointer to the receiver Route, allowing the user to chain any of the
+// other builder methods that Route implements.
+func (route *Route) WithTimeout(timeout time.Duration) *Route {
+	route.timeout = Timeout(timeout)
+	return route
+}
+
+// WithHeader sets an HTTP header for this route.
+//
+// This method will return a pointer to the receiver Route, allowing the user to chain any of the
+// other builder methods that Route implements.
+func (route *Route) WithHeader(key, value string) *Route {
+	route.headers[key] = value
 	return route
 }
 
@@ -98,9 +118,37 @@ func (rts *routeService) addRoute(route *Route) {
 	rts.routes[route.String()] = route
 }
 
-// loadRoutes registers each Route with the underlying http.ServeMux
+// loadRoutes registers each Route with the passed Router
 func (rts *routeService) loadRoutes(routes []*Route, router *Router) {
 	for _, route := range routes {
 		router.Handle(route)
+	}
+}
+
+// compileRoutes calls compileRoute on each of the added routes.
+func (rts *routeService) compileRoutes() {
+	for _, route := range rts.routes {
+		rts.compileRoute(route)
+	}
+}
+
+// compileRoute prepares the passed route for use by creating middleware handlers for any
+// configured timeouts and headers, and then adding them to the route middleware
+// collection.
+func (rts *routeService) compileRoute(route *Route) {
+	// TODO: create and apply a timeout handler to the route handler
+
+	if len(route.headers) > 0 {
+		// Create simple middleware for adding the headers
+		headersMiddleware := func(next Handler) Handler {
+			return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+				for key, value := range route.headers {
+					w.Header().Add(key, value)
+				}
+
+				return next.ServeHTTPWithError(w, r)
+			})
+		}
+		route.middleware = append(route.middleware, headersMiddleware)
 	}
 }
