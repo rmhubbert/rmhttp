@@ -89,11 +89,11 @@ func New(c ...Config) *App {
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
 func (app *App) Handle(method string, pattern string, handler Handler) *Route {
-	route := &Route{
-		method:  strings.TrimSpace(strings.ToUpper(method)),
-		pattern: strings.TrimSpace(strings.ToLower(pattern)),
-		handler: handler,
-	}
+	route := NewRoute(
+		strings.TrimSpace(strings.ToUpper(method)),
+		strings.TrimSpace(strings.ToLower(pattern)),
+		handler,
+	)
 	app.addRoute(route)
 	return route
 }
@@ -125,14 +125,17 @@ func (app *App) addRoute(route *Route) {
 	app.routeService.addRoute(route)
 }
 
-// Compile prepares the app for starting by applying the middleware, processing the groups, and
-// loading the routes. It should be the last function to be called before starting the server.
+// Compile prepares the app for starting by applying the timeouts and the middleware, and loading
+// the routes. It should be the last function to be called before starting the server.
 func (app *App) Compile() {
 	app.routeService.compileRoutes()
 
 	routes := app.Routes()
 	routeSlice := []*Route{}
 	for _, route := range routes {
+		// First, apply the timeout handler directly to the route handler.
+		route.handler = app.timeoutService.applyTimeout(route.handler, route.timeout)
+		// Next, we apply the rest of the middleware.
 		route.handler = app.middlewareService.applyMiddleware(route.handler, route.middleware)
 		routeSlice = append(routeSlice, route)
 	}

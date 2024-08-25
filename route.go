@@ -39,6 +39,7 @@ func NewRoute(method string, pattern string, handler Handler) *Route {
 		pattern: strings.ToLower(pattern),
 		handler: handler,
 		headers: make(map[string]string),
+		timeout: NewTimeout(10*time.Second, "Timeout"),
 	}
 }
 
@@ -70,8 +71,8 @@ func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
 //
 // This method will return a pointer to the receiver Route, allowing the user to chain any of the
 // other builder methods that Route implements.
-func (route *Route) WithTimeout(timeout time.Duration) *Route {
-	route.timeout = Timeout(timeout)
+func (route *Route) WithTimeout(timeout time.Duration, message string) *Route {
+	route.timeout = NewTimeout(timeout, message)
 	return route
 }
 
@@ -136,8 +137,6 @@ func (rts *routeService) compileRoutes() {
 // configured timeouts and headers, and then adding them to the route middleware
 // collection.
 func (rts *routeService) compileRoute(route *Route) {
-	// TODO: create and apply a timeout handler to the route handler
-
 	if len(route.headers) > 0 {
 		// Create simple middleware for adding the headers
 		headersMiddleware := func(next Handler) Handler {

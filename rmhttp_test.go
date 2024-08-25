@@ -84,6 +84,8 @@ func Test_Compile(t *testing.T) {
 		createTestMiddlewareHandler("x-mw1", "mw1"),
 		createTestMiddlewareHandler("x-mw2", "mw2"),
 	)
+
+	// route.WithTimeout(10*time.Second, "TIMEOUT")
 	// compile the routes
 	app.Compile()
 
@@ -98,6 +100,7 @@ func Test_Compile(t *testing.T) {
 	// Assuming that Compile worked correctly and registered our test handler with
 	// the mux, we should receive the handler back from this call.
 	handler, pattern := app.Router.Mux.Handler(req)
+	h := handler.(Handler)
 	assert.Equal(
 		t,
 		fmt.Sprintf("%s %s", http.MethodGet, testPattern),
@@ -105,11 +108,11 @@ func Test_Compile(t *testing.T) {
 		"they should be the same",
 	)
 
-	// Lastly, call ServeHTTP on the handler so that we can inspect and confirm that
+	// Call ServeHTTPWithError on the handler so that we can inspect and confirm that
 	// the response status code and body are what would expect to see from the
 	// test handler.
 	w := httptest.NewRecorder()
-	handler.ServeHTTP(w, req)
+	_ = h.ServeHTTPWithError(w, req)
 	res := w.Result()
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
@@ -117,8 +120,8 @@ func Test_Compile(t *testing.T) {
 		t.Errorf("failed to read response body: %v", err)
 	}
 
-	assert.Equal(t, testBody, string(body), "they should be equal")
 	assert.Equal(t, http.StatusOK, res.StatusCode, "they should be equal")
+	assert.Equal(t, testBody, string(body), "they should be equal")
 	// Check that the middleware has been applied to the route. Our test middleware simply adds a
 	// header.
 	assert.Equal(t, "mw1", res.Header.Get("x-mw1"), "they should be equal")

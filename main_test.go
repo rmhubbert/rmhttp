@@ -16,7 +16,7 @@ func (ml MockLogger) Info(string, ...any)  {}
 func (ml MockLogger) Warn(string, ...any)  {}
 func (ml MockLogger) Error(string, ...any) {}
 
-// createHandlerFunc creates, initialises, and returns a rmhttp.HandlerFunc compatible function.
+// createTestHandlerFunc creates, initialises, and returns a rmhttp.HandlerFunc compatible function.
 func createTestHandlerFunc(
 	status int,
 	body string,

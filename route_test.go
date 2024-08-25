@@ -36,10 +36,11 @@ func Test_Route_WithTimeout(t *testing.T) {
 	handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
 	route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 
-	timeout := 5 * time.Second
-	route.WithTimeout(timeout)
+	timeout := NewTimeout(5*time.Second, "Timeout!")
+	route.WithTimeout(timeout.duration, timeout.message)
 	to := Timeout(timeout)
 
 	assert.IsType(t, to, route.timeout, "they should be equal")
-	assert.Equal(t, to, route.timeout, "they should be equal")
+	assert.Equal(t, to.duration, route.timeout.duration, "they should be equal")
+	assert.Equal(t, to.message, route.timeout.message, "they should be equal")
 }
