@@ -17,6 +17,7 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 	testPattern := "/timeout"
 	timeoutMessage := "Timeout!!!"
 	testBody := "Timeout body"
+	url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
 
 	t.Run("timeout handler intercepts long running handler and returns error", func(t *testing.T) {
 		handler := HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
@@ -25,7 +26,6 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		})
 
 		// Create a request that would trigger our test handler
-		url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
 		req, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
 			t.Errorf("failed to create request: %v", err)
@@ -44,20 +44,19 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 	})
 
 	t.Run("timeout handler passes through handler without error", func(t *testing.T) {
-		handler2 := HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody, nil))
-		route2 := NewRoute(http.MethodGet, testPattern, handler2)
-		timeout2 := NewTimeout(10*time.Second, timeoutMessage)
-		route2.handler = TimeoutHandler(handler2, timeout2, MockLogger{})
+		handler := HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody, nil))
+		route := NewRoute(http.MethodGet, testPattern, handler)
+		timeout := NewTimeout(1*time.Second, timeoutMessage)
+		route.handler = TimeoutHandler(handler, timeout, MockLogger{})
 
 		// Create a request that would trigger our test handler
-		url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
 		req, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
 			t.Errorf("failed to create request: %v", err)
 		}
 
 		w := httptest.NewRecorder()
-		timeoutErr := route2.handler.ServeHTTPWithError(w, req)
+		timeoutErr := route.handler.ServeHTTPWithError(w, req)
 		res := w.Result()
 		defer res.Body.Close()
 		body, err := io.ReadAll(res.Body)

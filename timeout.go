@@ -141,7 +141,6 @@ func (h *timeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Reque
 	case p := <-panicChan:
 		panic(p)
 	case e := <-done:
-		fmt.Println("successful return from handler")
 		tw.mu.Lock()
 		defer tw.mu.Unlock()
 		dst := w.Header()
@@ -155,7 +154,6 @@ func (h *timeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Reque
 		_, _ = w.Write(tw.wbuf.Bytes())
 		return e
 	case <-ctx.Done():
-		fmt.Println("timed out")
 		switch err := ctx.Err(); err {
 		case context.DeadlineExceeded:
 			w.WriteHeader(http.StatusServiceUnavailable)
@@ -168,6 +166,9 @@ func (h *timeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+// A timeoutWriter is used in the timeoutHandler instead of the http.ResponseWriter to capture
+// header abd body writes from the passed handler, so that we can then set them manually,
+// depending on whether or not the request times out.
 type timeoutWriter struct {
 	w           http.ResponseWriter
 	h           http.Header
@@ -190,8 +191,10 @@ func (tw *timeoutWriter) Push(target string, opts *http.PushOptions) error {
 	return http.ErrNotSupported
 }
 
+// Header implements part of the http.ResponseWriter interface.
 func (tw *timeoutWriter) Header() http.Header { return tw.h }
 
+// Write implements part of the http.ResponseWriter interface.
 func (tw *timeoutWriter) Write(p []byte) (int, error) {
 	tw.mu.Lock()
 	defer tw.mu.Unlock()
@@ -204,6 +207,8 @@ func (tw *timeoutWriter) Write(p []byte) (int, error) {
 	return tw.wbuf.Write(p)
 }
 
+// writeHeaderLocked checks if the status code has already been written. If not, it will write the
+// passed code to the response.
 func (tw *timeoutWriter) writeHeaderLocked(code int) {
 	checkWriteHeaderCode(code)
 
@@ -226,12 +231,15 @@ func (tw *timeoutWriter) writeHeaderLocked(code int) {
 	}
 }
 
+// WriteHeader implements part of the http.ResponseWriter interface.
 func (tw *timeoutWriter) WriteHeader(code int) {
 	tw.mu.Lock()
 	defer tw.mu.Unlock()
 	tw.writeHeaderLocked(code)
 }
 
+// checkWriteHeaderCode makes sure that the passed status code is within a valid range for HTTP
+// status codes.
 func checkWriteHeaderCode(code int) {
 	// Issue 22880: require valid WriteHeader status codes.
 	// For now we only enforce that it's three digits.
@@ -257,7 +265,7 @@ func relevantCaller() runtime.Frame {
 	var frame runtime.Frame
 	for {
 		frame, more := frames.Next()
-		if !strings.HasPrefix(frame.Function, "rmhttp.") {
+		if !strings.HasPrefix(frame.Function, "net/http.") {
 			return frame
 		}
 		if !more {
