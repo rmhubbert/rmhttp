@@ -6,6 +6,16 @@ import (
 )
 
 // ------------------------------------------------------------------------------------------------
+// INTERFACES
+// ------------------------------------------------------------------------------------------------
+
+type Routable interface {
+	Method() string
+	Pattern() string
+	Handler() Handler
+}
+
+// ------------------------------------------------------------------------------------------------
 // ROUTER
 // ------------------------------------------------------------------------------------------------
 // The Router loads Routes into the underlying HTTP request multiplexer, as well as handling each
@@ -43,6 +53,6 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handle registers the passed Route with the underlying HTTP request multiplexer.
-func (rt *Router) Handle(route *Route) {
-	rt.Mux.Handle(fmt.Sprintf("%s %s", route.method, route.pattern), route.handler)
+func (rt *Router) Handle(route Routable) {
+	rt.Mux.Handle(fmt.Sprintf("%s %s", route.Method(), route.Pattern()), route.Handler())
 }

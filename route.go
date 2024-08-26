@@ -67,6 +67,44 @@ func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
 	return route
 }
 
+// Method returns the HTTP Method set for the Route as a string. It partially implements the
+// Routable interface.
+func (route *Route) Method() string {
+	return route.method
+}
+
+// Pattern returns the URL pattern set for the Route as a string. It partially implements the
+// Routable interface.
+func (route *Route) Pattern() string {
+	return route.pattern
+}
+
+// Handler returns the rmhttp Handler bound to the Route. It partially implements the Routable
+// interface.
+func (route *Route) Handler() Handler {
+	return route.handler
+}
+
+// Headers returns the map of HTTP headers that have been added to the Route.
+func (route *Route) Headers() map[string]string {
+	return route.headers
+}
+
+// Timeout returns the Timeout object that has been added to the Route.
+func (route *Route) Timeout() Timeout {
+	return route.timeout
+}
+
+// Middleware returns the slice of MiddlewareFuncs that have been added to the Route.
+func (route *Route) Middleware() []MiddlewareFunc {
+	m := route.middleware
+	headersMiddleware, ok := route.createHeaderMiddleware()
+	if ok {
+		m = append(m, headersMiddleware)
+	}
+	return m
+}
+
 // WithTimeout sets a request timeout amount for this route.
 //
 // This method will return a pointer to the receiver Route, allowing the user to chain any of the
@@ -83,6 +121,25 @@ func (route *Route) WithTimeout(timeout time.Duration, message string) *Route {
 func (route *Route) WithHeader(key, value string) *Route {
 	route.headers[key] = value
 	return route
+}
+
+// createHeaderMiddleware creates and returns a MiddlewareFunc that will apply all of the headers
+// that have been added to the Route.
+func (route *Route) createHeaderMiddleware() (MiddlewareFunc, bool) {
+	if len(route.Headers()) > 0 {
+		// Create simple middleware for adding the headers
+		headersMiddleware := func(next Handler) Handler {
+			return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+				for key, value := range route.Headers() {
+					w.Header().Add(key, value)
+				}
+
+				return next.ServeHTTPWithError(w, r)
+			})
+		}
+		return MiddlewareFunc(headersMiddleware), true
+	}
+	return MiddlewareFunc(func(h Handler) Handler { return h }), false
 }
 
 // String is used internally to calculate a string signature for use as map keys, etc.
@@ -123,31 +180,5 @@ func (rts *routeService) addRoute(route *Route) {
 func (rts *routeService) loadRoutes(routes []*Route, router *Router) {
 	for _, route := range routes {
 		router.Handle(route)
-	}
-}
-
-// compileRoutes calls compileRoute on each of the added routes.
-func (rts *routeService) compileRoutes() {
-	for _, route := range rts.routes {
-		rts.compileRoute(route)
-	}
-}
-
-// compileRoute prepares the passed route for use by creating middleware handlers for any
-// configured timeouts and headers, and then adding them to the route middleware
-// collection.
-func (rts *routeService) compileRoute(route *Route) {
-	if len(route.headers) > 0 {
-		// Create simple middleware for adding the headers
-		headersMiddleware := func(next Handler) Handler {
-			return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-				for key, value := range route.headers {
-					w.Header().Add(key, value)
-				}
-
-				return next.ServeHTTPWithError(w, r)
-			})
-		}
-		route.middleware = append(route.middleware, headersMiddleware)
 	}
 }

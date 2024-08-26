@@ -161,6 +161,7 @@ func (h *timeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Reque
 			return NewHTTPError(h.timeout.message, http.StatusServiceUnavailable)
 		default:
 			w.WriteHeader(http.StatusServiceUnavailable)
+			_, _ = io.WriteString(w, err.Error())
 			return NewHTTPError(err.Error(), http.StatusServiceUnavailable)
 		}
 	}

@@ -31,8 +31,12 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 	mws.addPre(preMw)
 	mws.addPost(postMw)
 
+	// Adding headers to a Route should automatically generate a middleware func
+	// when Middleware is called.
+	route.WithHeader("x-h1", "h1")
+
 	// Apply the route middleware
-	route.handler = mws.applyMiddleware(route.handler, route.middleware)
+	route.handler = mws.applyMiddleware(route.Handler(), route.Middleware())
 
 	// Create a request that would trigger our test handler
 	url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
@@ -61,4 +65,7 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 	assert.Equal(t, "post1", res.Header.Get("x-post1"), "they should be equal")
 	assert.Equal(t, "mw1", res.Header.Get("x-mw1"), "they should be equal")
 	assert.Equal(t, "mw2", res.Header.Get("x-mw2"), "they should be equal")
+	// Check that calling the MIddleware() method on the route created a middleware func to add
+	// any set headers
+	assert.Equal(t, "h1", res.Header.Get("x-h1"), "they should be equal")
 }

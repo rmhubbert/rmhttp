@@ -128,15 +128,13 @@ func (app *App) addRoute(route *Route) {
 // Compile prepares the app for starting by applying the timeouts and the middleware, and loading
 // the routes. It should be the last function to be called before starting the server.
 func (app *App) Compile() {
-	app.routeService.compileRoutes()
-
 	routes := app.Routes()
 	routeSlice := []*Route{}
 	for _, route := range routes {
 		// First, apply the timeout handler directly to the route handler.
-		route.handler = app.timeoutService.applyTimeout(route.handler, route.timeout)
+		route.handler = app.timeoutService.applyTimeout(route.Handler(), route.Timeout())
 		// Next, we apply the rest of the middleware.
-		route.handler = app.middlewareService.applyMiddleware(route.handler, route.middleware)
+		route.handler = app.middlewareService.applyMiddleware(route.Handler(), route.Middleware())
 		routeSlice = append(routeSlice, route)
 	}
 
