@@ -6,18 +6,9 @@ import (
 )
 
 // ------------------------------------------------------------------------------------------------
-// INTERFACES
-// ------------------------------------------------------------------------------------------------
-
-type Routable interface {
-	Method() string
-	Pattern() string
-	Handler() Handler
-}
-
-// ------------------------------------------------------------------------------------------------
 // ROUTER
 // ------------------------------------------------------------------------------------------------
+
 // The Router loads Routes into the underlying HTTP request multiplexer, as well as handling each
 // request, ensuring that ResponseWriter and Request objects are properly configured. The Router
 // also manages custom error handlers to ensure that the HTTP Error Handler can operate
@@ -53,6 +44,6 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handle registers the passed Route with the underlying HTTP request multiplexer.
-func (rt *Router) Handle(route Routable) {
-	rt.Mux.Handle(fmt.Sprintf("%s %s", route.Method(), route.Pattern()), route.Handler())
+func (rt *Router) Handle(method string, pattern string, handler Handler) {
+	rt.Mux.Handle(fmt.Sprintf("%s %s", method, pattern), handler)
 }

@@ -17,7 +17,7 @@ func Test_Route_Use(t *testing.T) {
 	route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 	route.Use(m1, m2)
 
-	assert.Len(t, route.middleware, 2, "they should be equal")
+	assert.Len(t, route.Middleware, 2, "they should be equal")
 }
 
 // Test_Route_WithHeader checks that headers can be added to a Route.
@@ -28,7 +28,7 @@ func Test_Route_WithHeader(t *testing.T) {
 	route.WithHeader("x-h1", "h1")
 	route.WithHeader("x-h2", "h2")
 
-	assert.Len(t, route.headers, 2, "they should be equal")
+	assert.Len(t, route.Headers, 2, "they should be equal")
 }
 
 // Test_Route_WithTimeout checks that a timeout can be added to a Route.
@@ -37,10 +37,10 @@ func Test_Route_WithTimeout(t *testing.T) {
 	route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 
 	timeout := NewTimeout(5*time.Second, "Timeout!")
-	route.WithTimeout(timeout.duration, timeout.message)
+	route.WithTimeout(timeout.Duration, timeout.Message)
 	to := Timeout(timeout)
 
-	assert.IsType(t, to, route.timeout, "they should be equal")
-	assert.Equal(t, to.duration, route.timeout.duration, "they should be equal")
-	assert.Equal(t, to.message, route.timeout.message, "they should be equal")
+	assert.IsType(t, to, route.Timeout, "they should be equal")
+	assert.Equal(t, to.Duration, route.Timeout.Duration, "they should be equal")
+	assert.Equal(t, to.Message, route.Timeout.Message, "they should be equal")
 }

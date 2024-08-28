@@ -34,9 +34,9 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		w := httptest.NewRecorder()
 		route := NewRoute(http.MethodGet, testPattern, handler)
 		timeout := NewTimeout(1*time.Second, timeoutMessage)
-		route.handler = TimeoutHandler(handler, timeout, MockLogger{})
+		route.Handler = TimeoutHandler(handler, timeout)
 
-		timeoutErr := route.handler.ServeHTTPWithError(w, req)
+		timeoutErr := route.Handler.ServeHTTPWithError(w, req)
 		te := timeoutErr.(*HTTPError)
 
 		assert.Equal(t, http.StatusServiceUnavailable, te.StatusCode, "they should be equal")
@@ -47,7 +47,7 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		handler := HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody, nil))
 		route := NewRoute(http.MethodGet, testPattern, handler)
 		timeout := NewTimeout(1*time.Second, timeoutMessage)
-		route.handler = TimeoutHandler(handler, timeout, MockLogger{})
+		route.Handler = TimeoutHandler(handler, timeout)
 
 		// Create a request that would trigger our test handler
 		req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -56,7 +56,7 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		}
 
 		w := httptest.NewRecorder()
-		timeoutErr := route.handler.ServeHTTPWithError(w, req)
+		timeoutErr := route.Handler.ServeHTTPWithError(w, req)
 		res := w.Result()
 		defer res.Body.Close()
 		body, err := io.ReadAll(res.Body)

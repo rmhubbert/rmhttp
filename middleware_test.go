@@ -36,7 +36,7 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 	route.WithHeader("x-h1", "h1")
 
 	// Apply the route middleware
-	route.handler = mws.applyMiddleware(route.Handler(), route.Middleware())
+	route.Handler = mws.applyMiddleware(route.ComputeHandler(), route.ComputeMiddleware())
 
 	// Create a request that would trigger our test handler
 	url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
@@ -49,7 +49,7 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 	// the response status code and body are what would expect to see from the
 	// test handler.
 	w := httptest.NewRecorder()
-	route.handler.ServeHTTP(w, req)
+	route.Handler.ServeHTTP(w, req)
 	res := w.Result()
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)

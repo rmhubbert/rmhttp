@@ -24,9 +24,9 @@ func Test_Handle(t *testing.T) {
 	expectedKey := "GET /handle"
 	route, ok := routes[expectedKey]
 	assert.True(t, ok, "they should be equal")
-	assert.Equal(t, "GET", route.method, "they should be equal")
-	assert.Equal(t, "/handle", route.pattern, "they should be equal")
-	assert.NotNil(t, route.handler, "it should not be nil")
+	assert.Equal(t, "GET", route.Method, "they should be equal")
+	assert.Equal(t, "/handle", route.Pattern, "they should be equal")
+	assert.NotNil(t, route.Handler, "it should not be nil")
 }
 
 // Test_HandleFunc checks that a handlerFunc can be successfully added to the App
@@ -40,9 +40,9 @@ func Test_HandleFunc(t *testing.T) {
 	expectedKey := "GET /handlefunc"
 	route, ok := routes[expectedKey]
 	assert.True(t, ok, "they should be equal")
-	assert.Equal(t, "GET", route.method, "they should be equal")
-	assert.Equal(t, "/handlefunc", route.pattern, "they should be equal")
-	assert.NotNil(t, route.handler, "it should not be nil")
+	assert.Equal(t, "GET", route.Method, "they should be equal")
+	assert.Equal(t, "/handlefunc", route.Pattern, "they should be equal")
+	assert.NotNil(t, route.Handler, "it should not be nil")
 }
 
 // Test_Routes checks that a list of current Routes is returned.
@@ -63,8 +63,8 @@ func Test_Routes(t *testing.T) {
 		t.Error("route not found")
 	}
 
-	assert.Equal(t, "GET", r.method, "they should be equal")
-	assert.Equal(t, "/test", r.pattern, "they should be equal")
+	assert.Equal(t, "GET", r.Method, "they should be equal")
+	assert.Equal(t, "/test", r.Pattern, "they should be equal")
 }
 
 // Test_Compile checks that the Routes can be compiled and loaded into the router's

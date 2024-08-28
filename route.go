@@ -17,12 +17,12 @@ import (
 // pattern a handler should be bound to, the Route also allows the enclosed handler
 // to be configured with their own timeout, headers, and middleware.
 type Route struct {
-	method     string
-	pattern    string
-	handler    Handler
-	middleware []MiddlewareFunc
-	timeout    Timeout
-	headers    map[string]string
+	Method     string
+	Pattern    string
+	Handler    Handler
+	Middleware []MiddlewareFunc
+	Timeout    Timeout
+	Headers    map[string]string
 }
 
 // NewRoute validates the input, then creates, initialises and returns a pointer to a Route. The
@@ -35,11 +35,11 @@ func NewRoute(method string, pattern string, handler Handler) *Route {
 		method = http.MethodGet
 	}
 	return &Route{
-		method:  method,
-		pattern: strings.ToLower(pattern),
-		handler: handler,
-		headers: make(map[string]string),
-		timeout: NewTimeout(10*time.Second, "Timeout"),
+		Method:  method,
+		Pattern: strings.ToLower(pattern),
+		Handler: handler,
+		Headers: make(map[string]string),
+		Timeout: NewTimeout(10*time.Second, "Timeout"),
 	}
 }
 
@@ -62,42 +62,40 @@ func NewRoute(method string, pattern string, handler Handler) *Route {
 // other builder methods that Route implements.
 func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
 	for _, mw := range middlewares {
-		route.middleware = append(route.middleware, MiddlewareFunc(mw))
+		route.Middleware = append(route.Middleware, MiddlewareFunc(mw))
 	}
 	return route
 }
 
-// Method returns the HTTP Method set for the Route as a string. It partially implements the
-// Routable interface.
-func (route *Route) Method() string {
-	return route.method
+// ComputePattern dynamically calculates the pattern for the Route. It returns the URL pattern as a
+// string.
+func (route *Route) ComputePattern() string {
+	return route.Pattern
 }
 
-// Pattern returns the URL pattern set for the Route as a string. It partially implements the
-// Routable interface.
-func (route *Route) Pattern() string {
-	return route.pattern
-}
-
-// Handler returns the rmhttp Handler bound to the Route. It partially implements the Routable
-// interface.
-func (route *Route) Handler() Handler {
-	return route.handler
+// Handler returns the rmhttp Handler bound to the Route. A TimeoutHandler will be dynamically
+// wrapped around the handler before returning, if a timeout has been set.
+func (route *Route) ComputeHandler() Handler {
+	handler := route.Handler
+	if timeout := route.ComputeTimeout(); timeout.Enabled {
+		return TimeoutHandler(handler, timeout)
+	}
+	return handler
 }
 
 // Headers returns the map of HTTP headers that have been added to the Route.
-func (route *Route) Headers() map[string]string {
-	return route.headers
+func (route *Route) ComputeHeaders() map[string]string {
+	return route.Headers
 }
 
 // Timeout returns the Timeout object that has been added to the Route.
-func (route *Route) Timeout() Timeout {
-	return route.timeout
+func (route *Route) ComputeTimeout() Timeout {
+	return route.Timeout
 }
 
 // Middleware returns the slice of MiddlewareFuncs that have been added to the Route.
-func (route *Route) Middleware() []MiddlewareFunc {
-	m := route.middleware
+func (route *Route) ComputeMiddleware() []MiddlewareFunc {
+	m := route.Middleware
 	headersMiddleware, ok := route.createHeaderMiddleware()
 	if ok {
 		m = append(m, headersMiddleware)
@@ -105,32 +103,33 @@ func (route *Route) Middleware() []MiddlewareFunc {
 	return m
 }
 
-// WithTimeout sets a request timeout amount for this route.
+// WithTimeout sets a request timeout amount and message for this route.
 //
 // This method will return a pointer to the receiver Route, allowing the user to chain any of the
 // other builder methods that Route implements.
 func (route *Route) WithTimeout(timeout time.Duration, message string) *Route {
-	route.timeout = NewTimeout(timeout, message)
+	route.Timeout = NewTimeout(timeout, message)
 	return route
 }
 
-// WithHeader sets an HTTP header for this route.
+// WithHeader sets an HTTP header for this route. Calling this method more than once will either
+// overwrite an existing header, or add a new one.
 //
 // This method will return a pointer to the receiver Route, allowing the user to chain any of the
 // other builder methods that Route implements.
 func (route *Route) WithHeader(key, value string) *Route {
-	route.headers[key] = value
+	route.Headers[key] = value
 	return route
 }
 
 // createHeaderMiddleware creates and returns a MiddlewareFunc that will apply all of the headers
 // that have been added to the Route.
 func (route *Route) createHeaderMiddleware() (MiddlewareFunc, bool) {
-	if len(route.Headers()) > 0 {
+	if len(route.ComputeHeaders()) > 0 {
 		// Create simple middleware for adding the headers
 		headersMiddleware := func(next Handler) Handler {
 			return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-				for key, value := range route.Headers() {
+				for key, value := range route.ComputeHeaders() {
 					w.Header().Add(key, value)
 				}
 
@@ -144,7 +143,7 @@ func (route *Route) createHeaderMiddleware() (MiddlewareFunc, bool) {
 
 // String is used internally to calculate a string signature for use as map keys, etc.
 func (route *Route) String() string {
-	return fmt.Sprint(route.method, " ", route.pattern)
+	return fmt.Sprint(route.Method, " ", route.Pattern)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -179,6 +178,6 @@ func (rts *routeService) addRoute(route *Route) {
 // loadRoutes registers each Route with the passed Router
 func (rts *routeService) loadRoutes(routes []*Route, router *Router) {
 	for _, route := range routes {
-		router.Handle(route)
+		router.Handle(route.Method, route.ComputePattern(), route.ComputeHandler())
 	}
 }
