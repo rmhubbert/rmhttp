@@ -26,12 +26,10 @@ import (
 // App encapsulates the application and provides the public API, as well as orchestrating the core
 // library functionality.
 type App struct {
-	logger            Logger
-	Server            *Server
-	Router            *Router
-	routeService      *routeService
-	middlewareService *middlewareService
-	timeoutService    *timeoutService
+	logger       Logger
+	Server       *Server
+	Router       *Router
+	routeService *routeService
 }
 
 // New creates, initialises and returns a pointer to a new App. An optional configuration can be
@@ -75,12 +73,10 @@ func New(c ...Config) *App {
 	)
 
 	return &App{
-		Server:            server,
-		Router:            router,
-		logger:            config.Logger,
-		routeService:      newRouteService(config.Logger),
-		middlewareService: newMiddlewareService(config.Logger),
-		timeoutService:    newTimeoutService(config.Timeout, config.Logger),
+		Server:       server,
+		Router:       router,
+		logger:       config.Logger,
+		routeService: newRouteService(config.Logger),
 	}
 }
 
@@ -131,9 +127,13 @@ func (app *App) Compile() {
 	routes := app.Routes()
 	routeSlice := []*Route{}
 	for _, route := range routes {
-		route.Handler = app.middlewareService.applyMiddleware(
-			route.ComputeHandler(),
-			route.ComputeMiddleware(),
+		middleware := []MiddlewareFunc{}
+		middleware = append(middleware, route.ComputedMiddleware()...)
+		middleware = append(middleware, TimeoutMiddleware(route.ComputedTimeout()))
+
+		route.Handler = applyMiddleware(
+			route.Handler,
+			middleware,
 		)
 		routeSlice = append(routeSlice, route)
 	}

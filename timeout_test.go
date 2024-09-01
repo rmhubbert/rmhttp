@@ -34,7 +34,7 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		w := httptest.NewRecorder()
 		route := NewRoute(http.MethodGet, testPattern, handler)
 		timeout := NewTimeout(1*time.Second, timeoutMessage)
-		route.Handler = TimeoutHandler(handler, timeout)
+		route.Handler = newTimeoutHandler(handler, timeout)
 
 		timeoutErr := route.Handler.ServeHTTPWithError(w, req)
 		te := timeoutErr.(*HTTPError)
@@ -47,7 +47,7 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		handler := HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody, nil))
 		route := NewRoute(http.MethodGet, testPattern, handler)
 		timeout := NewTimeout(1*time.Second, timeoutMessage)
-		route.Handler = TimeoutHandler(handler, timeout)
+		route.Handler = newTimeoutHandler(handler, timeout)
 
 		// Create a request that would trigger our test handler
 		req, err := http.NewRequest(http.MethodGet, url, nil)

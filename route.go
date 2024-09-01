@@ -67,34 +67,24 @@ func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
 	return route
 }
 
-// ComputePattern dynamically calculates the pattern for the Route. It returns the URL pattern as a
+// ComputedPattern dynamically calculates the pattern for the Route. It returns the URL pattern as a
 // string.
-func (route *Route) ComputePattern() string {
+func (route *Route) ComputedPattern() string {
 	return route.Pattern
 }
 
-// Handler returns the rmhttp Handler bound to the Route. A TimeoutHandler will be dynamically
-// wrapped around the handler before returning, if a timeout has been set.
-func (route *Route) ComputeHandler() Handler {
-	handler := route.Handler
-	if timeout := route.ComputeTimeout(); timeout.Enabled {
-		return TimeoutHandler(handler, timeout)
-	}
-	return handler
-}
-
 // Headers returns the map of HTTP headers that have been added to the Route.
-func (route *Route) ComputeHeaders() map[string]string {
+func (route *Route) ComputedHeaders() map[string]string {
 	return route.Headers
 }
 
 // Timeout returns the Timeout object that has been added to the Route.
-func (route *Route) ComputeTimeout() Timeout {
+func (route *Route) ComputedTimeout() Timeout {
 	return route.Timeout
 }
 
 // Middleware returns the slice of MiddlewareFuncs that have been added to the Route.
-func (route *Route) ComputeMiddleware() []MiddlewareFunc {
+func (route *Route) ComputedMiddleware() []MiddlewareFunc {
 	m := route.Middleware
 	headersMiddleware, ok := route.createHeaderMiddleware()
 	if ok {
@@ -125,11 +115,11 @@ func (route *Route) WithHeader(key, value string) *Route {
 // createHeaderMiddleware creates and returns a MiddlewareFunc that will apply all of the headers
 // that have been added to the Route.
 func (route *Route) createHeaderMiddleware() (MiddlewareFunc, bool) {
-	if len(route.ComputeHeaders()) > 0 {
+	if len(route.ComputedHeaders()) > 0 {
 		// Create simple middleware for adding the headers
 		headersMiddleware := func(next Handler) Handler {
 			return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-				for key, value := range route.ComputeHeaders() {
+				for key, value := range route.ComputedHeaders() {
 					w.Header().Add(key, value)
 				}
 
@@ -178,6 +168,6 @@ func (rts *routeService) addRoute(route *Route) {
 // loadRoutes registers each Route with the passed Router
 func (rts *routeService) loadRoutes(routes []*Route, router *Router) {
 	for _, route := range routes {
-		router.Handle(route.Method, route.ComputePattern(), route.ComputeHandler())
+		router.Handle(route.Method, route.ComputedPattern(), route.Handler)
 	}
 }

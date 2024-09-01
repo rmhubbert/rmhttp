@@ -29,21 +29,17 @@ func NewTimeout(duration time.Duration, message string) Timeout {
 }
 
 // ------------------------------------------------------------------------------------------------
-// TIMEOUT SERVICE
+// TIMEOUT MIDDLEWARE
 // ------------------------------------------------------------------------------------------------
 
-// A timeoutService supplies functionality for applying timeouts to route handlers and ensuring that
-// the Server TCP timeout is at least as long as the longest route timeout.
-type timeoutService struct {
-	config TimeoutConfig
-	logger Logger
-}
-
-// newTimeoutService creates, initialises and returns a pointer to a new timeoutService.
-func newTimeoutService(config TimeoutConfig, logger Logger) *timeoutService {
-	return &timeoutService{
-		config: config,
-		logger: logger,
+// TimeoutMiddleware creates, initialises and returns a middleware function that will wrap the next
+// handler in the stack with a timeout handler.
+func TimeoutMiddleware(timeout Timeout) func(Handler) Handler {
+	return func(next Handler) Handler {
+		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+			th := newTimeoutHandler(next, timeout)
+			return th.ServeHTTPWithError(w, r)
+		})
 	}
 }
 
@@ -73,7 +69,7 @@ type timeoutHandler struct {
 }
 
 // TimeoutHandler creates, initialises and returns a pointer to a new timeoutHandler.
-func TimeoutHandler(
+func newTimeoutHandler(
 	handler Handler,
 	timeout Timeout,
 ) *timeoutHandler {
