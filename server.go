@@ -6,43 +6,62 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 )
+
+// ------------------------------------------------------------------------------------------------
+// SERVER CONFIG
+// ------------------------------------------------------------------------------------------------
+
+type ServerConfig struct {
+	TimeoutConfig
+	SSLConfig
+	Host string
+	Port int
+	Cert string
+	Key  string
+}
 
 // ------------------------------------------------------------------------------------------------
 // SERVER
 // ------------------------------------------------------------------------------------------------
+
 // A Server wraps the standard library net/http.Server. It provide default lifecycle management
 // and debugger logging on top of the expected http.Server behaviour.
 type Server struct {
-	Server  http.Server
-	Router  http.Handler
-	Logger  Logger
-	Host    string
-	Port    int
-	SSLCert string
-	SSLKey  string
+	Server              http.Server
+	Router              http.Handler
+	Logger              Logger
+	Host                string
+	Port                int
+	cert                string
+	key                 string
+	writeTimeoutPadding time.Duration
 }
 
 // NewServer creates, initialises and returns a pointer to a Server.
 func NewServer(
+	config ServerConfig,
 	router http.Handler,
-	host string,
-	port int,
-	SSLCert string,
-	SSLKey string,
 	logger Logger,
 ) *Server {
 	srv := Server{
-		Server:  http.Server{},
-		Router:  router,
-		Host:    host,
-		Port:    port,
-		SSLCert: SSLCert,
-		SSLKey:  SSLKey,
-		Logger:  logger,
+		Server: http.Server{
+			Handler:           router,
+			ReadTimeout:       time.Duration(config.TCPReadTimeout) * time.Second,
+			ReadHeaderTimeout: time.Duration(config.TCPReadHeaderTimeout) * time.Second,
+			WriteTimeout:      time.Duration(config.TCPWriteTimeout) * time.Second,
+			IdleTimeout:       time.Duration(config.TCPIdleTimeout) * time.Second,
+		},
+		Router:              router,
+		Host:                config.Host,
+		Port:                config.Port,
+		cert:                config.Cert,
+		key:                 config.Key,
+		writeTimeoutPadding: time.Duration(config.TCPWriteTimeoutPadding) * time.Second,
+		Logger:              logger,
 	}
 	srv.Server.Addr = srv.Address()
-	srv.Server.Handler = router
 	return &srv
 }
 
@@ -59,8 +78,8 @@ func (srv *Server) ListenAndServe() error {
 
 // ListenAndServeTLS directly proxies the http.Server.ListenAndServeTLS method. It starts the
 // server with TLS support on the configured address and port.
-func (srv *Server) ListenAndServeTLS(cert string, key string) error {
-	return srv.Server.ListenAndServeTLS(cert, key)
+func (srv *Server) ListenAndServeTLS() error {
+	return srv.Server.ListenAndServeTLS(srv.cert, srv.key)
 }
 
 // Shutdown directly proxies the net/http.Server.Shutdown method. It will stop the Server, if
@@ -86,9 +105,9 @@ func (srv *Server) Start(useTLS bool) error {
 		close(idleConnsClosed)
 	}()
 
-	if useTLS && srv.SSLCert != "" && srv.SSLKey != "" {
+	if useTLS && srv.cert != "" && srv.key != "" {
 		srv.Logger.Info(fmt.Sprintf("starting rmhttp server with SSL on %v", srv.Address()))
-		if err := srv.ListenAndServeTLS(srv.SSLCert, srv.SSLKey); err != http.ErrServerClosed {
+		if err := srv.ListenAndServeTLS(); err != http.ErrServerClosed {
 			srv.Logger.Error(fmt.Sprintf("rmhttp server with SSL start failed: %v", err))
 			return err
 		}

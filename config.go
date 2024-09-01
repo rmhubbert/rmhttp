@@ -13,13 +13,13 @@ import (
 // The TimeoutConfig contains settings (with defaults) for configuring timeouts in the system.
 // These settings mostly correlate to those used by the underlying http.Server
 type TimeoutConfig struct {
-	TCPReadTimeout        int    `env:"TCP_READ_TIMEOUT"         envDefault:"2"`
-	TCPReadHeaderTimeout  int    `env:"TCP_READ_HEADER_TIMEOUT"  envDefault:"1"`
-	TCPIdleTimeout        int    `env:"TCP_IDLE_TIMEOUT"         envDefault:"120"`
-	TCPWriteTimeout       int    `env:"TCP_WRITE_TIMEOUT"        envDefault:"5"`
-	TCPWriteTimeoutBuffer int    `env:"TCP_WRITE_TIMEOUT_BUFFER" envDefault:"1"`
-	RequestTimeout        int    `env:"HTTP_REQUEST_TIMEOUT"     envDefault:"7"`
-	TimeoutMessage        string `env:"HTTP_TIMEOUT_MESSAGE"     envDefault:"Request Timeout"`
+	TCPReadTimeout         int    `env:"TCP_READ_TIMEOUT"         envDefault:"2"`
+	TCPReadHeaderTimeout   int    `env:"TCP_READ_HEADER_TIMEOUT"  envDefault:"1"`
+	TCPIdleTimeout         int    `env:"TCP_IDLE_TIMEOUT"         envDefault:"120"`
+	TCPWriteTimeout        int    `env:"TCP_WRITE_TIMEOUT"        envDefault:"5"`
+	TCPWriteTimeoutPadding int    `env:"TCP_WRITE_TIMEOUT_BUFFER" envDefault:"1"`
+	RequestTimeout         int    `env:"HTTP_REQUEST_TIMEOUT"     envDefault:"7"`
+	TimeoutMessage         string `env:"HTTP_TIMEOUT_MESSAGE"     envDefault:"Request Timeout"`
 }
 
 // ------------------------------------------------------------------------------------------------

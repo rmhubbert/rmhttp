@@ -64,12 +64,15 @@ func New(c ...Config) *App {
 	}
 
 	router := NewRouter(config.Logger)
+	serverConfig := ServerConfig{
+		TimeoutConfig: config.Timeout,
+		SSLConfig:     config.SSL,
+		Host:          config.Host,
+		Port:          config.Port,
+	}
 	server := NewServer(
+		serverConfig,
 		router,
-		config.Host,
-		config.Port,
-		config.SSL.Cert,
-		config.SSL.Key,
 		config.Logger,
 	)
 
@@ -162,7 +165,7 @@ func (app *App) ListenAndServe() error {
 // ListenAndServeTLS compiles and loads the registered routes, and then starts the Server with SSL.
 func (app *App) ListenAndServeTLS() error {
 	app.Compile()
-	return app.Server.ListenAndServeTLS(app.Server.SSLCert, app.Server.SSLKey)
+	return app.Server.ListenAndServeTLS()
 }
 
 // Start compiles and loads the registered routes, and then starts the Server with graceful

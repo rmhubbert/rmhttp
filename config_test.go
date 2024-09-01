@@ -14,7 +14,7 @@ var defaultTimeoutConfig = TimeoutConfig{
 	TCPReadHeaderTimeout:  1,
 	TCPIdleTimeout:        120,
 	TCPWriteTimeout:       5,
-	TCPWriteTimeoutBuffer: 1,
+	TCPWriteTimeoutPadding: 1,
 	RequestTimeout:        7,
 	TimeoutMessage:        "Request Timeout",
 }
@@ -144,7 +144,7 @@ func Test_LoadConfig_from_env(t *testing.T) {
 		TCPReadHeaderTimeout:  tcpReadHeaderTimeout,
 		TCPIdleTimeout:        tcpIdleTimeout,
 		TCPWriteTimeout:       tcpWriteTimeout,
-		TCPWriteTimeoutBuffer: tcpWriteTimeoutBuffer,
+		TCPWriteTimeoutPadding: tcpWriteTimeoutBuffer,
 		RequestTimeout:        httpRequestTimeout,
 		TimeoutMessage:        timeoutMessage,
 	}
@@ -277,7 +277,7 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 		TCPReadHeaderTimeout:  tcpReadHeaderTimeout,
 		TCPIdleTimeout:        tcpIdleTimeout,
 		TCPWriteTimeout:       tcpWriteTimeout,
-		TCPWriteTimeoutBuffer: tcpWriteTimeoutBuffer,
+		TCPWriteTimeoutPadding: tcpWriteTimeoutBuffer,
 		RequestTimeout:        httpRequestTimeout,
 		TimeoutMessage:        timeoutMessage,
 	}
@@ -384,7 +384,7 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 		// TCPReadHeaderTimeout:  tcpReadHeaderTimeout,
 		// TCPIdleTimeout:        tcpIdleTimeout,
 		// TCPWriteTimeout:       tcpWriteTimeout,
-		TCPWriteTimeoutBuffer: tcpWriteTimeoutBuffer,
+		TCPWriteTimeoutPadding: tcpWriteTimeoutBuffer,
 		RequestTimeout:        httpRequestTimeout,
 		TimeoutMessage:        timeoutMessage,
 	}
@@ -434,7 +434,7 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 		{"TCP read header timeout set from a partially defined user config", cfg.Timeout.TCPReadHeaderTimeout, defaultTimeoutConfig.TCPReadHeaderTimeout},
 		{"TCP idle timeout set from a partially defined user config", cfg.Timeout.TCPIdleTimeout, defaultTimeoutConfig.TCPIdleTimeout},
 		{"TCP write timeout set from a partially defined user config", cfg.Timeout.TCPWriteTimeout, defaultTimeoutConfig.TCPWriteTimeout},
-		{"TCP write timeout buffer set from a partially defined user config", cfg.Timeout.TCPWriteTimeoutBuffer, partialTimeoutConfig.TCPWriteTimeoutBuffer},
+		{"TCP write timeout buffer set from a partially defined user config", cfg.Timeout.TCPWriteTimeoutPadding, partialTimeoutConfig.TCPWriteTimeoutPadding},
 		{"HTTP request timeout set from a partially defined user config", cfg.Timeout.RequestTimeout, partialTimeoutConfig.RequestTimeout},
 		{"timeout message set from a partially defined user config", cfg.Timeout.TimeoutMessage, partialTimeoutConfig.TimeoutMessage},
 	}
