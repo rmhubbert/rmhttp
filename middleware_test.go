@@ -19,15 +19,12 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 		http.MethodGet,
 		testPattern,
 		HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody, nil)),
+		NewGroup(""),
 	)
 	route.Use(
 		createTestMiddlewareHandler("x-mw1", "mw1"),
 		createTestMiddlewareHandler("x-mw2", "mw2"),
 	)
-
-	// Adding headers to a Route should automatically generate a middleware func
-	// when Middleware is called.
-	route.WithHeader("x-h1", "h1")
 
 	// Apply the route middleware
 	route.Handler = applyMiddleware(route.Handler, route.ComputedMiddleware())
@@ -57,7 +54,4 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 	// header.
 	assert.Equal(t, "mw1", res.Header.Get("x-mw1"), "they should be equal")
 	assert.Equal(t, "mw2", res.Header.Get("x-mw2"), "they should be equal")
-	// Check that calling the MIddleware() method on the route created a middleware func to add
-	// any set headers
-	assert.Equal(t, "h1", res.Header.Get("x-h1"), "they should be equal")
 }
