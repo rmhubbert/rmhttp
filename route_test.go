@@ -49,15 +49,15 @@ func Test_Route_WithTimeout(t *testing.T) {
 // directly on the Route.
 func Test_Route_WithComputedTimeout(t *testing.T) {
 	t.Run("group timeout is used when route timeout has not been set", func(t *testing.T) {
+		handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
+		group := NewGroup("")
+		group.Timeout = NewTimeout(2, "group timeout")
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+
+		to := group.Timeout
+
+		assert.IsType(t, to, route.ComputedTimeout(), "they should be equal")
+		assert.Equal(t, to.Duration, route.ComputedTimeout().Duration, "they should be equal")
+		assert.Equal(t, to.Message, route.ComputedTimeout().Message, "they should be equal")
 	})
-	handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
-	group := NewGroup("")
-	group.Timeout = NewTimeout(2, "group timeout")
-	route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
-
-	to := group.Timeout
-
-	assert.IsType(t, to, route.ComputedTimeout(), "they should be equal")
-	assert.Equal(t, to.Duration, route.ComputedTimeout().Duration, "they should be equal")
-	assert.Equal(t, to.Message, route.ComputedTimeout().Message, "they should be equal")
 }
