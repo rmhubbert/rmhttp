@@ -81,7 +81,21 @@ func (route *Route) ComputedHeaders() map[string]string {
 
 // Timeout returns the Timeout object that has been added to the Route.
 func (route *Route) ComputedTimeout() Timeout {
+	if !route.Timeout.Enabled {
+		return route.findEnabledTimeout(route.Parent)
+	}
 	return route.Timeout
+}
+
+// findEnabledTimeout searches for an enabled Timeout in any parent Group.
+func (route *Route) findEnabledTimeout(parent *Group) Timeout {
+	if parent == nil {
+		return Timeout{}
+	}
+	if parent.Timeout.Enabled {
+		return parent.Timeout
+	}
+	return route.findEnabledTimeout(parent.Parent)
 }
 
 // Middleware returns the slice of MiddlewareFuncs that have been added to the Route.
