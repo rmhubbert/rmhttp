@@ -22,11 +22,13 @@ func Test_Handle(t *testing.T) {
 	assert.Len(t, routes, 1, "they should be equal")
 
 	expectedKey := "GET /handle"
-	route, ok := routes[expectedKey]
-	assert.True(t, ok, "they should be equal")
-	assert.Equal(t, "GET", route.Method, "they should be equal")
-	assert.Equal(t, "/handle", route.Pattern, "they should be equal")
-	assert.NotNil(t, route.Handler, "it should not be nil")
+	if route, ok := routes[expectedKey]; !ok {
+		t.Errorf("route not found: %s", expectedKey)
+	} else {
+		assert.Equal(t, "GET", route.Method, "they should be equal")
+		assert.Equal(t, "/handle", route.Pattern, "they should be equal")
+		assert.NotNil(t, route.Handler, "it should not be nil")
+	}
 }
 
 // Test_HandleFunc checks that a handlerFunc can be successfully added to the App
@@ -38,33 +40,36 @@ func Test_HandleFunc(t *testing.T) {
 	assert.Len(t, routes, 1, "they should be equal")
 
 	expectedKey := "GET /handlefunc"
-	route, ok := routes[expectedKey]
-	assert.True(t, ok, "they should be equal")
-	assert.Equal(t, "GET", route.Method, "they should be equal")
-	assert.Equal(t, "/handlefunc", route.Pattern, "they should be equal")
-	assert.NotNil(t, route.Handler, "it should not be nil")
+	if route, ok := routes[expectedKey]; !ok {
+		t.Errorf("route not found: %s", expectedKey)
+	} else {
+		assert.Equal(t, "GET", route.Method, "they should be equal")
+		assert.Equal(t, "/handlefunc", route.Pattern, "they should be equal")
+		assert.NotNil(t, route.Handler, "it should not be nil")
+	}
 }
 
 // Test_Routes checks that a list of current Routes is returned.
 func Test_Routes(t *testing.T) {
+	app := New()
 	route := NewRoute(
 		"GET",
 		"/test",
 		HandlerFunc(createTestHandlerFunc(http.StatusOK, "test body", nil)),
+		app.rootGroup,
 	)
-	app := New()
 	app.addRoute(route)
 
 	routes := app.Routes()
 	assert.Len(t, routes, 1, "they should be equal")
 
-	r, ok := routes["GET /test"]
-	if !ok {
-		t.Error("route not found")
+	expectedKey := "GET /test"
+	if route, ok := routes[expectedKey]; !ok {
+		t.Errorf("route not found: %s", expectedKey)
+	} else {
+		assert.Equal(t, "GET", route.Method, "they should be equal")
+		assert.Equal(t, "/test", route.Pattern, "they should be equal")
 	}
-
-	assert.Equal(t, "GET", r.Method, "they should be equal")
-	assert.Equal(t, "/test", r.Pattern, "they should be equal")
 }
 
 // Test_Compile checks that the Routes can be compiled and loaded into the router's

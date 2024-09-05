@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -26,10 +27,10 @@ import (
 // App encapsulates the application and provides the public API, as well as orchestrating the core
 // library functionality.
 type App struct {
-	logger       Logger
-	Server       *Server
-	Router       *Router
-	routeService *routeService
+	logger    Logger
+	Server    *Server
+	Router    *Router
+	rootGroup *Group
 }
 
 // New creates, initialises and returns a pointer to a new App. An optional configuration can be
@@ -72,11 +73,17 @@ func New(c ...Config) *App {
 		config.Logger,
 	)
 
+	rootGroup := NewGroup("")
+	rootGroup.Timeout = NewTimeout(
+		time.Duration(config.Timeout.RequestTimeout)*time.Second,
+		config.Timeout.TimeoutMessage,
+	)
+
 	return &App{
-		Server:       server,
-		Router:       router,
-		logger:       config.Logger,
-		routeService: newRouteService(config.Logger),
+		Server:    server,
+		Router:    router,
+		logger:    config.Logger,
+		rootGroup: rootGroup,
 	}
 }
 
@@ -89,8 +96,10 @@ func (app *App) Handle(method string, pattern string, handler Handler) *Route {
 		strings.TrimSpace(strings.ToUpper(method)),
 		strings.TrimSpace(strings.ToLower(pattern)),
 		handler,
+		app.rootGroup,
 	)
-	app.addRoute(route)
+	// app.addRoute(route)
+	app.rootGroup.Route(route)
 	return route
 }
 
@@ -109,7 +118,7 @@ func (app *App) HandleFunc(
 
 // Routes returns a map of the currently added Routes
 func (app *App) Routes() map[string]*Route {
-	return app.routeService.routes
+	return app.rootGroup.Routes
 }
 
 // addRoute saves the passed Route object to an internal map, which will be used at server start
@@ -118,7 +127,7 @@ func (app *App) Routes() map[string]*Route {
 // This allows us to overwrite Routes prior to application start without causing the underlying
 // http.ServeMux to throw an error.
 func (app *App) addRoute(route *Route) {
-	app.routeService.addRoute(route)
+	app.rootGroup.Route(route)
 }
 
 // Compile prepares the app for starting by applying the middleware, and loading the routes. It
@@ -128,8 +137,11 @@ func (app *App) Compile() {
 	routeSlice := []*Route{}
 	for _, route := range routes {
 		middleware := []MiddlewareFunc{}
+		middleware = append(middleware, HeaderMiddleware(route.ComputedHeaders()))
 		middleware = append(middleware, route.ComputedMiddleware()...)
-		middleware = append(middleware, TimeoutMiddleware(route.ComputedTimeout()))
+		if timeout := route.ComputedTimeout(); timeout.Enabled {
+			middleware = append(middleware, TimeoutMiddleware(route.ComputedTimeout()))
+		}
 
 		route.Handler = applyMiddleware(
 			route.Handler,
@@ -138,7 +150,7 @@ func (app *App) Compile() {
 		routeSlice = append(routeSlice, route)
 	}
 
-	app.routeService.loadRoutes(routeSlice, app.Router)
+	app.Router.loadRoutes(routeSlice)
 }
 
 // ListenAndServe compiles and loads the registered routes, and then starts the Server without SSL.

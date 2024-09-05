@@ -23,13 +23,14 @@ type Route struct {
 	Middleware []MiddlewareFunc
 	Timeout    Timeout
 	Headers    map[string]string
+	Parent     *Group
 }
 
 // NewRoute validates the input, then creates, initialises and returns a pointer to a Route. The
 // validation step ensures that a valid HTTP method has been passed (http.MethodGet will be
 // used, if not). The method will also be transformed to uppercase, and the pattern to
 // lowercase.
-func NewRoute(method string, pattern string, handler Handler) *Route {
+func NewRoute(method string, pattern string, handler Handler, parent *Group) *Route {
 	m := strings.ToUpper(method)
 	if !slices.Contains(ValidHTTPMethods(), m) {
 		method = http.MethodGet
@@ -39,7 +40,7 @@ func NewRoute(method string, pattern string, handler Handler) *Route {
 		Pattern: strings.ToLower(pattern),
 		Handler: handler,
 		Headers: make(map[string]string),
-		Timeout: NewTimeout(10*time.Second, "Timeout"),
+		Parent:  parent,
 	}
 }
 
@@ -86,10 +87,6 @@ func (route *Route) ComputedTimeout() Timeout {
 // Middleware returns the slice of MiddlewareFuncs that have been added to the Route.
 func (route *Route) ComputedMiddleware() []MiddlewareFunc {
 	m := route.Middleware
-	headersMiddleware, ok := route.createHeaderMiddleware()
-	if ok {
-		m = append(m, headersMiddleware)
-	}
 	return m
 }
 
@@ -112,62 +109,7 @@ func (route *Route) WithHeader(key, value string) *Route {
 	return route
 }
 
-// createHeaderMiddleware creates and returns a MiddlewareFunc that will apply all of the headers
-// that have been added to the Route.
-func (route *Route) createHeaderMiddleware() (MiddlewareFunc, bool) {
-	if len(route.ComputedHeaders()) > 0 {
-		// Create simple middleware for adding the headers
-		headersMiddleware := func(next Handler) Handler {
-			return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-				for key, value := range route.ComputedHeaders() {
-					w.Header().Add(key, value)
-				}
-
-				return next.ServeHTTPWithError(w, r)
-			})
-		}
-		return MiddlewareFunc(headersMiddleware), true
-	}
-	return MiddlewareFunc(func(h Handler) Handler { return h }), false
-}
-
 // String is used internally to calculate a string signature for use as map keys, etc.
 func (route *Route) String() string {
 	return fmt.Sprint(route.Method, " ", route.Pattern)
-}
-
-// ------------------------------------------------------------------------------------------------
-// ROUTE SERVICE
-// ------------------------------------------------------------------------------------------------
-
-// routeService supplies functionality for managing Route objects in the application. This
-// includes providing interfaces for adding and removing routes, as well as applying route
-// specific timeouts, middleware and headers.
-type routeService struct {
-	routes map[string]*Route
-	logger Logger
-}
-
-// newRouteService creates, initialises, and then returns a pointer to a new routeService.
-func newRouteService(logger Logger) *routeService {
-	return &routeService{
-		routes: make(map[string]*Route),
-		logger: logger,
-	}
-}
-
-// addRoute saves the passed Route object to an internal map, which will be used at server start
-// to register all of the application routes with the router.
-//
-// This allows us to modify Routes prior to application start without causing the underlying
-// http.ServeMux to throw an error.
-func (rts *routeService) addRoute(route *Route) {
-	rts.routes[route.String()] = route
-}
-
-// loadRoutes registers each Route with the passed Router
-func (rts *routeService) loadRoutes(routes []*Route, router *Router) {
-	for _, route := range routes {
-		router.Handle(route.Method, route.ComputedPattern(), route.Handler)
-	}
 }
