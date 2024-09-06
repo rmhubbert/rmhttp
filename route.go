@@ -44,30 +44,6 @@ func NewRoute(method string, pattern string, handler Handler, parent *Group) *Ro
 	}
 }
 
-// Use adds middleware handlers to the receiver Route.
-//
-// Each middleware handler will be wrapped to create a call stack with the order in which the
-// middleware is added being maintained. So, for example, if the user added A and B
-// middleware via this method, the resulting callstack would be as follows -
-//
-// Middleware A -> Middleware B -> Route Handler -> Middleware B -> Middleware A
-//
-// (This actually a slight simplification, as internal middleware such as HTTP Logging, CORS, HTTP
-// Error Handling and Route Panic Recovery may also be inserted into the call stack, depending
-// on how the App is configured).
-//
-// The middlewares argument is variadic, allowing the user to add multiple middleware functions
-// in a single call.
-//
-// This method will return a pointer to the receiver Route, allowing the user to chain any of the
-// other builder methods that Route implements.
-func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
-	for _, mw := range middlewares {
-		route.Middleware = append(route.Middleware, MiddlewareFunc(mw))
-	}
-	return route
-}
-
 // ComputedPattern dynamically calculates the pattern for the Route. It returns the URL pattern as a
 // string.
 func (route *Route) ComputedPattern() string {
@@ -127,6 +103,39 @@ func (route *Route) findEnabledTimeout(parent *Group) Timeout {
 func (route *Route) ComputedMiddleware() []MiddlewareFunc {
 	m := route.Middleware
 	return m
+}
+
+// Withmiddleware adds Middleware handlers to the receiver Route.
+//
+// Each middleware handler will be wrapped to create a call stack with the order in which the
+// middleware is added being maintained. So, for example, if the user added A and B
+// middleware via this method, the resulting callstack would be as follows -
+//
+// Middleware A -> Middleware B -> Route Handler -> Middleware B -> Middleware A
+//
+// (This actually a slight simplification, as internal middleware such as HTTP Logging, CORS, HTTP
+// Error Handling and Route Panic Recovery may also be inserted into the call stack, depending
+// on how the App is configured).
+//
+// The middlewares argument is variadic, allowing the user to add multiple middleware functions
+// in a single call.
+//
+// This method will return a pointer to the receiver Route, allowing the user to chain any of the
+// other builder methods that Route implements.
+func (route *Route) WithMiddleware(middlewares ...func(Handler) Handler) *Route {
+	for _, mw := range middlewares {
+		route.Middleware = append(route.Middleware, MiddlewareFunc(mw))
+	}
+	return route
+}
+
+// Use is a convenience method for adding middleware handlers to a Route. It uses WithMiddleware
+// behind the scenes.
+//
+// This method will return a pointer to the receiver Route, allowing the user to chain any of the
+// other builder methods that Route implements.
+func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
+	return route.WithMiddleware(middlewares...)
 }
 
 // WithTimeout sets a request timeout amount and message for this route.
