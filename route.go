@@ -71,12 +71,37 @@ func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
 // ComputedPattern dynamically calculates the pattern for the Route. It returns the URL pattern as a
 // string.
 func (route *Route) ComputedPattern() string {
-	return route.Pattern
+	return route.buildPattern(route.Pattern, route.Parent)
 }
 
-// Headers returns the map of HTTP headers that have been added to the Route.
+// buildPattern builds a URL pattern by conatenating any parent Group patterns together with the
+// Route pattern.
+func (route *Route) buildPattern(pattern string, parent *Group) string {
+	if parent == nil {
+		return pattern
+	}
+	pattern = fmt.Sprintf("%s%s", parent.Pattern, pattern)
+	return route.buildPattern(pattern, parent.Parent)
+}
+
+// ComputedHeaders dynamically calculates the HTTP headers that have been added to the Route and
+// any parent Groups.
 func (route *Route) ComputedHeaders() map[string]string {
-	return route.Headers
+	return route.findHeaders(route.Headers, route.Parent)
+}
+
+// findHeaders collects all of the headers set on the Route, plus any parent groups.
+func (route *Route) findHeaders(headers map[string]string, parent *Group) map[string]string {
+	if parent == nil {
+		return headers
+	}
+	// Only add a parent header if it hasn't already been set in the child.
+	for key, value := range parent.Headers {
+		if _, ok := headers[key]; !ok {
+			headers[key] = value
+		}
+	}
+	return route.findHeaders(headers, parent.Parent)
 }
 
 // Timeout returns the Timeout object that has been added to the Route.
