@@ -44,7 +44,7 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // loadRoutes registers each Route with the underlying HTTP request multiplexer.
-func (rt *Router) loadRoutes(routes []*Route) {
+func (rt *Router) loadRoutes(routes map[string]*Route) {
 	for _, route := range routes {
 		rt.Handle(route.Method, route.ComputedPattern(), route.Handler)
 	}

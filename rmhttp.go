@@ -137,7 +137,6 @@ func (app *App) addRoute(route *Route) {
 // should be the last function to be called before starting the server.
 func (app *App) Compile() {
 	routes := app.Routes()
-	routeSlice := []*Route{}
 	for _, route := range routes {
 		middleware := []MiddlewareFunc{}
 		middleware = append(middleware, HeaderMiddleware(route.ComputedHeaders()))
@@ -154,10 +153,9 @@ func (app *App) Compile() {
 			route.Handler,
 			middleware,
 		)
-		routeSlice = append(routeSlice, route)
 	}
 
-	app.Router.loadRoutes(routeSlice)
+	app.Router.loadRoutes(routes)
 }
 
 // ListenAndServe compiles and loads the registered routes, and then starts the Server without SSL.
