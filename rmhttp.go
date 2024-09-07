@@ -101,7 +101,6 @@ func (app *App) Handle(method string, pattern string, handler Handler) *Route {
 		handler,
 		app.rootGroup,
 	)
-	// app.addRoute(route)
 	app.rootGroup.Route(route)
 	return route
 }
