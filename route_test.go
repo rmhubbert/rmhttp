@@ -137,6 +137,20 @@ func Test_Route_ComputedHeaders(t *testing.T) {
 		assert.Equal(t, "h2", headers["x-h2"], "they should be equal")
 	})
 
+	t.Run("group headers are used when no route headers are set", func(t *testing.T) {
+		handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
+		group := NewGroup("")
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		group.WithHeader("x-h1", "h1")
+		group.WithHeader("x-h2", "h2")
+
+		headers := route.ComputedHeaders()
+
+		assert.Len(t, headers, 2, "they should be equal")
+		assert.Equal(t, "h1", headers["x-h1"], "they should be equal")
+		assert.Equal(t, "h2", headers["x-h2"], "they should be equal")
+	})
+
 	t.Run("group headers are added to route headers", func(t *testing.T) {
 		handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
 		group := NewGroup("")
