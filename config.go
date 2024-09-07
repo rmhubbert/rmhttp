@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"dario.cat/mergo"
-	"github.com/caarlos0/env/v11"
+	env "github.com/caarlos0/env/v11"
 )
 
 // ------------------------------------------------------------------------------------------------
