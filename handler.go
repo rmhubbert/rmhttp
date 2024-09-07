@@ -5,10 +5,10 @@ import "net/http"
 // ------------------------------------------------------------------------------------------------
 // HANDLER INTERFACE
 // ------------------------------------------------------------------------------------------------
-// Handler extends the http.Handler interface with ServeHTTPWithError, allowing Handlers to return
-// errors.
+// Handler implements the http.Handler interface and adds ServeHTTPWithError, allowing Handlers to
+// return errors.
 type Handler interface {
-	http.Handler
+	ServeHTTP(http.ResponseWriter, *http.Request)
 	ServeHTTPWithError(http.ResponseWriter, *http.Request) error
 }
 

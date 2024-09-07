@@ -10,13 +10,13 @@ import (
 )
 
 var defaultTimeoutConfig = TimeoutConfig{
-	TCPReadTimeout:        2,
-	TCPReadHeaderTimeout:  1,
-	TCPIdleTimeout:        120,
-	TCPWriteTimeout:       5,
+	TCPReadTimeout:         2,
+	TCPReadHeaderTimeout:   1,
+	TCPIdleTimeout:         120,
+	TCPWriteTimeout:        5,
 	TCPWriteTimeoutPadding: 1,
-	RequestTimeout:        7,
-	TimeoutMessage:        "Request Timeout",
+	RequestTimeout:         7,
+	TimeoutMessage:         "Request Timeout",
 }
 
 var defaultSSLConfig = SSLConfig{
@@ -67,10 +67,26 @@ func Test_RoadConfig_default(t *testing.T) {
 		{"default host", cfg.Host, defaultConfig.Host},
 		{"default port", cfg.Port, defaultConfig.Port},
 		{"default debug flag", cfg.Debug, defaultConfig.Debug},
-		{"default enable panic recovery flag", cfg.EnablePanicRecovery, defaultConfig.EnablePanicRecovery},
-		{"default enable HTTP logging flag", cfg.EnableHTTPLogging, defaultConfig.EnableHTTPLogging},
-		{"default enable HTTP error handling flag", cfg.EnableHTTPErrorHandling, defaultConfig.EnableHTTPErrorHandling},
-		{"default logger allowed methods", cfg.LoggerAllowedMethods, defaultConfig.LoggerAllowedMethods},
+		{
+			"default enable panic recovery flag",
+			cfg.EnablePanicRecovery,
+			defaultConfig.EnablePanicRecovery,
+		},
+		{
+			"default enable HTTP logging flag",
+			cfg.EnableHTTPLogging,
+			defaultConfig.EnableHTTPLogging,
+		},
+		{
+			"default enable HTTP error handling flag",
+			cfg.EnableHTTPErrorHandling,
+			defaultConfig.EnableHTTPErrorHandling,
+		},
+		{
+			"default logger allowed methods",
+			cfg.LoggerAllowedMethods,
+			defaultConfig.LoggerAllowedMethods,
+		},
 		{"default logger", cfg.Logger, defaultConfig.Logger},
 		{"default CORS config", cfg.Cors, defaultConfig.Cors},
 		{"default SSL config", cfg.SSL, defaultConfig.SSL},
@@ -140,13 +156,13 @@ func Test_LoadConfig_from_env(t *testing.T) {
 	timeoutMessage := "Hello, World!"
 
 	envTimeoutConfig := TimeoutConfig{
-		TCPReadTimeout:        tcpReadTimeout,
-		TCPReadHeaderTimeout:  tcpReadHeaderTimeout,
-		TCPIdleTimeout:        tcpIdleTimeout,
-		TCPWriteTimeout:       tcpWriteTimeout,
+		TCPReadTimeout:         tcpReadTimeout,
+		TCPReadHeaderTimeout:   tcpReadHeaderTimeout,
+		TCPIdleTimeout:         tcpIdleTimeout,
+		TCPWriteTimeout:        tcpWriteTimeout,
 		TCPWriteTimeoutPadding: tcpWriteTimeoutBuffer,
-		RequestTimeout:        httpRequestTimeout,
-		TimeoutMessage:        timeoutMessage,
+		RequestTimeout:         httpRequestTimeout,
+		TimeoutMessage:         timeoutMessage,
 	}
 
 	vars := map[string]string{
@@ -196,10 +212,26 @@ func Test_LoadConfig_from_env(t *testing.T) {
 		{"host set from an environment variable", cfg.Host, host},
 		{"port set from an environment variable", cfg.Port, port},
 		{"debug flag set from an environment variable", cfg.Debug, debug},
-		{"enable panic recovery flag set from an environment variable", cfg.EnablePanicRecovery, enablePanicRecovery},
-		{"enable HTTP logging flag set from an environment variable", cfg.EnableHTTPLogging, enableHTTPLogging},
-		{"enable HTTP error handling flag set from an environment variable", cfg.EnableHTTPErrorHandling, enableHTTPErrorHandling},
-		{"logger allowed methods set from an environment variable", cfg.LoggerAllowedMethods, loggerAllowedMethods},
+		{
+			"enable panic recovery flag set from an environment variable",
+			cfg.EnablePanicRecovery,
+			enablePanicRecovery,
+		},
+		{
+			"enable HTTP logging flag set from an environment variable",
+			cfg.EnableHTTPLogging,
+			enableHTTPLogging,
+		},
+		{
+			"enable HTTP error handling flag set from an environment variable",
+			cfg.EnableHTTPErrorHandling,
+			enableHTTPErrorHandling,
+		},
+		{
+			"logger allowed methods set from an environment variable",
+			cfg.LoggerAllowedMethods,
+			loggerAllowedMethods,
+		},
 		{"CORS config set from environment variables", cfg.Cors, envCorsConfig},
 		{"SSL config set from environment variables", cfg.SSL, envSSLConfig},
 		{"timeout config set from environment variables", cfg.Timeout, envTimeoutConfig},
@@ -273,13 +305,13 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 	timeoutMessage := "Hello, World!"
 
 	userTimeoutConfig := TimeoutConfig{
-		TCPReadTimeout:        tcpReadTimeout,
-		TCPReadHeaderTimeout:  tcpReadHeaderTimeout,
-		TCPIdleTimeout:        tcpIdleTimeout,
-		TCPWriteTimeout:       tcpWriteTimeout,
+		TCPReadTimeout:         tcpReadTimeout,
+		TCPReadHeaderTimeout:   tcpReadHeaderTimeout,
+		TCPIdleTimeout:         tcpIdleTimeout,
+		TCPWriteTimeout:        tcpWriteTimeout,
 		TCPWriteTimeoutPadding: tcpWriteTimeoutBuffer,
-		RequestTimeout:        httpRequestTimeout,
-		TimeoutMessage:        timeoutMessage,
+		RequestTimeout:         httpRequestTimeout,
+		TimeoutMessage:         timeoutMessage,
 	}
 
 	userConfig := Config{
@@ -308,10 +340,26 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 		{"host set from a user defined config", cfg.Host, host},
 		{"port set from a user defined config", cfg.Port, port},
 		{"debug flag set from a user defined config", cfg.Debug, debug},
-		{"enable panic recovery flag set from a user defined config", cfg.EnablePanicRecovery, enablePanicRecovery},
-		{"enable HTTP logging flag set from a user defined config", cfg.EnableHTTPLogging, enableHTTPLogging},
-		{"enable HTTP error handling flag set from a user defined config", cfg.EnableHTTPErrorHandling, enableHTTPErrorHandling},
-		{"logger allowed methods set from a user defined config", cfg.LoggerAllowedMethods, loggerAllowedMethods},
+		{
+			"enable panic recovery flag set from a user defined config",
+			cfg.EnablePanicRecovery,
+			enablePanicRecovery,
+		},
+		{
+			"enable HTTP logging flag set from a user defined config",
+			cfg.EnableHTTPLogging,
+			enableHTTPLogging,
+		},
+		{
+			"enable HTTP error handling flag set from a user defined config",
+			cfg.EnableHTTPErrorHandling,
+			enableHTTPErrorHandling,
+		},
+		{
+			"logger allowed methods set from a user defined config",
+			cfg.LoggerAllowedMethods,
+			loggerAllowedMethods,
+		},
 		{"CORS config set from a user defined config", cfg.Cors, userCorsConfig},
 		{"SSL config set from a user defined config", cfg.SSL, userSSLConfig},
 		{"timeout config set from a user defined config", cfg.Timeout, userTimeoutConfig},
@@ -385,8 +433,8 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 		// TCPIdleTimeout:        tcpIdleTimeout,
 		// TCPWriteTimeout:       tcpWriteTimeout,
 		TCPWriteTimeoutPadding: tcpWriteTimeoutBuffer,
-		RequestTimeout:        httpRequestTimeout,
-		TimeoutMessage:        timeoutMessage,
+		RequestTimeout:         httpRequestTimeout,
+		TimeoutMessage:         timeoutMessage,
 	}
 
 	partialConfig := Config{
@@ -415,28 +463,116 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 		{"host set from a partially defined user config", cfg.Host, host},
 		{"port set from a partially defined user config", cfg.Port, defaultConfig.Port},
 		{"debug flag set from a partially defined user config", cfg.Debug, defaultConfig.Debug},
-		{"enable panic recovery flag set from a partially defined user config", cfg.EnablePanicRecovery, defaultConfig.EnablePanicRecovery},
-		{"enable HTTP logging flag set from a partially defined user config", cfg.EnableHTTPLogging, enableHTTPLogging},
-		{"enable HTTP error handling set from a partially defined user config", cfg.EnableHTTPErrorHandling, enableHTTPErrorHandling},
-		{"logger allowed methods set from a partially defined user config", cfg.LoggerAllowedMethods, loggerAllowedMethods},
-		{"CORS allowed origin set from a partially defined user config", cfg.Cors.AllowedOrigin, defaultCorsConfig.AllowedOrigin},
-		{"CORS allowed methods set from a partially defined user config", cfg.Cors.AllowedMethods, defaultCorsConfig.AllowedMethods},
-		{"CORS allowed headers set from a partially defined user config", cfg.Cors.AllowedHeaders, partialCorsConfig.AllowedHeaders},
-		{"CORS exposed headers set from a partially defined user config", cfg.Cors.ExposedHeaders, partialCorsConfig.ExposedHeaders},
-		{"CORS max age set from a partially defined user config", cfg.Cors.MaxAge, partialCorsConfig.MaxAge},
-		{"CORS OPTIONS success status set from a partially defined user config", cfg.Cors.OptionsSuccessStatus, partialCorsConfig.OptionsSuccessStatus},
-		{"CORS allow credentials set from a partially defined user config", cfg.Cors.AllowCredentials, partialCorsConfig.AllowCredentials},
-		{"CORS preflight vary set from a partially defined user config", cfg.Cors.PreflightVary, partialCorsConfig.PreflightVary},
-		{"enable SSL flag set from a partially defined user config", cfg.SSL.Enable, defaultSSLConfig.Enable},
-		{"SSL certificate path set from a partially defined user config", cfg.SSL.Cert, defaultSSLConfig.Cert},
-		{"SSL key path set from a partially defined user config", cfg.SSL.Key, partialSSLConfig.Key},
-		{"TCP read timeout set from a partially defined user config", cfg.Timeout.TCPReadTimeout, partialTimeoutConfig.TCPReadTimeout},
-		{"TCP read header timeout set from a partially defined user config", cfg.Timeout.TCPReadHeaderTimeout, defaultTimeoutConfig.TCPReadHeaderTimeout},
-		{"TCP idle timeout set from a partially defined user config", cfg.Timeout.TCPIdleTimeout, defaultTimeoutConfig.TCPIdleTimeout},
-		{"TCP write timeout set from a partially defined user config", cfg.Timeout.TCPWriteTimeout, defaultTimeoutConfig.TCPWriteTimeout},
-		{"TCP write timeout buffer set from a partially defined user config", cfg.Timeout.TCPWriteTimeoutPadding, partialTimeoutConfig.TCPWriteTimeoutPadding},
-		{"HTTP request timeout set from a partially defined user config", cfg.Timeout.RequestTimeout, partialTimeoutConfig.RequestTimeout},
-		{"timeout message set from a partially defined user config", cfg.Timeout.TimeoutMessage, partialTimeoutConfig.TimeoutMessage},
+		{
+			"enable panic recovery flag set from a partially defined user config",
+			cfg.EnablePanicRecovery,
+			defaultConfig.EnablePanicRecovery,
+		},
+		{
+			"enable HTTP logging flag set from a partially defined user config",
+			cfg.EnableHTTPLogging,
+			enableHTTPLogging,
+		},
+		{
+			"enable HTTP error handling set from a partially defined user config",
+			cfg.EnableHTTPErrorHandling,
+			enableHTTPErrorHandling,
+		},
+		{
+			"logger allowed methods set from a partially defined user config",
+			cfg.LoggerAllowedMethods,
+			loggerAllowedMethods,
+		},
+		{
+			"CORS allowed origin set from a partially defined user config",
+			cfg.Cors.AllowedOrigin,
+			defaultCorsConfig.AllowedOrigin,
+		},
+		{
+			"CORS allowed methods set from a partially defined user config",
+			cfg.Cors.AllowedMethods,
+			defaultCorsConfig.AllowedMethods,
+		},
+		{
+			"CORS allowed headers set from a partially defined user config",
+			cfg.Cors.AllowedHeaders,
+			partialCorsConfig.AllowedHeaders,
+		},
+		{
+			"CORS exposed headers set from a partially defined user config",
+			cfg.Cors.ExposedHeaders,
+			partialCorsConfig.ExposedHeaders,
+		},
+		{
+			"CORS max age set from a partially defined user config",
+			cfg.Cors.MaxAge,
+			partialCorsConfig.MaxAge,
+		},
+		{
+			"CORS OPTIONS success status set from a partially defined user config",
+			cfg.Cors.OptionsSuccessStatus,
+			partialCorsConfig.OptionsSuccessStatus,
+		},
+		{
+			"CORS allow credentials set from a partially defined user config",
+			cfg.Cors.AllowCredentials,
+			partialCorsConfig.AllowCredentials,
+		},
+		{
+			"CORS preflight vary set from a partially defined user config",
+			cfg.Cors.PreflightVary,
+			partialCorsConfig.PreflightVary,
+		},
+		{
+			"enable SSL flag set from a partially defined user config",
+			cfg.SSL.Enable,
+			defaultSSLConfig.Enable,
+		},
+		{
+			"SSL certificate path set from a partially defined user config",
+			cfg.SSL.Cert,
+			defaultSSLConfig.Cert,
+		},
+		{
+			"SSL key path set from a partially defined user config",
+			cfg.SSL.Key,
+			partialSSLConfig.Key,
+		},
+		{
+			"TCP read timeout set from a partially defined user config",
+			cfg.Timeout.TCPReadTimeout,
+			partialTimeoutConfig.TCPReadTimeout,
+		},
+		{
+			"TCP read header timeout set from a partially defined user config",
+			cfg.Timeout.TCPReadHeaderTimeout,
+			defaultTimeoutConfig.TCPReadHeaderTimeout,
+		},
+		{
+			"TCP idle timeout set from a partially defined user config",
+			cfg.Timeout.TCPIdleTimeout,
+			defaultTimeoutConfig.TCPIdleTimeout,
+		},
+		{
+			"TCP write timeout set from a partially defined user config",
+			cfg.Timeout.TCPWriteTimeout,
+			defaultTimeoutConfig.TCPWriteTimeout,
+		},
+		{
+			"TCP write timeout buffer set from a partially defined user config",
+			cfg.Timeout.TCPWriteTimeoutPadding,
+			partialTimeoutConfig.TCPWriteTimeoutPadding,
+		},
+		{
+			"HTTP request timeout set from a partially defined user config",
+			cfg.Timeout.RequestTimeout,
+			partialTimeoutConfig.RequestTimeout,
+		},
+		{
+			"timeout message set from a partially defined user config",
+			cfg.Timeout.TimeoutMessage,
+			partialTimeoutConfig.TimeoutMessage,
+		},
 	}
 
 	for _, test := range tests {
