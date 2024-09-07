@@ -105,7 +105,7 @@ func (route *Route) ComputedMiddleware() []MiddlewareFunc {
 	return m
 }
 
-// Withmiddleware adds Middleware handlers to the receiver Route.
+// WithMiddleware adds Middleware handlers to the receiver Route.
 //
 // Each middleware handler will be wrapped to create a call stack with the order in which the
 // middleware is added being maintained. So, for example, if the user added A and B
