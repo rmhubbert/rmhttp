@@ -30,7 +30,7 @@ jobs:
       - name: Static analysis
         uses: dominikh/staticcheck-action@v1.3.1
         with:
-          version: 2023.1.7
+          version: 2024.1.1
 
   #################################################
   # Run various linters
@@ -52,7 +52,7 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.59
+          version: v1.60.3
           args: -D staticcheck -E goimports -E gofmt -E gomoddirectives -E gosec -E predeclared
 
   #################################################
