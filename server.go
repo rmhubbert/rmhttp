@@ -65,6 +65,20 @@ func NewServer(
 	return &srv
 }
 
+// maybeUpdateTimeout updates the http.Server read and write timeouts, if the passed duration
+// is longer than the current values. We do this to ensure that the TCP connection does not
+// timeout before the longest request timeout.
+//
+// See https://adam-p.ca/blog/2022/01/golang-http-server-timeouts/
+func (srv *Server) maybeUpdateTimeout(timeout time.Duration) {
+	readTimeout := timeout + srv.Server.ReadHeaderTimeout + srv.writeTimeoutPadding
+	writeTimeout := timeout + srv.writeTimeoutPadding
+	if readTimeout > srv.Server.ReadTimeout && writeTimeout > srv.Server.WriteTimeout {
+		srv.Server.ReadTimeout = readTimeout
+		srv.Server.WriteTimeout = writeTimeout
+	}
+}
+
 // Address returns the server host and port as a formatted string ($HOST:$PORT).
 func (srv *Server) Address() string {
 	return fmt.Sprintf("%s:%d", srv.Host, srv.Port)
