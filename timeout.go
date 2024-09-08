@@ -2,6 +2,7 @@ package rmhttp
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"time"
@@ -11,7 +12,7 @@ import (
 // TIMEOUT
 // ------------------------------------------------------------------------------------------------
 
-// A Timeout encapsulates a duration and message that should be used for applying timeouts to
+// Timeout encapsulates a duration and message that should be used for applying timeouts to
 // Route handlers, with a specific error message.
 type Timeout struct {
 	Duration time.Duration
@@ -19,7 +20,7 @@ type Timeout struct {
 	Enabled  bool
 }
 
-// newTimeout creates, initialises and returns a pointer to a Timeout.
+// NewTimeout creates, initialises and returns a pointer to a Timeout.
 func NewTimeout(duration time.Duration, message string) Timeout {
 	return Timeout{
 		Duration: duration,
@@ -34,13 +35,13 @@ func NewTimeout(duration time.Duration, message string) Timeout {
 
 // TimeoutMiddleware creates, initialises and returns a middleware function that will wrap the next
 // handler in the stack with a timeout handler.
-func TimeoutMiddleware(timeout Timeout) func(Handler) Handler {
-	return func(next Handler) Handler {
+func TimeoutMiddleware(timeout Timeout) MiddlewareFunc {
+	return MiddlewareFunc(func(next Handler) Handler {
 		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 			th := NewTimeoutHandler(next, timeout)
 			return th.ServeHTTPWithError(w, r)
 		})
-	}
+	})
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -126,11 +127,11 @@ func (h *TimeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Reque
 		case context.DeadlineExceeded:
 			w.WriteHeader(http.StatusServiceUnavailable)
 			_, _ = io.WriteString(w, h.timeout.Message)
-			return NewHTTPError(h.timeout.Message, http.StatusServiceUnavailable)
+			return NewHTTPError(errors.New(h.timeout.Message), http.StatusServiceUnavailable)
 		default:
 			w.WriteHeader(http.StatusServiceUnavailable)
 			_, _ = io.WriteString(w, err.Error())
-			return NewHTTPError(err.Error(), http.StatusServiceUnavailable)
+			return NewHTTPError(err, http.StatusServiceUnavailable)
 		}
 	}
 }

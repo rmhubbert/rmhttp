@@ -40,7 +40,7 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		te := timeoutErr.(*HTTPError)
 
 		assert.Equal(t, http.StatusServiceUnavailable, te.StatusCode, "they should be equal")
-		assert.Equal(t, timeoutMessage, te.Message, "they should be equal")
+		assert.Equal(t, timeoutMessage, te.Err.Error(), "they should be equal")
 	})
 
 	t.Run("timeout handler passes through handler without error", func(t *testing.T) {
