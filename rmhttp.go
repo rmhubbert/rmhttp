@@ -152,6 +152,7 @@ func (app *App) Compile() {
 		middleware := []MiddlewareFunc{}
 		middleware = append(middleware, HeaderMiddleware(route.ComputedHeaders()))
 		middleware = append(middleware, route.ComputedMiddleware()...)
+		middleware = append(middleware, HTTPErrorHandlerMiddleware())
 
 		if timeout := route.ComputedTimeout(); timeout.Enabled {
 			// Give the Server a chance to update it's TCP level timeout so that the connection doesn't
