@@ -30,7 +30,7 @@ type Route struct {
 // validation step ensures that a valid HTTP method has been passed (http.MethodGet will be
 // used, if not). The method will also be transformed to uppercase, and the pattern to
 // lowercase.
-func NewRoute(method string, pattern string, handler Handler, parent *Group) *Route {
+func NewRoute(method string, pattern string, handler Handler) *Route {
 	m := strings.ToUpper(method)
 	if !slices.Contains(ValidHTTPMethods(), m) {
 		method = http.MethodGet
@@ -40,7 +40,6 @@ func NewRoute(method string, pattern string, handler Handler, parent *Group) *Ro
 		Pattern: strings.ToLower(pattern),
 		Handler: handler,
 		Headers: make(map[string]string),
-		Parent:  parent,
 	}
 }
 

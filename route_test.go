@@ -51,7 +51,7 @@ func Test_Route_ComputedTimeout(t *testing.T) {
 		handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
 		group := NewGroup("")
 		group.WithTimeout(2, "group timeout")
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 
 		assert.Equal(
 			t,
@@ -73,7 +73,7 @@ func Test_Route_ComputedTimeout(t *testing.T) {
 		rootGroup.WithTimeout(2, "root group timeout")
 		group := NewGroup("/test")
 		rootGroup.Group(group)
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 
 		assert.Equal(
 			t,
@@ -96,7 +96,7 @@ func Test_Route_ComputedPattern(t *testing.T) {
 	t.Run("route pattern is used when no group patterns are set", func(t *testing.T) {
 		handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
 		group := NewGroup("")
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 
 		assert.Equal(t, "/route", route.ComputedPattern(), "they should be equal")
 	})
@@ -104,7 +104,7 @@ func Test_Route_ComputedPattern(t *testing.T) {
 	t.Run("group pattern is prepended to route pattern", func(t *testing.T) {
 		handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
 		group := NewGroup("/group")
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 
 		assert.Equal(t, "/group/route", route.ComputedPattern(), "they should be equal")
 	})
@@ -114,7 +114,7 @@ func Test_Route_ComputedPattern(t *testing.T) {
 		rootGroup := NewGroup("/root")
 		group := NewGroup("/group")
 		rootGroup.Group(group)
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 
 		assert.Equal(t, "/root/group/route", route.ComputedPattern(), "they should be equal")
 	})
@@ -126,7 +126,7 @@ func Test_Route_ComputedHeaders(t *testing.T) {
 	t.Run("route headers are used when no group headers are set", func(t *testing.T) {
 		handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
 		group := NewGroup("")
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 		route.WithHeader("x-h1", "h1")
 		route.WithHeader("x-h2", "h2")
 
@@ -140,7 +140,7 @@ func Test_Route_ComputedHeaders(t *testing.T) {
 	t.Run("group headers are used when no route headers are set", func(t *testing.T) {
 		handler := createTestHandlerFunc(http.StatusOK, "test body", nil)
 		group := NewGroup("")
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 		group.WithHeader("x-h1", "h1")
 		group.WithHeader("x-h2", "h2")
 
@@ -157,7 +157,7 @@ func Test_Route_ComputedHeaders(t *testing.T) {
 		group.WithHeader("x-g1", "g1")
 		group.WithHeader("x-g2", "g2")
 
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 		route.WithHeader("x-h1", "h1")
 		route.WithHeader("x-h2", "h2")
 
@@ -181,7 +181,7 @@ func Test_Route_ComputedHeaders(t *testing.T) {
 		group.WithHeader("x-g2", "g2")
 
 		rootGroup.Group(group)
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 		route.WithHeader("x-h1", "h1")
 		route.WithHeader("x-h2", "h2")
 
@@ -201,7 +201,7 @@ func Test_Route_ComputedHeaders(t *testing.T) {
 		group := NewGroup("")
 		group.WithHeader("x-h1", "g1")
 
-		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler), group)
+		route := NewRoute(http.MethodGet, "/route", HandlerFunc(handler))
 		route.WithHeader("x-h1", "h1")
 
 		headers := route.ComputedHeaders()

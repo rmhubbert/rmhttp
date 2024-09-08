@@ -56,9 +56,8 @@ func Test_Routes(t *testing.T) {
 		"GET",
 		"/test",
 		HandlerFunc(createTestHandlerFunc(http.StatusOK, "test body", nil)),
-		app.rootGroup,
 	)
-	app.addRoute(route)
+	app.Route(route)
 
 	routes := app.Routes()
 	assert.Len(t, routes, 1, "they should be equal")

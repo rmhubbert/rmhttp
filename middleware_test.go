@@ -19,7 +19,6 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 		http.MethodGet,
 		testPattern,
 		HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody, nil)),
-		NewGroup(""),
 	)
 	route.Use(
 		createTestMiddlewareHandler("x-mw1", "mw1"),

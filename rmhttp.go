@@ -99,7 +99,6 @@ func (app *App) Handle(method string, pattern string, handler Handler) *Route {
 		strings.TrimSpace(strings.ToUpper(method)),
 		strings.TrimSpace(strings.ToLower(pattern)),
 		handler,
-		app.rootGroup,
 	)
 	app.rootGroup.Route(route)
 	return route
@@ -120,26 +119,27 @@ func (app *App) HandleFunc(
 
 // Routes returns a map of the currently added Routes
 func (app *App) Routes() map[string]*Route {
-	return app.rootGroup.Routes
+	return app.rootGroup.ComputedRoutes()
 }
 
-// addRoute saves the passed Route object to an internal map, which will be used at server start
-// to register all of the application routes with the router.
+// Route adds a Route to the application at the top level.
 //
 // This allows us to overwrite Routes prior to application start without causing the underlying
 // http.ServeMux to throw an error.
-func (app *App) addRoute(route *Route) {
+func (app *App) Route(route *Route) {
 	app.rootGroup.Route(route)
 }
 
-// Compile prepares the app for starting by applying the middleware, and loading the routes. It
-// should be the last function to be called before starting the server.
+// Compile prepares the app for starting by applying the middleware, and loading the Routes. It
+// should be the last function to be called before starting the Server.
 func (app *App) Compile() {
-	routes := app.Routes()
+	routes := app.rootGroup.ComputedRoutes()
+
 	for _, route := range routes {
 		middleware := []MiddlewareFunc{}
 		middleware = append(middleware, HeaderMiddleware(route.ComputedHeaders()))
 		middleware = append(middleware, route.ComputedMiddleware()...)
+
 		if timeout := route.ComputedTimeout(); timeout.Enabled {
 			// Give the Server a chance to update it's TCP level timeout so that the connection doesn't
 			// timeout before the request. It will only update if this timeout is longer than the
@@ -157,19 +157,19 @@ func (app *App) Compile() {
 	app.Router.loadRoutes(routes)
 }
 
-// ListenAndServe compiles and loads the registered routes, and then starts the Server without SSL.
+// ListenAndServe compiles and loads the registered Routes, and then starts the Server without SSL.
 func (app *App) ListenAndServe() error {
 	app.Compile()
 	return app.Server.ListenAndServe()
 }
 
-// ListenAndServeTLS compiles and loads the registered routes, and then starts the Server with SSL.
+// ListenAndServeTLS compiles and loads the registered Routes, and then starts the Server with SSL.
 func (app *App) ListenAndServeTLS() error {
 	app.Compile()
 	return app.Server.ListenAndServeTLS()
 }
 
-// Start compiles and loads the registered routes, and then starts the Server with graceful
+// Start compiles and loads the registered Routes, and then starts the Server with graceful
 // shutdown management.
 func (app *App) Start() error {
 	app.Compile()
