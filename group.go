@@ -34,6 +34,7 @@ func NewGroup(pattern string) *Group {
 // other builder methods that Group implements.
 func (group *Group) Route(route *Route) *Group {
 	group.Routes[route.String()] = route
+	route.Parent = group
 	return group
 }
 
@@ -97,4 +98,30 @@ func (group *Group) WithHeader(key, value string) *Group {
 func (group *Group) WithTimeout(timeout time.Duration, message string) *Group {
 	group.Timeout = NewTimeout(timeout, message)
 	return group
+}
+
+// ComputedRoutes returns a map of unique Routes composed from this Group and any sub Groups of
+// this Group.
+func (group *Group) ComputedRoutes() map[string]*Route {
+	routes := make(map[string]*Route)
+	findUniqueRoutes(routes, group)
+	return routes
+}
+
+// findUniqueRoutes recursively creates a map of unique Routes from this Group and any sub Groups
+// of this Group.
+func findUniqueRoutes(routes map[string]*Route, g *Group) {
+	if g == nil {
+		return
+	}
+
+	for key, route := range g.Routes {
+		if _, ok := routes[key]; !ok {
+			routes[key] = route
+		}
+	}
+
+	for _, subGroup := range g.Groups {
+		findUniqueRoutes(routes, subGroup)
+	}
 }
