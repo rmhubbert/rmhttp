@@ -117,5 +117,58 @@ func Test_HandleFunc(t *testing.T) {
 	}
 }
 
-// Test_Middleware tests applying middleware to a handler
-func Test_Route_Middleware(t *testing.T) {}
+// Test_Group tests route handling within groups.
+func Test_Group(t *testing.T) {
+	// Set up the App
+	app := rmhttp.New()
+	defer func() {
+		_ = app.Shutdown()
+	}()
+
+	group := app.Group("/group")
+	// Add handlers for all of our tests
+	for _, test := range handlerTests {
+		route := rmhttp.NewRoute(
+			test.method,
+			test.pattern,
+			rmhttp.HandlerFunc(createTestHandlerFunc(test.status, test.body, test.err)),
+		)
+		group.Route(route)
+
+		expectedPattern := fmt.Sprintf("%s %s%s", test.method, group.Pattern, test.pattern)
+		assert.Equal(
+			t,
+			expectedPattern,
+			fmt.Sprintf("%s %s", test.method, route.ComputedPattern()),
+		)
+	}
+
+	// Start the App and wait for it to be responsive
+	startServer(app)
+
+	// Run our tests
+	for _, test := range handlerTests {
+		t.Run(test.name, func(t *testing.T) {
+			expectedPattern := fmt.Sprintf("%s%s", group.Pattern, test.pathToTest)
+			url := fmt.Sprintf("http://%s%s", testAddress, expectedPattern)
+			req, err := http.NewRequest(test.method, url, nil)
+			if err != nil {
+				t.Errorf("failed to create request: %v", err)
+			}
+
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Errorf("get request failed: %v", err)
+			}
+
+			defer res.Body.Close()
+			body, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Errorf("failed to read response body: %v", err)
+			}
+
+			assert.Equal(t, test.body, string(body), "they should be equal")
+			assert.Equal(t, test.status, res.StatusCode, "they should be equal")
+		})
+	}
+}

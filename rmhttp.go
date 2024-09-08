@@ -117,7 +117,20 @@ func (app *App) HandleFunc(
 	return app.Handle(method, pattern, HandlerFunc(handlerFunc))
 }
 
-// Routes returns a map of the currently added Routes
+// Group creates, initialises, and returns a pointer to a Route Group.
+//
+// This is typically used to create new Routes as part of the Group, but can also be used to add
+// Group specific middleware, timeouts, etc.
+//
+// This method will return a pointer to the new Group, allowing the user to chain any of the other
+// builder methods that Group implements.
+func (app *App) Group(pattern string) *Group {
+	group := NewGroup(pattern)
+	app.rootGroup.Group(group)
+	return group
+}
+
+// Routes returns a map of the currently added Routes.
 func (app *App) Routes() map[string]*Route {
 	return app.rootGroup.ComputedRoutes()
 }
