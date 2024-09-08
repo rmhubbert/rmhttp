@@ -37,7 +37,7 @@ func NewTimeout(duration time.Duration, message string) Timeout {
 func TimeoutMiddleware(timeout Timeout) func(Handler) Handler {
 	return func(next Handler) Handler {
 		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-			th := newTimeoutHandler(next, timeout)
+			th := NewTimeoutHandler(next, timeout)
 			return th.ServeHTTPWithError(w, r)
 		})
 	}
@@ -47,11 +47,11 @@ func TimeoutMiddleware(timeout Timeout) func(Handler) Handler {
 // TIMEOUT HANDLER
 // ------------------------------------------------------------------------------------------------
 
-// A timeoutHandler implements the Handler interface. Its primary purpose is to wrap an HTTPHandler
+// A TimeoutHandler implements the Handler interface. Its primary purpose is to wrap an HTTPHandler
 // and provide an execution timeout.
 //
 // Every route handler, with the exception of those dynamically generated in response to an
-// internal error, will be wrapped with a timeoutHandler. There is no configurable option
+// internal error, will be wrapped with a TimeoutHandler. There is no configurable option
 // to turn this off for security reasons, but a user could set it to a very large
 // duration, if desired.
 //
@@ -63,17 +63,17 @@ func TimeoutMiddleware(timeout Timeout) func(Handler) Handler {
 // handlers into our own structs.
 //
 // https://cs.opensource.google/go/go/+/master:src/net/http/server.go
-type timeoutHandler struct {
+type TimeoutHandler struct {
 	timeout Timeout
 	handler Handler
 }
 
 // TimeoutHandler creates, initialises and returns a pointer to a new timeoutHandler.
-func newTimeoutHandler(
+func NewTimeoutHandler(
 	handler Handler,
 	timeout Timeout,
-) *timeoutHandler {
-	return &timeoutHandler{
+) *TimeoutHandler {
+	return &TimeoutHandler{
 		handler: handler,
 		timeout: timeout,
 	}
@@ -81,7 +81,7 @@ func newTimeoutHandler(
 
 // ServeHTTP fulfills the http.Handler interface but is rarely used. You should prefer
 // ServeHTTPWithError wherever possible.
-func (h *timeoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *TimeoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_ = h.ServeHTTPWithError(w, r)
 }
 
@@ -90,7 +90,7 @@ func (h *timeoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 //
 // This function is a simplified version of the net/http version, with the addition of error
 // returning.
-func (h *timeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Request) error {
+func (h *TimeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Request) error {
 	ctx, cancelCtx := context.WithTimeout(r.Context(), h.timeout.Duration)
 	defer cancelCtx()
 	r = r.WithContext(ctx)
