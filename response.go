@@ -16,17 +16,16 @@ import (
 // before the final response is written, as writing a response status code can only be done
 // once.
 type captureWriter struct {
-	writer        http.ResponseWriter
-	code          int
-	body          string
-	header        http.Header
-	mu            sync.Mutex
-	headerWritten bool
+	Writer http.ResponseWriter
+	Code   int
+	Body   string
+	header http.Header
+	Mu     sync.Mutex
 }
 
-func newCaptureWriter(w http.ResponseWriter) *captureWriter {
+func NewCaptureWriter(w http.ResponseWriter) *captureWriter {
 	return &captureWriter{
-		writer: w,
+		Writer: w,
 		header: make(http.Header),
 	}
 }
@@ -34,35 +33,38 @@ func newCaptureWriter(w http.ResponseWriter) *captureWriter {
 // Write implements part of the http.ResponseWriter interface. We override it here in order to
 // store the response body without actually writing the response.
 func (cw *captureWriter) Write(body []byte) (int, error) {
-	cw.mu.Lock()
-	defer cw.mu.Unlock()
-	if !cw.headerWritten {
-		cw.WriteHeader(http.StatusOK)
-	}
-	cw.body = string(body)
-	return len(cw.body), nil
+	cw.Mu.Lock()
+	defer cw.Mu.Unlock()
+	cw.Body = string(body)
+	return len(cw.Body), nil
 }
 
 // WriteHeader implements part of the http.ResponseWriter interface. We override it here in order to
 // store the response code without actually writing the response.
 func (cw *captureWriter) WriteHeader(code int) {
-	cw.mu.Lock()
-	defer cw.mu.Unlock()
-	// We're only interested in storing the first header write, as the actual writer won't allow
-	// multiple writes.
-	if !cw.headerWritten {
-		cw.code = code
-		cw.headerWritten = true
-	}
+	cw.Mu.Lock()
+	defer cw.Mu.Unlock()
+	cw.Code = code
 }
 
 // Header implements part of the http.ResponseWriter interface. We override it here in order to
 // store any added headers without actually writing the response.
 func (cw *captureWriter) Header() http.Header { return cw.header }
 
+// Persist writes the current status, body and headers to the underlying ResponseWriter.
+func (cw *captureWriter) Persist() {
+	cw.Writer.WriteHeader(cw.Code)
+	_, _ = cw.Writer.Write([]byte(cw.Body))
+
+	header := cw.Writer.Header()
+	for key, value := range cw.header {
+		header[key] = value
+	}
+}
+
 // Push implements the Pusher interface.
 func (cw *captureWriter) Push(target string, opts *http.PushOptions) error {
-	if pusher, ok := cw.writer.(http.Pusher); ok {
+	if pusher, ok := cw.Writer.(http.Pusher); ok {
 		return pusher.Push(target, opts)
 	}
 	return http.ErrNotSupported
@@ -70,7 +72,7 @@ func (cw *captureWriter) Push(target string, opts *http.PushOptions) error {
 
 // Hijack implements the Hijacker interface.
 func (cw *captureWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	if hijacker, ok := cw.writer.(http.Hijacker); ok {
+	if hijacker, ok := cw.Writer.(http.Hijacker); ok {
 		return hijacker.Hijack()
 	}
 	return &net.TCPConn{}, bufio.NewReadWriter(
@@ -81,7 +83,7 @@ func (cw *captureWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 
 // Flush implements the Flusher interface.
 func (cw *captureWriter) Flush() {
-	if flusher, ok := cw.writer.(http.Flusher); ok {
+	if flusher, ok := cw.Writer.(http.Flusher); ok {
 		flusher.Flush()
 	}
 }

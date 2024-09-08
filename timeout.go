@@ -97,7 +97,7 @@ func (h *timeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Reque
 
 	done := make(chan error)
 	panicChan := make(chan any, 1)
-	cw := newCaptureWriter(w)
+	cw := NewCaptureWriter(w)
 
 	go func() {
 		defer func() {
@@ -114,25 +114,13 @@ func (h *timeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Reque
 	case p := <-panicChan:
 		panic(p)
 	case e := <-done:
-		cw.mu.Lock()
-		defer cw.mu.Unlock()
-
-		dst := w.Header()
-		for k, vv := range cw.header {
-			dst[k] = vv
-		}
-
-		if !cw.headerWritten {
-			cw.code = http.StatusOK
-		}
-		w.WriteHeader(cw.code)
-
-		_, _ = w.Write([]byte(cw.body))
-
+		cw.Mu.Lock()
+		defer cw.Mu.Unlock()
+		cw.Persist()
 		return e
 	case <-ctx.Done():
-		cw.mu.Lock()
-		defer cw.mu.Unlock()
+		cw.Mu.Lock()
+		defer cw.Mu.Unlock()
 
 		switch err := ctx.Err(); err {
 		case context.DeadlineExceeded:
