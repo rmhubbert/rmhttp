@@ -9,14 +9,14 @@ import (
 
 // An HTTPError represents an error with an additional HTTP status code
 type HTTPError struct {
-	Message    string
+	Err        error
 	StatusCode int
 }
 
 // NewHTTPError creates and returns a new, initialised pointer to a HTTPError
-func NewHTTPError(message string, code int) *HTTPError {
+func NewHTTPError(err error, code int) *HTTPError {
 	return &HTTPError{
-		Message:    message,
+		Err:        err,
 		StatusCode: code,
 	}
 }
@@ -25,7 +25,7 @@ func NewHTTPError(message string, code int) *HTTPError {
 //
 // This method allows HTTPError to implement the standard library Error interface.
 func (e *HTTPError) Error() string {
-	return fmt.Sprintf("error %d: %s", e.StatusCode, e.Message)
+	return fmt.Sprintf("error %d: %s", e.StatusCode, e.Err.Error())
 }
 
 // Error is designed as a drop in replacement for http.Error.
