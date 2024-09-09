@@ -21,10 +21,17 @@ func NewHTTPError(err error, code int) *HTTPError {
 	}
 }
 
+// Unwrap returns the underlying Error that this HTTPError wraps.
+//
+// This method allows an HTTPError to be used by errors.Is().
+func (e HTTPError) Unwrap() error {
+	return e.Err
+}
+
 // Error returns the error text of the receiver HTTPError as a string.
 //
 // This method allows HTTPError to implement the standard library Error interface.
-func (e *HTTPError) Error() string {
+func (e HTTPError) Error() string {
 	return fmt.Sprintf("error %d: %s", e.StatusCode, e.Err.Error())
 }
 
