@@ -1,4 +1,9 @@
 
+## [v0.3.0] - 2024-09-09
+### :sparkles: New Features
+- [`c430234`](https://github.com/rmhubbert/rmhttp2/commit/c4302342bedaecbd087319b84d6db77343263e80) - add Umwrap method to HTTPError *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.2.0] - 2024-09-08
 ### :sparkles: New Features
 - [`8601049`](https://github.com/rmhubbert/rmhttp2/commit/86010492cf6187533d9d9952d3deee6a6c2c98a6) - add Group method on App *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -38,3 +43,4 @@
 [v0.0.2]: https://github.com/rmhubbert/rmhttp2/compare/v0.0.1...v0.0.2
 [v0.1.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.0.2...v0.1.0
 [v0.2.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.1.0...v0.2.0
+[v0.3.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.2.0...v0.3.0
