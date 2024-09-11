@@ -37,9 +37,9 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		route.Handler = NewTimeoutHandler(handler, timeout)
 
 		timeoutErr := route.Handler.ServeHTTPWithError(w, req)
-		te := timeoutErr.(*HTTPError)
+		te := timeoutErr.(HTTPError)
 
-		assert.Equal(t, http.StatusServiceUnavailable, te.StatusCode, "they should be equal")
+		assert.Equal(t, http.StatusServiceUnavailable, te.Code, "they should be equal")
 		assert.Equal(t, timeoutMessage, te.Err.Error(), "they should be equal")
 	})
 

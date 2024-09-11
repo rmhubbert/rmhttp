@@ -14,7 +14,7 @@ import (
 // case of the response having a status code in the error range (400 and above), but no
 // error was returned from the handler. This will allow any other middleware to assume
 // that if they have not received an error, then no error has occurred.
-func HTTPErrorHandlerMiddleware() MiddlewareFunc {
+func HTTPErrorHandlerMiddleware(registeredErrors map[error]int) MiddlewareFunc {
 	return MiddlewareFunc(func(next Handler) Handler {
 		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 			cw := NewCaptureWriter(w)
@@ -31,10 +31,26 @@ func HTTPErrorHandlerMiddleware() MiddlewareFunc {
 			}
 
 			// Check to see if we've been passed an HTTP error.
-			var httpErr *HTTPError
-			if errors.As(err, &httpErr) {
-				Error(w, httpErr.Error(), httpErr.StatusCode)
-				return err
+			if httpErr, ok := err.(HTTPError); ok {
+				Error(w, httpErr.Error(), httpErr.Code)
+				return httpErr
+			}
+
+			// Check against all of the registed errors.
+			if len(registeredErrors) > 0 {
+				for e, code := range registeredErrors {
+					if errors.Is(err, e) {
+						Error(w, err.Error(), code)
+						return NewHTTPError(err, code)
+					}
+				}
+			}
+
+			// Check to see if an error code has been set in the response. If so, we can transform the
+			// error into an HTTPError with the correct status code.
+			if cw.Code >= http.StatusBadRequest {
+				Error(w, err.Error(), cw.Code)
+				return NewHTTPError(err, cw.Code)
 			}
 
 			// If we get here, then we haven't been able to identify the error that was returned from the

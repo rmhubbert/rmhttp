@@ -27,10 +27,11 @@ import (
 // App encapsulates the application and provides the public API, as well as orchestrating the core
 // library functionality.
 type App struct {
-	logger    Logger
-	Server    *Server
-	Router    *Router
-	rootGroup *Group
+	logger           Logger
+	Server           *Server
+	Router           *Router
+	rootGroup        *Group
+	errorStatusCodes map[error]int
 }
 
 // New creates, initialises and returns a pointer to a new App. An optional configuration can be
@@ -83,10 +84,11 @@ func New(c ...Config) *App {
 	)
 
 	return &App{
-		Server:    server,
-		Router:    router,
-		logger:    config.Logger,
-		rootGroup: rootGroup,
+		Server:           server,
+		Router:           router,
+		logger:           config.Logger,
+		rootGroup:        rootGroup,
+		errorStatusCodes: make(map[error]int),
 	}
 }
 
@@ -152,7 +154,7 @@ func (app *App) Compile() {
 		middleware := []MiddlewareFunc{}
 		middleware = append(middleware, HeaderMiddleware(route.ComputedHeaders()))
 		middleware = append(middleware, route.ComputedMiddleware()...)
-		middleware = append(middleware, HTTPErrorHandlerMiddleware())
+		middleware = append(middleware, HTTPErrorHandlerMiddleware(app.errorStatusCodes))
 
 		if timeout := route.ComputedTimeout(); timeout.Enabled {
 			// Give the Server a chance to update it's TCP level timeout so that the connection doesn't
