@@ -1,4 +1,9 @@
 
+## [v0.4.0] - 2024-09-11
+### :sparkles: New Features
+- [`5d98a19`](https://github.com/rmhubbert/rmhttp2/commit/5d98a1945ea863e3b9780ba313cc6e56707a465c) - add registered error detection, plus tests *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.3.0] - 2024-09-09
 ### :sparkles: New Features
 - [`c430234`](https://github.com/rmhubbert/rmhttp2/commit/c4302342bedaecbd087319b84d6db77343263e80) - add Umwrap method to HTTPError *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -44,3 +49,4 @@
 [v0.1.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.0.2...v0.1.0
 [v0.2.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.1.0...v0.2.0
 [v0.3.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.2.0...v0.3.0
+[v0.4.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.3.0...v0.4.0
