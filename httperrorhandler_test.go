@@ -141,6 +141,36 @@ func Test_HTTPErrorHandlerMiddleware(t *testing.T) {
 				),
 			),
 		},
+		{
+			"an HTTPError is created with the correct status code when a registered sentinel error is wrapped and returned from handler",
+			http.StatusBadRequest,
+			true,
+			NewRoute(
+				http.MethodGet,
+				testPattern,
+				HandlerFunc(
+					createTestHandlerFunc(http.StatusOK,
+						testBody,
+						fmt.Errorf("wrapped err: %w", ErrSentinel),
+					),
+				),
+			),
+		},
+		{
+			"an HTTPError is created with the correct status code when a registered custom error is wrapped and returned from handler",
+			http.StatusForbidden,
+			true,
+			NewRoute(
+				http.MethodGet,
+				testPattern,
+				HandlerFunc(
+					createTestHandlerFunc(http.StatusOK,
+						testBody,
+						fmt.Errorf("wrapped err: %w", CustomError{}),
+					),
+				),
+			),
+		},
 	}
 
 	registeredErrors := map[error]int{
