@@ -53,13 +53,21 @@ func (cw *CaptureWriter) Header() http.Header { return cw.header }
 
 // Persist writes the current status, body and headers to the underlying ResponseWriter.
 func (cw *CaptureWriter) Persist() {
+	cw.Mu.Lock()
+	defer cw.Mu.Unlock()
+
+	// Order is important here. WriteHeader writes all headers, not just the status code, so we need
+	// to add any other headers before calling WriteHeader.
+	header := cw.Writer.Header()
+	for key, values := range cw.header {
+		for _, value := range values {
+			header.Add(key, value)
+		}
+	}
+	// Also, it's important that we call WriteHeader before Write, as Write will call WriteHeader with
+	// a 200 status code, if it hasn't already been set.
 	cw.Writer.WriteHeader(cw.Code)
 	_, _ = cw.Writer.Write([]byte(cw.Body))
-
-	header := cw.Writer.Header()
-	for key, value := range cw.header {
-		header[key] = value
-	}
 }
 
 // Push implements the Pusher interface.

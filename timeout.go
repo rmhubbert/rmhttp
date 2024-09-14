@@ -115,13 +115,13 @@ func (h *TimeoutHandler) ServeHTTPWithError(w http.ResponseWriter, r *http.Reque
 	case p := <-panicChan:
 		panic(p)
 	case e := <-done:
-		cw.Mu.Lock()
-		defer cw.Mu.Unlock()
+		// cw.Mu.Lock()
+		// defer cw.Mu.Unlock()
 		cw.Persist()
 		return e
 	case <-ctx.Done():
-		cw.Mu.Lock()
-		defer cw.Mu.Unlock()
+		// cw.Mu.Lock()
+		// defer cw.Mu.Unlock()
 
 		switch err := ctx.Err(); err {
 		case context.DeadlineExceeded:
