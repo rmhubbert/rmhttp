@@ -1,4 +1,18 @@
 
+## [v0.5.0] - 2024-09-14
+### :sparkles: New Features
+- [`e054584`](https://github.com/rmhubbert/rmhttp2/commit/e05458408c9a133620bfeda4cf6a4304b0a7cc32) - add HTTP logger middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :bug: Bug Fixes
+- [`b217fcc`](https://github.com/rmhubbert/rmhttp2/commit/b217fccc220a748ad3b6aa7cbb8a53f450f21725) - capture writer not persisting headers to underlying response writer *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`82ea589`](https://github.com/rmhubbert/rmhttp2/commit/82ea5892aeafde110c134f4fb4ac4c9dd5644c8f) - do not modify original route when compiling to maintain idempotency. *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`904febb`](https://github.com/rmhubbert/rmhttp2/commit/904febbab7eb62298219ae93fe02041fe0d14d55) - add missing call to close resopnse body. change assert type for error check. *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.4.1] - 2024-09-12
 ### :white_check_mark: Tests
 - [`e2b9683`](https://github.com/rmhubbert/rmhttp2/commit/e2b9683621240e4487df5a2c9e120c41ae69a8f5) - add test for checking registered errors that have been wrapped *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -56,3 +70,4 @@
 [v0.3.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.2.0...v0.3.0
 [v0.4.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.3.0...v0.4.0
 [v0.4.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.4.0...v0.4.1
+[v0.5.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.4.1...v0.5.0
