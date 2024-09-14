@@ -195,6 +195,7 @@ func Test_HTTPErrorHandlerMiddleware(t *testing.T) {
 			requestErr := test.route.Handler.ServeHTTPWithError(w, req)
 
 			res := w.Result()
+			defer res.Body.Close()
 			assert.Equal(t, test.expectedCode, res.StatusCode, "they should be equal")
 
 			if test.errorExpected {
@@ -205,7 +206,7 @@ func Test_HTTPErrorHandlerMiddleware(t *testing.T) {
 				assert.IsType(t, HTTPError{}, requestErr, "they should be equal")
 				assert.Equal(t, test.expectedCode, HTTPErr.Code, "they should be equal")
 			} else {
-				assert.Nil(t, requestErr, "it should be nil")
+				assert.NoError(t, requestErr, "it should be nil")
 			}
 		})
 	}
