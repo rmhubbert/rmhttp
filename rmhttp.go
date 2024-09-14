@@ -164,13 +164,15 @@ func (app *App) Compile() {
 			middleware = append(middleware, TimeoutMiddleware(route.ComputedTimeout()))
 		}
 
-		route.Handler = applyMiddleware(
+		handler := applyMiddleware(
 			route.Handler,
 			middleware,
 		)
+
+		app.Router.Handle(route.Method, route.Pattern, handler)
 	}
 
-	app.Router.loadRoutes(routes)
+	// app.Router.loadRoutes(routes)
 }
 
 // ListenAndServe compiles and loads the registered Routes, and then starts the Server without SSL.
