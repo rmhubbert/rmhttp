@@ -151,8 +151,10 @@ func (app *App) Compile() {
 	routes := app.rootGroup.ComputedRoutes()
 
 	for _, route := range routes {
-		middleware := []MiddlewareFunc{}
-		middleware = append(middleware, HeaderMiddleware(route.ComputedHeaders()))
+		middleware := []MiddlewareFunc{
+			HTTPErrorLoggerMiddleware(app.logger),
+			HeaderMiddleware(route.ComputedHeaders()),
+		}
 		middleware = append(middleware, route.ComputedMiddleware()...)
 		middleware = append(middleware, HTTPErrorHandlerMiddleware(app.errorStatusCodes))
 
