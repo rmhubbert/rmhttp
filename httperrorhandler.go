@@ -15,7 +15,7 @@ import (
 // error was returned from the handler. This will allow any other middleware to assume
 // that if they have not received an error, then no error has occurred.
 func HTTPErrorHandlerMiddleware(registeredErrors map[error]int) MiddlewareFunc {
-	return MiddlewareFunc(func(next Handler) Handler {
+	return func(next Handler) Handler {
 		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 			cw := NewCaptureWriter(w)
 			err := next.ServeHTTPWithError(cw, r)
@@ -58,5 +58,5 @@ func HTTPErrorHandlerMiddleware(registeredErrors map[error]int) MiddlewareFunc {
 			Error(w, err.Error(), http.StatusInternalServerError)
 			return NewHTTPError(err, http.StatusInternalServerError)
 		})
-	})
+	}
 }

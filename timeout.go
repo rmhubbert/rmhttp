@@ -36,12 +36,12 @@ func NewTimeout(duration time.Duration, message string) Timeout {
 // TimeoutMiddleware creates, initialises and returns a middleware function that will wrap the next
 // handler in the stack with a timeout handler.
 func TimeoutMiddleware(timeout Timeout) MiddlewareFunc {
-	return MiddlewareFunc(func(next Handler) Handler {
+	return func(next Handler) Handler {
 		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 			th := NewTimeoutHandler(next, timeout)
 			return th.ServeHTTPWithError(w, r)
 		})
-	})
+	}
 }
 
 // ------------------------------------------------------------------------------------------------
