@@ -1,4 +1,9 @@
 
+## [v0.5.1] - 2024-09-16
+### :recycle: Refactors
+- [`9f3fe63`](https://github.com/rmhubbert/rmhttp2/commit/9f3fe6310cf9303d74226c5ac83f9dea76448cbb) - remove unnecessary casts to MiddlewareFunc *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.5.0] - 2024-09-14
 ### :sparkles: New Features
 - [`e054584`](https://github.com/rmhubbert/rmhttp2/commit/e05458408c9a133620bfeda4cf6a4304b0a7cc32) - add HTTP logger middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -71,3 +76,4 @@
 [v0.4.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.3.0...v0.4.0
 [v0.4.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.4.0...v0.4.1
 [v0.5.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.4.1...v0.5.0
+[v0.5.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.0...v0.5.1
