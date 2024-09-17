@@ -151,6 +151,13 @@ func (app *App) Compile() {
 	routes := app.rootGroup.ComputedRoutes()
 
 	for _, route := range routes {
+		// The order in which we load the middleware matters.
+		// 1. HTTP Error logger - needs to be first in, last out to properly calculate request duration.
+		// 2. Headers - user added headers may be needed by any other middleware they add.
+		// 3. General middleware - user decides on the order here.
+		// 4. HTTP Error handler - only applies as the stack unwinds. we want to process errors as early
+		// as possible so that all the other middleware only needs to handle HTTPErrors.
+		// 5. Timeout - we directly wrap every handler with a timeout for security reasons.
 		middleware := []MiddlewareFunc{
 			HTTPErrorLoggerMiddleware(app.logger),
 			HeaderMiddleware(route.ComputedHeaders()),
