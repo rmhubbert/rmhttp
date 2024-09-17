@@ -46,13 +46,23 @@ func HTTPErrorLoggerMiddleware(logger Logger) MiddlewareFunc {
 
 			code := cw.Code
 			message := cw.Body
+			hasErrorStatus := false
 
-			if err != nil || cw.Code > http.StatusBadRequest {
+			if err != nil {
 				if httpErr, ok := err.(HTTPError); ok {
 					code = httpErr.Code
-					message = httpErr.Err.Error()
+					message = httpErr.Error()
+				} else if code < http.StatusBadRequest {
+					code = http.StatusInternalServerError
+					message = http.StatusText(http.StatusInternalServerError)
 				}
 
+				hasErrorStatus = true
+			} else if code >= http.StatusBadRequest {
+				hasErrorStatus = true
+			}
+
+			if hasErrorStatus {
 				logger.Error(
 					message,
 					"method", r.Method,
@@ -61,6 +71,8 @@ func HTTPErrorLoggerMiddleware(logger Logger) MiddlewareFunc {
 					"status", code,
 					"duration", duration,
 				)
+
+				return err
 			}
 
 			logger.Info(
