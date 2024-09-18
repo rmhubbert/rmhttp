@@ -1,4 +1,12 @@
 
+## [v0.5.2] - 2024-09-18
+### :bug: Bug Fixes
+- [`ff74b23`](https://github.com/rmhubbert/rmhttp2/commit/ff74b238d3a892307d2321371f00ab7f0f8e88ab) - logic errors around when to log error *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`9470333`](https://github.com/rmhubbert/rmhttp2/commit/9470333416e29603fd97e0771a8850d80dfc44b9) - HTTP error logger middleware tests *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.5.1] - 2024-09-16
 ### :recycle: Refactors
 - [`9f3fe63`](https://github.com/rmhubbert/rmhttp2/commit/9f3fe6310cf9303d74226c5ac83f9dea76448cbb) - remove unnecessary casts to MiddlewareFunc *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -77,3 +85,4 @@
 [v0.4.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.4.0...v0.4.1
 [v0.5.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.4.1...v0.5.0
 [v0.5.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.0...v0.5.1
+[v0.5.2]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.1...v0.5.2
