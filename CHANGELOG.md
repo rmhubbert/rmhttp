@@ -1,4 +1,12 @@
 
+## [v0.6.0] - 2024-09-19
+### :sparkles: New Features
+- [`a7f3321`](https://github.com/rmhubbert/rmhttp2/commit/a7f332120bc3b08480ead8be1e581ccb7b9af6e9) - recoverer middleware initial commit *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`78b95bf`](https://github.com/rmhubbert/rmhttp2/commit/78b95bf40cb4bdb8270e61c535468ca348332d63) - add recoverer tests *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.5.2] - 2024-09-18
 ### :bug: Bug Fixes
 - [`ff74b23`](https://github.com/rmhubbert/rmhttp2/commit/ff74b238d3a892307d2321371f00ab7f0f8e88ab) - logic errors around when to log error *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -86,3 +94,4 @@
 [v0.5.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.4.1...v0.5.0
 [v0.5.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.0...v0.5.1
 [v0.5.2]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.1...v0.5.2
+[v0.6.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.2...v0.6.0
