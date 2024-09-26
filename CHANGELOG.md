@@ -1,4 +1,12 @@
 
+## [v0.7.0] - 2024-09-26
+### :sparkles: New Features
+- [`ea6c3d3`](https://github.com/rmhubbert/rmhttp2/commit/ea6c3d3b8105746ff763e0493aa9d7df3a44a581) - add cors middleware package *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`51f8b4d`](https://github.com/rmhubbert/rmhttp2/commit/51f8b4df039a2ab18bcbd975d92a8505a4016542) - add basic cors middleware tests *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.6.0] - 2024-09-19
 ### :sparkles: New Features
 - [`a7f3321`](https://github.com/rmhubbert/rmhttp2/commit/a7f332120bc3b08480ead8be1e581ccb7b9af6e9) - recoverer middleware initial commit *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -95,3 +103,4 @@
 [v0.5.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.0...v0.5.1
 [v0.5.2]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.1...v0.5.2
 [v0.6.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.2...v0.6.0
+[v0.7.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.6.0...v0.7.0
