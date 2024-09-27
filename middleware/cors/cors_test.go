@@ -18,17 +18,24 @@ func Test_Cors(t *testing.T) {
 	testPattern := "/test"
 
 	tests := []struct {
-		name          string
-		method        string
-		requestMethod string
-		expectedCode  int
-		route         *rmhttp.Route
+		name            string
+		method          string
+		requestMethod   string
+		expectedCode    int
+		expectedHeaders map[string]string
+		options         Options
+		route           *rmhttp.Route
 	}{
 		{
-			"CORS headers are returned with status 204 on OPTIONS requests",
+			"CORS preflight headers are returned with status 204 on OPTIONS requests with no config",
 			http.MethodOptions,
 			http.MethodGet,
 			http.StatusNoContent,
+			map[string]string{
+				"Access-Control-Allow-Origin":  "*",
+				"Access-Control-Allow-Methods": "GET",
+			},
+			Options{},
 			rmhttp.NewRoute(
 				http.MethodGet,
 				testPattern,
@@ -39,10 +46,55 @@ func Test_Cors(t *testing.T) {
 			),
 		},
 		{
-			"CORS headers are returned with status 200 on GET requests",
+			"CORS standard headers are returned with status 200 on GET requests with no config",
 			http.MethodGet,
 			http.MethodGet,
 			http.StatusOK,
+			map[string]string{
+				"Access-Control-Allow-Origin": "*",
+			},
+			Options{},
+			rmhttp.NewRoute(
+				http.MethodGet,
+				testPattern,
+				rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+					w.WriteHeader(http.StatusOK)
+					return nil
+				}),
+			),
+		},
+		{
+			"CORS preflight headers are returned with status 204 on OPTIONS requests with config",
+			http.MethodOptions,
+			http.MethodGet,
+			http.StatusNoContent,
+			map[string]string{
+				"Access-Control-Allow-Origin":  "test.local",
+				"Access-Control-Allow-Methods": "GET",
+			},
+			Options{
+				AllowedOrigins: []string{"test.local"},
+			},
+			rmhttp.NewRoute(
+				http.MethodGet,
+				testPattern,
+				rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+					w.WriteHeader(http.StatusOK)
+					return nil
+				}),
+			),
+		},
+		{
+			"CORS standard headers are returned with status 200 on GET requests with config",
+			http.MethodGet,
+			http.MethodGet,
+			http.StatusOK,
+			map[string]string{
+				"Access-Control-Allow-Origin": "test.local",
+			},
+			Options{
+				AllowedOrigins: []string{"test.local"},
+			},
 			rmhttp.NewRoute(
 				http.MethodGet,
 				testPattern,
@@ -56,7 +108,7 @@ func Test_Cors(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test.route.Handler = Middleware()(test.route.Handler)
+			test.route.Handler = Middleware(test.options)(test.route.Handler)
 
 			url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
 			req, err := http.NewRequest(test.method, url, nil)
@@ -65,6 +117,7 @@ func Test_Cors(t *testing.T) {
 			}
 
 			req.Header.Add("Access-Control-Request-Method", test.requestMethod)
+			req.Header.Add("Origin", "test.local")
 
 			w := httptest.NewRecorder()
 			_ = test.route.Handler.ServeHTTPWithError(w, req)
@@ -77,6 +130,11 @@ func Test_Cors(t *testing.T) {
 				res.StatusCode,
 				"they should be equal",
 			)
+
+			for k, v := range test.expectedHeaders {
+				fmt.Println("HEADER: ", res.Header.Get(k))
+				assert.Equal(t, v, res.Header.Get(k), "they should be equal")
+			}
 		})
 	}
 }
