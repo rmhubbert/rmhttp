@@ -28,10 +28,9 @@ func Middleware(options ...Options) rmhttp.MiddlewareFunc {
 			cw := rmhttp.NewCaptureWriter(w)
 			c.HandlerFunc(cw, r)
 
-			header := w.Header()
 			for key, values := range cw.Header() {
 				for _, value := range values {
-					header.Add(key, value)
+					w.Header().Add(key, value)
 				}
 			}
 
@@ -50,7 +49,7 @@ func Middleware(options ...Options) rmhttp.MiddlewareFunc {
 			if optionsPassthrough {
 				return next.ServeHTTPWithError(w, r)
 			} else {
-				cw.Persist()
+				w.WriteHeader(cw.Code)
 				return nil
 			}
 		})
