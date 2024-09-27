@@ -49,6 +49,41 @@ func Test_HandleFunc(t *testing.T) {
 	}
 }
 
+// Test_Get checks that a handlerFunc can be successfully added to the App with a GET method
+func Test_Convenience_Handlers(t *testing.T) {
+	app := New()
+	tests := []struct {
+		name    string
+		method  string
+		handler func(string, func(http.ResponseWriter, *http.Request) error) *Route
+	}{
+		{"Get creates and returns a Route with a GET method", "GET", app.Get},
+		{"Post creates and returns a Route with a Post method", "POST", app.Post},
+		{"Patch creates and returns a Route with a Patch method", "PATCH", app.Patch},
+		{"Put creates and returns a Route with a Put method", "PUT", app.Put},
+		{"Delete creates and returns a Route with a Delete method", "DELETE", app.Delete},
+		{"Options creates and returns a Route with a Options method", "OPTIONS", app.Options},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			pattern := "/handler"
+			test.handler(pattern, createTestHandlerFunc(200, "test body", nil))
+
+			routes := app.Routes()
+
+			expectedKey := fmt.Sprintf("%s %s", test.method, pattern)
+			if route, ok := routes[expectedKey]; !ok {
+				t.Errorf("route not found: %s", expectedKey)
+			} else {
+				assert.Equal(t, test.method, route.Method, "they should be equal")
+				assert.Equal(t, pattern, route.Pattern, "they should be equal")
+				assert.NotNil(t, route.Handler, "it should not be nil")
+			}
+		})
+	}
+}
+
 // Test_Routes checks that a list of current Routes is returned.
 func Test_Routes(t *testing.T) {
 	app := New()
