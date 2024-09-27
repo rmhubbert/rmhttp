@@ -119,6 +119,18 @@ func (app *App) HandleFunc(
 	return app.Handle(method, pattern, HandlerFunc(handlerFunc))
 }
 
+// Static creates and binds a filesystem handler to the specified pattern for GET requests.
+//
+// If the pattern does not contain a trailing slash, the filesystem handler may not behave as expected.
+//
+// This method will return a pointer to the new Route, allowing the user to chain
+// any of the other builder methods that Route implements.
+func (app *App) Static(pattern string, targetDir string) *Route {
+	fsh := http.StripPrefix(pattern, http.FileServer(http.Dir(targetDir)))
+	handlerFunc := ConvertHandlerFunc(fsh.ServeHTTP)
+	return app.HandleFunc(http.MethodGet, pattern, handlerFunc)
+}
+
 // Group creates, initialises, and returns a pointer to a Route Group.
 //
 // This is typically used to create new Routes as part of the Group, but can also be used to add
@@ -152,6 +164,7 @@ func (app *App) Compile() {
 
 	for _, route := range routes {
 		// The order in which we load the middleware matters.
+		//
 		// 1. HTTP Error logger - needs to be first in, last out to properly calculate request duration.
 		// 2. Headers - user added headers may be needed by any other middleware they add.
 		// 3. General middleware - user decides on the order here.
