@@ -119,6 +119,54 @@ func (app *App) HandleFunc(
 	return app.Handle(method, pattern, HandlerFunc(handlerFunc))
 }
 
+// Get binds the passed handler to the specified route pattern for GET requests.
+//
+// This method will return a pointer to the new Route, allowing the user to chain
+// any of the other builder methods that Route implements.
+func (app *App) Get(pattern string, handlerFunc HandlerFunc) *Route {
+	return app.HandleFunc(http.MethodGet, pattern, handlerFunc)
+}
+
+// Post binds the passed handler to the specified route pattern for POST requests.
+//
+// This method will return a pointer to the new Route, allowing the user to chain
+// any of the other builder methods that Route implements.
+func (app *App) Post(pattern string, handlerFunc HandlerFunc) *Route {
+	return app.HandleFunc(http.MethodPost, pattern, handlerFunc)
+}
+
+// Put binds the passed handler to the specified route pattern for PUT requests.
+//
+// This method will return a pointer to the new Route, allowing the user to chain
+// any of the other builder methods that Route implements.
+func (app *App) Put(pattern string, handlerFunc HandlerFunc) *Route {
+	return app.HandleFunc(http.MethodPut, pattern, handlerFunc)
+}
+
+// Patch binds the passed handler to the specified route pattern for PATCH requests.
+//
+// This method will return a pointer to the new Route, allowing the user to chain
+// any of the other builder methods that Route implements.
+func (app *App) Patch(pattern string, handlerFunc HandlerFunc) *Route {
+	return app.HandleFunc(http.MethodPatch, pattern, handlerFunc)
+}
+
+// Delete binds the passed handler to the specified route pattern for DELETE requests.
+//
+// This method will return a pointer to the new Route, allowing the user to chain
+// any of the other builder methods that Route implements.
+func (app *App) Delete(pattern string, handlerFunc HandlerFunc) *Route {
+	return app.HandleFunc(http.MethodDelete, pattern, handlerFunc)
+}
+
+// Options binds the passed handler to the specified route pattern for OPTIONS requests.
+//
+// This method will return a pointer to the new Route, allowing the user to chain
+// any of the other builder methods that Route implements.
+func (app *App) Options(pattern string, handlerFunc HandlerFunc) *Route {
+	return app.HandleFunc(http.MethodOptions, pattern, handlerFunc)
+}
+
 // Static creates and binds a filesystem handler to the specified pattern for GET requests.
 //
 // If the pattern does not contain a trailing slash, the filesystem handler may not behave as expected.
@@ -193,8 +241,6 @@ func (app *App) Compile() {
 
 		app.Router.Handle(route.Method, route.Pattern, handler)
 	}
-
-	// app.Router.loadRoutes(routes)
 }
 
 // ListenAndServe compiles and loads the registered Routes, and then starts the Server without SSL.
