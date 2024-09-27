@@ -123,7 +123,10 @@ func (app *App) HandleFunc(
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
-func (app *App) Get(pattern string, handlerFunc HandlerFunc) *Route {
+func (app *App) Get(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Route {
 	return app.HandleFunc(http.MethodGet, pattern, handlerFunc)
 }
 
@@ -131,7 +134,10 @@ func (app *App) Get(pattern string, handlerFunc HandlerFunc) *Route {
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
-func (app *App) Post(pattern string, handlerFunc HandlerFunc) *Route {
+func (app *App) Post(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Route {
 	return app.HandleFunc(http.MethodPost, pattern, handlerFunc)
 }
 
@@ -139,7 +145,10 @@ func (app *App) Post(pattern string, handlerFunc HandlerFunc) *Route {
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
-func (app *App) Put(pattern string, handlerFunc HandlerFunc) *Route {
+func (app *App) Put(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Route {
 	return app.HandleFunc(http.MethodPut, pattern, handlerFunc)
 }
 
@@ -147,7 +156,10 @@ func (app *App) Put(pattern string, handlerFunc HandlerFunc) *Route {
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
-func (app *App) Patch(pattern string, handlerFunc HandlerFunc) *Route {
+func (app *App) Patch(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Route {
 	return app.HandleFunc(http.MethodPatch, pattern, handlerFunc)
 }
 
@@ -155,7 +167,10 @@ func (app *App) Patch(pattern string, handlerFunc HandlerFunc) *Route {
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
-func (app *App) Delete(pattern string, handlerFunc HandlerFunc) *Route {
+func (app *App) Delete(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Route {
 	return app.HandleFunc(http.MethodDelete, pattern, handlerFunc)
 }
 
@@ -163,7 +178,10 @@ func (app *App) Delete(pattern string, handlerFunc HandlerFunc) *Route {
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
-func (app *App) Options(pattern string, handlerFunc HandlerFunc) *Route {
+func (app *App) Options(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Route {
 	return app.HandleFunc(http.MethodOptions, pattern, handlerFunc)
 }
 
