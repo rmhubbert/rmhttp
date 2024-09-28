@@ -165,10 +165,6 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 	host := "localhost"
 	port := 80
 	debug := true
-	enablePanicRecovery := true
-	enableHTTPErrorHandling := true
-	enableHTTPLogging := true
-	loggerAllowedMethods := []string{"GET", "POST"}
 
 	// SSLConfig related env variables and config
 	sslEnable := true
@@ -239,11 +235,6 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 	host := "localhost"
 	// port := 80
 	// debug := true
-	// enablePanicRecovery := true
-	enableHTTPErrorHandling := true
-	enableHTTPLogging := true
-	loggerAllowedMethods := []string{"GET", "POST"}
-
 	// SSLConfig related env variables and config
 	// sslEnable := true
 	// sslCert := "/path/to/cert"
