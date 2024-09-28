@@ -187,7 +187,7 @@ func (app *App) Options(
 
 // Static creates and binds a filesystem handler to the specified pattern for GET requests.
 //
-// If the pattern does not contain a trailing slash, the filesystem handler may not behave as expected.
+// If the pattern contains a trailing slash, the filesystem handler may not behave as expected.
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
