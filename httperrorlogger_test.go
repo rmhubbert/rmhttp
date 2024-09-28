@@ -145,9 +145,9 @@ func Test_HTTPErrorLoggerMiddleware(t *testing.T) {
 
 			if test.errorExpected {
 				assert.Equal(t, test.expectedCode, log.Status, "they should be equal")
-				assert.Equal(t, log.Level, "ERROR", "they should be equal")
+				assert.Equal(t, "ERROR", log.Level, "they should be equal")
 			} else {
-				assert.Equal(t, log.Level, "INFO", "they should be equal")
+				assert.Equal(t, "INFO", log.Level, "they should be equal")
 			}
 		})
 	}
