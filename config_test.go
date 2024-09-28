@@ -26,16 +26,12 @@ var defaultSSLConfig = SSLConfig{
 }
 
 var defaultConfig = Config{
-	Host:                    "",
-	Port:                    8080,
-	Debug:                   false,
-	EnablePanicRecovery:     false,
-	EnableHTTPLogging:       false,
-	EnableHTTPErrorHandling: false,
-	LoggerAllowedMethods:    []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
-	Logger:                  nil,
-	SSL:                     defaultSSLConfig,
-	Timeout:                 defaultTimeoutConfig,
+	Host:    "",
+	Port:    8080,
+	Debug:   false,
+	Logger:  nil,
+	SSL:     defaultSSLConfig,
+	Timeout: defaultTimeoutConfig,
 }
 
 // Test_LoadConfig_default tests the default config. It simulates no user config being passed
@@ -54,26 +50,6 @@ func Test_LoadConfig_default(t *testing.T) {
 		{"default host", cfg.Host, defaultConfig.Host},
 		{"default port", cfg.Port, defaultConfig.Port},
 		{"default debug flag", cfg.Debug, defaultConfig.Debug},
-		{
-			"default enable panic recovery flag",
-			cfg.EnablePanicRecovery,
-			defaultConfig.EnablePanicRecovery,
-		},
-		{
-			"default enable HTTP logging flag",
-			cfg.EnableHTTPLogging,
-			defaultConfig.EnableHTTPLogging,
-		},
-		{
-			"default enable HTTP error handling flag",
-			cfg.EnableHTTPErrorHandling,
-			defaultConfig.EnableHTTPErrorHandling,
-		},
-		{
-			"default logger allowed methods",
-			cfg.LoggerAllowedMethods,
-			defaultConfig.LoggerAllowedMethods,
-		},
 		{"default logger", cfg.Logger, defaultConfig.Logger},
 		{"default SSL config", cfg.SSL, defaultConfig.SSL},
 		{"default timeout config", cfg.Timeout, defaultConfig.Timeout},
@@ -166,26 +142,6 @@ func Test_LoadConfig_from_env(t *testing.T) {
 		{"host set from an environment variable", cfg.Host, host},
 		{"port set from an environment variable", cfg.Port, port},
 		{"debug flag set from an environment variable", cfg.Debug, debug},
-		{
-			"enable panic recovery flag set from an environment variable",
-			cfg.EnablePanicRecovery,
-			enablePanicRecovery,
-		},
-		{
-			"enable HTTP logging flag set from an environment variable",
-			cfg.EnableHTTPLogging,
-			enableHTTPLogging,
-		},
-		{
-			"enable HTTP error handling flag set from an environment variable",
-			cfg.EnableHTTPErrorHandling,
-			enableHTTPErrorHandling,
-		},
-		{
-			"logger allowed methods set from an environment variable",
-			cfg.LoggerAllowedMethods,
-			loggerAllowedMethods,
-		},
 		{"SSL config set from environment variables", cfg.SSL, envSSLConfig},
 		{"timeout config set from environment variables", cfg.Timeout, envTimeoutConfig},
 	}
@@ -245,15 +201,11 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 	}
 
 	userConfig := Config{
-		Host:                    host,
-		Port:                    port,
-		Debug:                   debug,
-		EnablePanicRecovery:     enablePanicRecovery,
-		EnableHTTPLogging:       enableHTTPLogging,
-		EnableHTTPErrorHandling: enableHTTPErrorHandling,
-		LoggerAllowedMethods:    loggerAllowedMethods,
-		SSL:                     userSSLConfig,
-		Timeout:                 userTimeoutConfig,
+		Host:    host,
+		Port:    port,
+		Debug:   debug,
+		SSL:     userSSLConfig,
+		Timeout: userTimeoutConfig,
 	}
 
 	cfg, err := LoadConfig(userConfig)
@@ -269,26 +221,6 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 		{"host set from a user defined config", cfg.Host, host},
 		{"port set from a user defined config", cfg.Port, port},
 		{"debug flag set from a user defined config", cfg.Debug, debug},
-		{
-			"enable panic recovery flag set from a user defined config",
-			cfg.EnablePanicRecovery,
-			enablePanicRecovery,
-		},
-		{
-			"enable HTTP logging flag set from a user defined config",
-			cfg.EnableHTTPLogging,
-			enableHTTPLogging,
-		},
-		{
-			"enable HTTP error handling flag set from a user defined config",
-			cfg.EnableHTTPErrorHandling,
-			enableHTTPErrorHandling,
-		},
-		{
-			"logger allowed methods set from a user defined config",
-			cfg.LoggerAllowedMethods,
-			loggerAllowedMethods,
-		},
 		{"SSL config set from a user defined config", cfg.SSL, userSSLConfig},
 		{"timeout config set from a user defined config", cfg.Timeout, userTimeoutConfig},
 	}
@@ -346,12 +278,8 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 		Host: host,
 		// Port:                    port,
 		// Debug:                   debug,
-		// EnablePanicRecovery:     enablePanicRecovery,
-		EnableHTTPLogging:       enableHTTPLogging,
-		EnableHTTPErrorHandling: enableHTTPErrorHandling,
-		LoggerAllowedMethods:    loggerAllowedMethods,
-		SSL:                     partialSSLConfig,
-		Timeout:                 partialTimeoutConfig,
+		SSL:     partialSSLConfig,
+		Timeout: partialTimeoutConfig,
 	}
 
 	cfg, err := LoadConfig(partialConfig)
@@ -367,26 +295,6 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 		{"host set from a partially defined user config", cfg.Host, host},
 		{"port set from a partially defined user config", cfg.Port, defaultConfig.Port},
 		{"debug flag set from a partially defined user config", cfg.Debug, defaultConfig.Debug},
-		{
-			"enable panic recovery flag set from a partially defined user config",
-			cfg.EnablePanicRecovery,
-			defaultConfig.EnablePanicRecovery,
-		},
-		{
-			"enable HTTP logging flag set from a partially defined user config",
-			cfg.EnableHTTPLogging,
-			enableHTTPLogging,
-		},
-		{
-			"enable HTTP error handling set from a partially defined user config",
-			cfg.EnableHTTPErrorHandling,
-			enableHTTPErrorHandling,
-		},
-		{
-			"logger allowed methods set from a partially defined user config",
-			cfg.LoggerAllowedMethods,
-			loggerAllowedMethods,
-		},
 		{
 			"enable SSL flag set from a partially defined user config",
 			cfg.SSL.Enable,

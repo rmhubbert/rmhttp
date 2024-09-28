@@ -37,16 +37,12 @@ type SSLConfig struct {
 // ------------------------------------------------------------------------------------------------
 // The Config contains settings (with defaults) for configuring the app, server and router.
 type Config struct {
-	Host                    string   `env:"HOST"`
-	Port                    int      `env:"PORT"                       envDefault:"8080"`
-	Debug                   bool     `env:"DEBUG"`
-	EnablePanicRecovery     bool     `env:"ENABLE_PANIC_RECOVERY"`
-	EnableHTTPLogging       bool     `env:"ENABLE_HTTP_LOGGING"`
-	EnableHTTPErrorHandling bool     `env:"ENABLE_HTTP_ERROR_HANDLING"`
-	LoggerAllowedMethods    []string `env:"LOGGER_ALLOWED_METHODS"     envDefault:"GET,POST,PATCH,PUT,DELETE,OPTIONS"`
-	Logger                  Logger
-	SSL                     SSLConfig
-	Timeout                 TimeoutConfig
+	Host    string `env:"HOST"`
+	Port    int    `env:"PORT"  envDefault:"8080"`
+	Debug   bool   `env:"DEBUG"`
+	Logger  Logger
+	SSL     SSLConfig
+	Timeout TimeoutConfig
 }
 
 // loadConfig parses the environment variables defined in the Config objects (with defaults), then merges those
