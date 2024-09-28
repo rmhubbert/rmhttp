@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,7 +50,8 @@ func Test_HandleFunc(t *testing.T) {
 	}
 }
 
-// Test_Get checks that a handlerFunc can be successfully added to the App with a GET method
+// Test_Convenience_Handlers checks that a handlerFunc can be successfully added to the App with
+// any of the convenience methods.
 func Test_Convenience_Handlers(t *testing.T) {
 	app := New()
 	tests := []struct {
@@ -79,6 +81,85 @@ func Test_Convenience_Handlers(t *testing.T) {
 				assert.Equal(t, test.method, route.Method, "they should be equal")
 				assert.Equal(t, pattern, route.Pattern, "they should be equal")
 				assert.NotNil(t, route.Handler, "it should not be nil")
+			}
+		})
+	}
+}
+
+// Test_Static checks that a static resource can be created and used by the App
+func Test_Static(t *testing.T) {
+	app := New()
+	route := app.Static("/public", "./testdata")
+
+	routes := app.Routes()
+	assert.Len(t, routes, 1, "they should be equal")
+
+	expectedKey := "GET /public"
+	if route, ok := routes[expectedKey]; !ok {
+		t.Errorf("route not found: %s", expectedKey)
+	} else {
+		assert.Equal(t, "GET", route.Method, "they should be equal")
+		assert.Equal(t, "/public", route.Pattern, "they should be equal")
+		assert.NotNil(t, route.Handler, "it should not be nil")
+	}
+
+	tests := []struct {
+		name         string
+		data         string
+		pattern      string
+		expectedCode int
+	}{
+		{"it serves a static file", "./testdata/test.html", "/public/test.html", http.StatusOK},
+		{
+			"it serves the index file with a trailing slash",
+			"./testdata/index.html",
+			"/public/",
+			http.StatusOK,
+		},
+		{
+			"it serves the index file without a trailing slash",
+			"./testdata/index.html",
+			"/public",
+			http.StatusOK,
+		},
+		{
+			"it redirects when the index file is called directly",
+			"./testdata/index.html",
+			"/public/index.html",
+			http.StatusMovedPermanently,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// Call the handler, test that the test data contents are returned.
+			testData, err := os.ReadFile(test.data)
+			if err != nil {
+				t.Error("cannot read test data")
+			}
+
+			// Create a request that would trigger our test handler
+			url := fmt.Sprintf("http://%s%s", testAddress, test.pattern)
+			req, err := http.NewRequest(http.MethodGet, url, nil)
+			if err != nil {
+				t.Errorf("failed to create request: %v", err)
+			}
+
+			w := httptest.NewRecorder()
+			err = route.Handler.ServeHTTPWithError(w, req)
+			if err != nil {
+				t.Errorf("route error: %s", err)
+			}
+			res := w.Result()
+			defer res.Body.Close()
+			body, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Errorf("failed to read response body: %v", err)
+			}
+
+			assert.Equal(t, test.expectedCode, res.StatusCode, "they should be equal")
+			if res.StatusCode == http.StatusOK {
+				assert.Contains(t, string(body), string(testData), "it should contain")
 			}
 		})
 	}
@@ -124,7 +205,6 @@ func Test_Compile(t *testing.T) {
 		createTestMiddlewareHandler("x-mw2", "mw2"),
 	)
 
-	// route.WithTimeout(10*time.Second, "TIMEOUT")
 	// compile the routes
 	app.Compile()
 
