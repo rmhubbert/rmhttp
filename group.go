@@ -1,6 +1,10 @@
 package rmhttp
 
-import "time"
+import (
+	"net/http"
+	"strings"
+	"time"
+)
 
 // ------------------------------------------------------------------------------------------------
 // GROUP
@@ -26,6 +30,98 @@ func NewGroup(pattern string) *Group {
 		Routes:  make(map[string]*Route),
 		Groups:  make(map[string]*Group),
 	}
+}
+
+// Handle binds the passed rmhttp.Handler to the specified route method and pattern.
+//
+// This method will return a pointer to the receiver Group, allowing the user to
+// chain any of the other builder methods that Group implements.
+func (group *Group) Handle(method string, pattern string, handler Handler) *Group {
+	route := NewRoute(
+		strings.TrimSpace(strings.ToUpper(method)),
+		strings.TrimSpace(strings.ToLower(pattern)),
+		handler,
+	)
+	return group.Route(route)
+}
+
+// HandleFunc converts the passed handler function to a rmhttp.HandlerFunc, and then binds it to
+// the specified route method and pattern.
+//
+// This method will return a pointer to the receiver Group, allowing the user to chain
+// any of the other builder methods that Group implements.
+func (group *Group) HandleFunc(
+	method string,
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Group {
+	return group.Handle(method, pattern, HandlerFunc(handlerFunc))
+}
+
+// Get binds the passed handler to the specified route pattern for GET requests.
+//
+// This method will return a pointer to the receiver Group, allowing the user to chain
+// any of the other builder methods that Group implements.
+func (group *Group) Get(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Group {
+	return group.HandleFunc(http.MethodGet, pattern, handlerFunc)
+}
+
+// Post binds the passed handler to the specified route pattern for POST requests.
+//
+// This method will return a pointer to the receiver Group, allowing the user to chain
+// any of the other builder methods that Group implements.
+func (group *Group) Post(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Group {
+	return group.HandleFunc(http.MethodPost, pattern, handlerFunc)
+}
+
+// Put binds the passed handler to the specified route pattern for PUT requests.
+//
+// This method will return a pointer to the receiver Group, allowing the user to chain
+// any of the other builder methods that Group implements.
+func (group *Group) Put(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Group {
+	return group.HandleFunc(http.MethodPut, pattern, handlerFunc)
+}
+
+// Patch binds the passed handler to the specified route pattern for PATCH requests.
+//
+// This method will return a pointer to the receiver Group, allowing the user to chain
+// any of the other builder methods that Group implements.
+func (group *Group) Patch(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Group {
+	return group.HandleFunc(http.MethodPatch, pattern, handlerFunc)
+}
+
+// Delete binds the passed handler to the specified route pattern for DELETE requests.
+//
+// This method will return a pointer to the receiver Group, allowing the user to chain
+// any of the other builder methods that Group implements.
+func (group *Group) Delete(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Group {
+	return group.HandleFunc(http.MethodDelete, pattern, handlerFunc)
+}
+
+// Options binds the passed handler to the specified route pattern for OPTIONS requests.
+//
+// This method will return a pointer to the receiver Group, allowing the user to chain
+// any of the other builder methods that Group implements.
+func (group *Group) Options(
+	pattern string,
+	handlerFunc func(http.ResponseWriter, *http.Request) error,
+) *Group {
+	return group.HandleFunc(http.MethodOptions, pattern, handlerFunc)
 }
 
 // Route adds the passed Route to this Group.
