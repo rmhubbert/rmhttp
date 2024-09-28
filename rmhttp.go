@@ -76,6 +76,7 @@ func New(c ...Config) *App {
 		router,
 		config.Logger,
 	)
+	server.maybeUpdateTimeout(time.Duration(config.Timeout.RequestTimeout) * time.Second)
 
 	rootGroup := NewGroup("")
 	rootGroup.Timeout = NewTimeout(
