@@ -25,18 +25,6 @@ var defaultSSLConfig = SSLConfig{
 	Key:    "",
 }
 
-var defaultCorsConfig = CorsConfig{
-	Enable:               false,
-	AllowedOrigin:        "*",
-	AllowedMethods:       []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
-	AllowedHeaders:       []string{"Origin", "Authorization", "X-Forwarded-For"},
-	ExposedHeaders:       []string{"Origin", "Authorization", "X-Forwarded-For"},
-	MaxAge:               300,
-	OptionsSuccessStatus: 204,
-	AllowCredentials:     false,
-	PreflightVary:        []string{"Origin"},
-}
-
 var defaultConfig = Config{
 	Host:                    "",
 	Port:                    8080,
@@ -46,14 +34,13 @@ var defaultConfig = Config{
 	EnableHTTPErrorHandling: false,
 	LoggerAllowedMethods:    []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
 	Logger:                  nil,
-	Cors:                    defaultCorsConfig,
 	SSL:                     defaultSSLConfig,
 	Timeout:                 defaultTimeoutConfig,
 }
 
 // Test_LoadConfig_default tests the default config. It simulates no user config being passed
 // and no related environment variables being set.
-func Test_RoadConfig_default(t *testing.T) {
+func Test_LoadConfig_default(t *testing.T) {
 	cfg, err := LoadConfig(Config{})
 	if err != nil {
 		t.Errorf("LoadConfig returned error: %v", err)
@@ -88,7 +75,6 @@ func Test_RoadConfig_default(t *testing.T) {
 			defaultConfig.LoggerAllowedMethods,
 		},
 		{"default logger", cfg.Logger, defaultConfig.Logger},
-		{"default CORS config", cfg.Cors, defaultConfig.Cors},
 		{"default SSL config", cfg.SSL, defaultConfig.SSL},
 		{"default timeout config", cfg.Timeout, defaultConfig.Timeout},
 	}
@@ -111,29 +97,6 @@ func Test_LoadConfig_from_env(t *testing.T) {
 	enableHTTPErrorHandling := true
 	enableHTTPLogging := true
 	loggerAllowedMethods := []string{"GET", "POST"}
-
-	// CorsConfig related env variables and config
-	enableCors := true
-	corsAllowedOrigin := "localhost"
-	corsAllowedMethods := []string{"GET", "POST"}
-	corsAllowedHeaders := []string{"Origin", "Authorization"}
-	corsExposedHeaders := []string{"Origin", "Authorization"}
-	corsMaxAge := 60
-	corsOptionsSuccessStatus := 200
-	corsAllowCredentials := true
-	corsPreflightVary := []string{"Origin", "Authorization"}
-
-	envCorsConfig := CorsConfig{
-		Enable:               enableCors,
-		AllowedOrigin:        corsAllowedOrigin,
-		AllowedMethods:       corsAllowedMethods,
-		AllowedHeaders:       corsAllowedHeaders,
-		ExposedHeaders:       corsExposedHeaders,
-		MaxAge:               corsMaxAge,
-		OptionsSuccessStatus: corsOptionsSuccessStatus,
-		AllowCredentials:     corsAllowCredentials,
-		PreflightVary:        corsPreflightVary,
-	}
 
 	// SSLConfig related env variables and config
 	sslEnable := true
@@ -166,32 +129,23 @@ func Test_LoadConfig_from_env(t *testing.T) {
 	}
 
 	vars := map[string]string{
-		"HOST":                        host,
-		"PORT":                        strconv.Itoa(port),
-		"DEBUG":                       strconv.FormatBool(debug),
-		"ENABLE_PANIC_RECOVERY":       strconv.FormatBool(enablePanicRecovery),
-		"ENABLE_HTTP_ERROR_HANDLING":  strconv.FormatBool(enableHTTPErrorHandling),
-		"ENABLE_HTTP_LOGGING":         strconv.FormatBool(enableHTTPLogging),
-		"LOGGER_ALLOWED_METHODS":      strings.Join(loggerAllowedMethods, ","),
-		"ENABLE_CORS":                 strconv.FormatBool(enableCors),
-		"CORS_ALLOWED_ORIGIN":         corsAllowedOrigin,
-		"CORS_ALLOWED_METHODS":        strings.Join(corsAllowedMethods, ","),
-		"CORS_ALLOWED_HEADERS":        strings.Join(corsAllowedHeaders, ","),
-		"CORS_EXPOSED_HEADERS":        strings.Join(corsExposedHeaders, ","),
-		"CORS_MAX_AGE":                strconv.Itoa(corsMaxAge),
-		"CORS_OPTIONS_SUCCESS_STATUS": strconv.Itoa(corsOptionsSuccessStatus),
-		"CORS_ALLOW_CREDENTIALS":      strconv.FormatBool(corsAllowCredentials),
-		"CORS_PREFLIGHT_VARY":         strings.Join(corsPreflightVary, ","),
-		"ENABLE_SSL":                  strconv.FormatBool(sslEnable),
-		"SSL_CERT":                    sslCert,
-		"SSL_KEY":                     sslKey,
-		"TCP_READ_TIMEOUT":            strconv.Itoa(tcpReadTimeout),
-		"TCP_READ_HEADER_TIMEOUT":     strconv.Itoa(tcpReadHeaderTimeout),
-		"TCP_IDLE_TIMEOUT":            strconv.Itoa(tcpIdleTimeout),
-		"TCP_WRITE_TIMEOUT":           strconv.Itoa(tcpWriteTimeout),
-		"TCP_WRITE_TIMEOUT_BUFFER":    strconv.Itoa(tcpWriteTimeoutBuffer),
-		"HTTP_REQUEST_TIMEOUT":        strconv.Itoa(httpRequestTimeout),
-		"HTTP_TIMEOUT_MESSAGE":        timeoutMessage,
+		"HOST":                       host,
+		"PORT":                       strconv.Itoa(port),
+		"DEBUG":                      strconv.FormatBool(debug),
+		"ENABLE_PANIC_RECOVERY":      strconv.FormatBool(enablePanicRecovery),
+		"ENABLE_HTTP_ERROR_HANDLING": strconv.FormatBool(enableHTTPErrorHandling),
+		"ENABLE_HTTP_LOGGING":        strconv.FormatBool(enableHTTPLogging),
+		"LOGGER_ALLOWED_METHODS":     strings.Join(loggerAllowedMethods, ","),
+		"ENABLE_SSL":                 strconv.FormatBool(sslEnable),
+		"SSL_CERT":                   sslCert,
+		"SSL_KEY":                    sslKey,
+		"TCP_READ_TIMEOUT":           strconv.Itoa(tcpReadTimeout),
+		"TCP_READ_HEADER_TIMEOUT":    strconv.Itoa(tcpReadHeaderTimeout),
+		"TCP_IDLE_TIMEOUT":           strconv.Itoa(tcpIdleTimeout),
+		"TCP_WRITE_TIMEOUT":          strconv.Itoa(tcpWriteTimeout),
+		"TCP_WRITE_TIMEOUT_BUFFER":   strconv.Itoa(tcpWriteTimeoutBuffer),
+		"HTTP_REQUEST_TIMEOUT":       strconv.Itoa(httpRequestTimeout),
+		"HTTP_TIMEOUT_MESSAGE":       timeoutMessage,
 	}
 
 	// Set the environment variables
@@ -232,7 +186,6 @@ func Test_LoadConfig_from_env(t *testing.T) {
 			cfg.LoggerAllowedMethods,
 			loggerAllowedMethods,
 		},
-		{"CORS config set from environment variables", cfg.Cors, envCorsConfig},
 		{"SSL config set from environment variables", cfg.SSL, envSSLConfig},
 		{"timeout config set from environment variables", cfg.Timeout, envTimeoutConfig},
 	}
@@ -260,29 +213,6 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 	enableHTTPErrorHandling := true
 	enableHTTPLogging := true
 	loggerAllowedMethods := []string{"GET", "POST"}
-
-	// CorsConfig related env variables and config
-	enableCors := true
-	corsAllowedOrigin := "localhost"
-	corsAllowedMethods := []string{"GET", "POST"}
-	corsAllowedHeaders := []string{"Origin", "Authorization"}
-	corsExposedHeaders := []string{"Origin", "Authorization"}
-	corsMaxAge := 60
-	corsOptionsSuccessStatus := 200
-	corsAllowCredentials := true
-	corsPreflightVary := []string{"Origin", "Authorization"}
-
-	userCorsConfig := CorsConfig{
-		Enable:               enableCors,
-		AllowedOrigin:        corsAllowedOrigin,
-		AllowedMethods:       corsAllowedMethods,
-		AllowedHeaders:       corsAllowedHeaders,
-		ExposedHeaders:       corsExposedHeaders,
-		MaxAge:               corsMaxAge,
-		OptionsSuccessStatus: corsOptionsSuccessStatus,
-		AllowCredentials:     corsAllowCredentials,
-		PreflightVary:        corsPreflightVary,
-	}
 
 	// SSLConfig related env variables and config
 	sslEnable := true
@@ -322,7 +252,6 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 		EnableHTTPLogging:       enableHTTPLogging,
 		EnableHTTPErrorHandling: enableHTTPErrorHandling,
 		LoggerAllowedMethods:    loggerAllowedMethods,
-		Cors:                    userCorsConfig,
 		SSL:                     userSSLConfig,
 		Timeout:                 userTimeoutConfig,
 	}
@@ -360,7 +289,6 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 			cfg.LoggerAllowedMethods,
 			loggerAllowedMethods,
 		},
-		{"CORS config set from a user defined config", cfg.Cors, userCorsConfig},
 		{"SSL config set from a user defined config", cfg.SSL, userSSLConfig},
 		{"timeout config set from a user defined config", cfg.Timeout, userTimeoutConfig},
 	}
@@ -383,29 +311,6 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 	enableHTTPErrorHandling := true
 	enableHTTPLogging := true
 	loggerAllowedMethods := []string{"GET", "POST"}
-
-	// CorsConfig related env variables and config
-	enableCors := true
-	// corsAllowedOrigin := "localhost"
-	// corsAllowedMethods := []string{"GET", "POST"}
-	corsAllowedHeaders := []string{"Origin", "Authorization"}
-	corsExposedHeaders := []string{"Origin", "Authorization"}
-	corsMaxAge := 60
-	corsOptionsSuccessStatus := 200
-	corsAllowCredentials := true
-	corsPreflightVary := []string{"Origin", "Authorization"}
-
-	partialCorsConfig := CorsConfig{
-		Enable: enableCors,
-		// AllowedOrigin:        corsAllowedOrigin,
-		// AllowedMethods:       corsAllowedMethods,
-		AllowedHeaders:       corsAllowedHeaders,
-		ExposedHeaders:       corsExposedHeaders,
-		MaxAge:               corsMaxAge,
-		OptionsSuccessStatus: corsOptionsSuccessStatus,
-		AllowCredentials:     corsAllowCredentials,
-		PreflightVary:        corsPreflightVary,
-	}
 
 	// SSLConfig related env variables and config
 	// sslEnable := true
@@ -445,7 +350,6 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 		EnableHTTPLogging:       enableHTTPLogging,
 		EnableHTTPErrorHandling: enableHTTPErrorHandling,
 		LoggerAllowedMethods:    loggerAllowedMethods,
-		Cors:                    partialCorsConfig,
 		SSL:                     partialSSLConfig,
 		Timeout:                 partialTimeoutConfig,
 	}
@@ -482,46 +386,6 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 			"logger allowed methods set from a partially defined user config",
 			cfg.LoggerAllowedMethods,
 			loggerAllowedMethods,
-		},
-		{
-			"CORS allowed origin set from a partially defined user config",
-			cfg.Cors.AllowedOrigin,
-			defaultCorsConfig.AllowedOrigin,
-		},
-		{
-			"CORS allowed methods set from a partially defined user config",
-			cfg.Cors.AllowedMethods,
-			defaultCorsConfig.AllowedMethods,
-		},
-		{
-			"CORS allowed headers set from a partially defined user config",
-			cfg.Cors.AllowedHeaders,
-			partialCorsConfig.AllowedHeaders,
-		},
-		{
-			"CORS exposed headers set from a partially defined user config",
-			cfg.Cors.ExposedHeaders,
-			partialCorsConfig.ExposedHeaders,
-		},
-		{
-			"CORS max age set from a partially defined user config",
-			cfg.Cors.MaxAge,
-			partialCorsConfig.MaxAge,
-		},
-		{
-			"CORS OPTIONS success status set from a partially defined user config",
-			cfg.Cors.OptionsSuccessStatus,
-			partialCorsConfig.OptionsSuccessStatus,
-		},
-		{
-			"CORS allow credentials set from a partially defined user config",
-			cfg.Cors.AllowCredentials,
-			partialCorsConfig.AllowCredentials,
-		},
-		{
-			"CORS preflight vary set from a partially defined user config",
-			cfg.Cors.PreflightVary,
-			partialCorsConfig.PreflightVary,
 		},
 		{
 			"enable SSL flag set from a partially defined user config",

@@ -33,22 +33,6 @@ type SSLConfig struct {
 }
 
 // ------------------------------------------------------------------------------------------------
-// CORS CONFIG
-// ------------------------------------------------------------------------------------------------
-// The CorsConfig contains settings (with defaults) for configuring CORS in the router.
-type CorsConfig struct {
-	Enable               bool     `env:"ENABLE_CORS"                 envDefault:"false"`
-	AllowedOrigin        string   `env:"CORS_ALLOWED_ORIGIN"         envDefault:"*"`
-	AllowedMethods       []string `env:"CORS_ALLOWED_METHODS"        envDefault:"GET,POST,PUT,PATCH,DELETE"`
-	AllowedHeaders       []string `env:"CORS_ALLOWED_HEADERS"        envDefault:"Origin,Authorization,X-Forwarded-For"`
-	ExposedHeaders       []string `env:"CORS_EXPOSED_HEADERS"        envDefault:"Origin,Authorization,X-Forwarded-For"`
-	MaxAge               int      `env:"CORS_MAX_AGE"                envDefault:"300"`
-	OptionsSuccessStatus int      `env:"CORS_OPTIONS_SUCCESS_STATUS" envDefault:"204"`
-	AllowCredentials     bool     `env:"CORS_ALLOW_CREDENTIALS"      envDefault:"false"`
-	PreflightVary        []string `env:"CORS_PREFLIGHT_VARY"         envDefault:"Origin"`
-}
-
-// ------------------------------------------------------------------------------------------------
 // CONFIG
 // ------------------------------------------------------------------------------------------------
 // The Config contains settings (with defaults) for configuring the app, server and router.
@@ -61,7 +45,6 @@ type Config struct {
 	EnableHTTPErrorHandling bool     `env:"ENABLE_HTTP_ERROR_HANDLING"`
 	LoggerAllowedMethods    []string `env:"LOGGER_ALLOWED_METHODS"     envDefault:"GET,POST,PATCH,PUT,DELETE,OPTIONS"`
 	Logger                  Logger
-	Cors                    CorsConfig
 	SSL                     SSLConfig
 	Timeout                 TimeoutConfig
 }
@@ -80,12 +63,6 @@ func LoadConfig(cfg Config) (Config, error) {
 	err := mergo.Merge(&config, cfg, mergo.WithOverride)
 	if err != nil {
 		return config, fmt.Errorf("failed to merge user supplied and default configs: %v", err)
-	}
-
-	// Merge the CORS config
-	err = mergo.Merge(&config.Cors, cfg.Cors, mergo.WithOverride)
-	if err != nil {
-		return config, fmt.Errorf("failed to merge user supplied and default CORS configs: %v", err)
 	}
 
 	// Merge the SSL config
