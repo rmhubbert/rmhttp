@@ -66,10 +66,11 @@ func New(c ...Config) *App {
 
 	router := NewRouter(config.Logger)
 	serverConfig := ServerConfig{
-		TimeoutConfig: config.Timeout,
-		SSLConfig:     config.SSL,
-		Host:          config.Host,
-		Port:          config.Port,
+		TimeoutConfig:                config.Timeout,
+		SSLConfig:                    config.SSL,
+		Host:                         config.Host,
+		Port:                         config.Port,
+		DisableGeneralOptionsHandler: config.DisableGeneralOptionsHandler,
 	}
 	server := NewServer(
 		serverConfig,

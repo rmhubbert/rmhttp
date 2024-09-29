@@ -16,10 +16,11 @@ import (
 type ServerConfig struct {
 	TimeoutConfig
 	SSLConfig
-	Host string
-	Port int
-	Cert string
-	Key  string
+	Host                         string
+	Port                         int
+	Cert                         string
+	Key                          string
+	DisableGeneralOptionsHandler bool
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -47,11 +48,12 @@ func NewServer(
 ) *Server {
 	srv := Server{
 		Server: http.Server{
-			Handler:           router,
-			ReadTimeout:       time.Duration(config.TCPReadTimeout) * time.Second,
-			ReadHeaderTimeout: time.Duration(config.TCPReadHeaderTimeout) * time.Second,
-			WriteTimeout:      time.Duration(config.TCPWriteTimeout) * time.Second,
-			IdleTimeout:       time.Duration(config.TCPIdleTimeout) * time.Second,
+			Handler:                      router,
+			ReadTimeout:                  time.Duration(config.TCPReadTimeout) * time.Second,
+			ReadHeaderTimeout:            time.Duration(config.TCPReadHeaderTimeout) * time.Second,
+			WriteTimeout:                 time.Duration(config.TCPWriteTimeout) * time.Second,
+			IdleTimeout:                  time.Duration(config.TCPIdleTimeout) * time.Second,
+			DisableGeneralOptionsHandler: config.DisableGeneralOptionsHandler,
 		},
 		Router:              router,
 		Host:                config.Host,
