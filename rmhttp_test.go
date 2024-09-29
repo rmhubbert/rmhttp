@@ -165,6 +165,72 @@ func Test_Static(t *testing.T) {
 	}
 }
 
+// Test_Redirect checks that a redirect handler is successfully created added to the App
+func Test_Redirect(t *testing.T) {
+	app := New()
+	pattern := "/redirect"
+	tests := []struct {
+		name         string
+		target       string
+		code         int
+		expectedCode int
+	}{
+		{
+			"Returns a redirect to http://localhost with a 301 response code",
+			"http://localhost",
+			http.StatusMovedPermanently,
+			http.StatusMovedPermanently,
+		},
+		{
+			"Returns a redirect to /other with a 301 response code",
+			"/other",
+			http.StatusMovedPermanently,
+			http.StatusMovedPermanently,
+		},
+		{
+			"Returns a redirect with a 307 response code when passed code is not between 300 - 308",
+			"/other",
+			http.StatusOK,
+			http.StatusTemporaryRedirect,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			route := app.Redirect(pattern, test.target, test.code)
+
+			routes := app.Routes()
+
+			expectedKey := fmt.Sprintf("%s %s", "GET", pattern)
+			if route, ok := routes[expectedKey]; !ok {
+				t.Errorf("route not found: %s", expectedKey)
+			} else {
+				assert.Equal(t, "GET", route.Method, "they should be equal")
+				assert.Equal(t, pattern, route.Pattern, "they should be equal")
+				assert.NotNil(t, route.Handler, "it should not be nil")
+			}
+
+			// Create a request that would trigger our test handler
+			url := fmt.Sprintf("http://%s%s", testAddress, pattern)
+			req, err := http.NewRequest(http.MethodGet, url, nil)
+			if err != nil {
+				t.Errorf("failed to create request: %v", err)
+			}
+
+			w := httptest.NewRecorder()
+			err = route.Handler.ServeHTTPWithError(w, req)
+			if err != nil {
+				t.Errorf("route error: %s", err)
+			}
+			res := w.Result()
+			defer res.Body.Close()
+
+			assert.Equal(t, test.expectedCode, res.StatusCode, "they should be equal")
+			assert.Equal(t, test.target, res.Header.Get("Location"), "they should be equal")
+		})
+	}
+}
+
 // Test_Routes checks that a list of current Routes is returned.
 func Test_Routes(t *testing.T) {
 	app := New()
