@@ -198,6 +198,24 @@ func (app *App) Static(pattern string, targetDir string) *Route {
 	return app.HandleFunc(http.MethodGet, pattern, handlerFunc)
 }
 
+// Redirect creates and binds a redirect handler to the specified pattern for GET requests.
+//
+// A temporary redirect status code will be used if the passed code is not in the 300 -
+// 308 range.
+//
+// This method will return a pointer to the new Route, allowing the user to chain
+// any of the other builder methods that Route implements.
+func (app *App) Redirect(pattern string, target string, code int) *Route {
+	if code < http.StatusMultipleChoices || code > http.StatusPermanentRedirect {
+		code = http.StatusTemporaryRedirect
+	}
+	handler := HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+		http.Redirect(w, r, target, code)
+		return nil
+	})
+	return app.Handle("GET", pattern, handler)
+}
+
 // Group creates, initialises, and returns a pointer to a Route Group.
 //
 // This is typically used to create new Routes as part of the Group, but can also be used to add
