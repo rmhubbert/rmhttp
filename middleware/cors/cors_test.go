@@ -10,10 +10,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ------------------------------------------------------------------------------------------------
+// CORS TESTS
+// ------------------------------------------------------------------------------------------------
+
 const (
 	testAddress string = "localhost:8080"
 )
 
+// Test_Cors checks that the expected CORS headers are returned for both preflight and standard
+// requests. As this middleware wraps github.com/rs/cors, we only test the wrapper functionality
+// and leave the in depth testing to the res/cors package itself.
 func Test_Cors(t *testing.T) {
 	testPattern := "/test"
 

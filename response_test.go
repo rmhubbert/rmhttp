@@ -11,6 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ------------------------------------------------------------------------------------------------
+// RESPONSE TESTS
+// ------------------------------------------------------------------------------------------------
+
 func Test_CaptureWriter_Persist(t *testing.T) {
 	testPattern := "/persist"
 	testBody := "persist"

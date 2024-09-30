@@ -12,6 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// ------------------------------------------------------------------------------------------------
+// TIMEOUT TESTS
+// ------------------------------------------------------------------------------------------------
+
 // Test_Timeout_applyTimeout checks that route timeouts act as expected
 func Test_Timeout_applyTimeout(t *testing.T) {
 	testPattern := "/timeout"

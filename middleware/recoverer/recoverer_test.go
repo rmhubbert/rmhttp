@@ -10,10 +10,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ------------------------------------------------------------------------------------------------
+// RECOVERER TESTS
+// ------------------------------------------------------------------------------------------------
+
 const (
 	testAddress string = "localhost:8080"
 )
 
+// Test_Recoverer checks that a panic thrown within a request can be recovered from, and then
+// return an appropriate error.
 func Test_Recoverer(t *testing.T) {
 	testPattern := "/test"
 

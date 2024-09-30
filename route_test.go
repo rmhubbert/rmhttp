@@ -8,6 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ------------------------------------------------------------------------------------------------
+// ROUTE TESTS
+// ------------------------------------------------------------------------------------------------
+
 // Test_Route_WithMiddleware checks that middleware can be added to a Route.
 func Test_Route_WithMiddleware(t *testing.T) {
 	handler := createTestHandlerFunc(http.StatusOK, "test body", nil)

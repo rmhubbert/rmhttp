@@ -9,6 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ------------------------------------------------------------------------------------------------
+// CONFIG TESTS
+// ------------------------------------------------------------------------------------------------
+
 var defaultTimeoutConfig = TimeoutConfig{
 	TCPReadTimeout:         2,
 	TCPReadHeaderTimeout:   1,

@@ -10,6 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ------------------------------------------------------------------------------------------------
+// MIDDLEWARE TESTS
+// ------------------------------------------------------------------------------------------------
+
 func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 	// Create a middleware service
 	// Create a handler to test with
