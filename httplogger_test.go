@@ -13,12 +13,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ------------------------------------------------------------------------------------------------
+// HTTP LOGGER TESTS
+// ------------------------------------------------------------------------------------------------
+
 type TestLogEntry struct {
 	Level  string `json:"level"`
 	Status int    `json:"status"`
 }
 
-func Test_HTTPErrorLoggerMiddleware(t *testing.T) {
+// Test_HTTPLoggerMiddleware tests that requests and errors are logged as expected by the
+// HTTP Logger middleware
+func Test_HTTPLoggerMiddleware(t *testing.T) {
 	testPattern := "/test"
 	testBody := "test body"
 	// ErrSentinel := errors.New("sentinel error")
@@ -125,7 +131,7 @@ func Test_HTTPErrorLoggerMiddleware(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			test.route.Handler = applyMiddleware(
 				test.route.Handler,
-				[]MiddlewareFunc{HTTPErrorLoggerMiddleware(logger)},
+				[]MiddlewareFunc{HTTPLoggerMiddleware(logger)},
 			)
 
 			url := fmt.Sprintf("http://%s%s", testAddress, testPattern)

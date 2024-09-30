@@ -8,15 +8,11 @@ import (
 )
 
 // ------------------------------------------------------------------------------------------------
-// HTTP ERROR HANDLER
+// HTTP LOGGER
 // ------------------------------------------------------------------------------------------------
 
-// HTTPErrorHandlerMiddleware returns a MiddlwareFunc compatible function that handles any errors
-// that have been returned by a handler. It will also create an appropriate HTTP error in the
-// case of the response having a status code in the error range (400 and above), but no
-// error was returned from the handler. This will allow any other middleware to assume
-// that if they have not received an error, then no error has occurred.
-func HTTPErrorLoggerMiddleware(logger Logger) MiddlewareFunc {
+// HTTPLoggerMiddleware logs requests and errors using the passed Logger.
+func HTTPLoggerMiddleware(logger Logger) MiddlewareFunc {
 	return func(next Handler) Handler {
 		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 			cw := NewCaptureWriter(w)
