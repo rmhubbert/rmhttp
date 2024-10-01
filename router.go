@@ -14,15 +14,17 @@ import (
 // also manages custom error handlers to ensure that the HTTP Error Handler can operate
 // properly.
 type Router struct {
-	Mux    *http.ServeMux
-	Logger Logger
+	Mux           *http.ServeMux
+	Logger        Logger
+	errorHandlers map[int]Handler
 }
 
 // NewRouter intialises, creates, and then returns a pointer to a Router.
 func NewRouter(logger Logger) *Router {
 	return &Router{
-		Mux:    http.NewServeMux(),
-		Logger: logger,
+		Mux:           http.NewServeMux(),
+		Logger:        logger,
+		errorHandlers: make(map[int]Handler),
 	}
 }
 
@@ -40,7 +42,30 @@ func NewRouter(logger Logger) *Router {
 // The Router is one of the few places where you will see ServeHTTP used instead of
 // ServeHTTPWithError in the system.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	rt.Mux.ServeHTTP(w, r)
+	// Handler returns the Handler that the Mux wants to use for this request.
+	handler, pattern := rt.Mux.Handler(r)
+
+	// If the pattern is empty, we probably have an internal error handler.
+	if pattern == "" {
+		if _, ok := handler.(Handler); !ok {
+			// If we get here, then we have an http.Handler, which means that it is an internal error
+			// handler. Check to see if we have a custom error handler for this error code, and use
+			// that if so.
+			cw := NewCaptureWriter(w)
+			handler.ServeHTTP(cw, r)
+			if h, ok := rt.errorHandlers[cw.Code]; ok {
+				handler = h
+			}
+		}
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// AddErrorHandler maps the passed response code and handler. These error handlers will be used
+// instead of the http.Handler equivalents when available.
+func (rt *Router) AddErrorHandler(code int, handler Handler) {
+	rt.errorHandlers[code] = handler
 }
 
 // Handle registers the passed Route with the underlying HTTP request multiplexer.

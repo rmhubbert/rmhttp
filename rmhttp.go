@@ -32,6 +32,7 @@ type App struct {
 	Router           *Router
 	rootGroup        *Group
 	errorStatusCodes map[error]int
+	errorHandlers    map[int]Handler
 }
 
 // New creates, initialises and returns a pointer to a new App. An optional configuration can be
@@ -85,12 +86,18 @@ func New(c ...Config) *App {
 		config.Timeout.TimeoutMessage,
 	)
 
+	errorHandlers := map[int]Handler{
+		http.StatusNotFound:         createDefaultHandler(http.StatusNotFound),
+		http.StatusMethodNotAllowed: createDefaultHandler(http.StatusMethodNotAllowed),
+	}
+
 	return &App{
 		Server:           server,
 		Router:           router,
 		logger:           config.Logger,
 		rootGroup:        rootGroup,
 		errorStatusCodes: make(map[error]int),
+		errorHandlers:    errorHandlers,
 	}
 }
 
@@ -217,6 +224,18 @@ func (app *App) Redirect(pattern string, target string, code int) *Route {
 	return app.Handle("GET", pattern, handler)
 }
 
+// StatusNotFoundHandler registers a handler to be used when an internal 404 error is thrown.
+func (app *App) StatusNotFoundHandler(handler func(http.ResponseWriter, *http.Request) error) {
+	app.errorHandlers[http.StatusNotFound] = HandlerFunc(handler)
+}
+
+// StatusMethodNotAllowedHandler registers a handler to be used when an internal 405 error is thrown.
+func (app *App) StatusMethodNotAllowedHandler(
+	handler func(http.ResponseWriter, *http.Request) error,
+) {
+	app.errorHandlers[http.StatusMethodNotAllowed] = HandlerFunc(handler)
+}
+
 // Group creates, initialises, and returns a pointer to a Route Group.
 //
 // This is typically used to create new Routes as part of the Group, but can also be used to add
@@ -258,7 +277,7 @@ func (app *App) Compile() {
 		// as possible so that all the other middleware only needs to handle HTTPErrors.
 		// 5. Timeout - we directly wrap every handler with a timeout for security reasons.
 		middleware := []MiddlewareFunc{
-			HTTPErrorLoggerMiddleware(app.logger),
+			HTTPLoggerMiddleware(app.logger),
 			HeaderMiddleware(route.ComputedHeaders()),
 		}
 		middleware = append(middleware, route.ComputedMiddleware()...)
@@ -278,6 +297,16 @@ func (app *App) Compile() {
 		)
 
 		app.Router.Handle(route.Method, route.Pattern, handler)
+	}
+
+	// Apply global middlware and add the error handlers to the router.
+	for code, handler := range app.errorHandlers {
+		middleware := []MiddlewareFunc{
+			HTTPLoggerMiddleware(app.logger),
+		}
+		middleware = append(middleware, app.rootGroup.Middleware...)
+		middleware = append(middleware, HTTPErrorHandlerMiddleware(app.errorStatusCodes))
+		app.Router.AddErrorHandler(code, applyMiddleware(handler, middleware))
 	}
 }
 
