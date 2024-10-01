@@ -1,4 +1,35 @@
 
+## [v0.8.0] - 2024-10-01
+### :sparkles: New Features
+- [`1e2c67f`](https://github.com/rmhubbert/rmhttp2/commit/1e2c67f066989d78d6c8835fbb9e5063a6c32e80) - add static file handler *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`1b3fe4a`](https://github.com/rmhubbert/rmhttp2/commit/1b3fe4ab98d0d034478c8fad2fb4068969186de7) - add handler convenience methods *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`c78f921`](https://github.com/rmhubbert/rmhttp2/commit/c78f9214ee63b8d470fcdbb25f99d88ee3ea12bb) - ensure server timeout is initialised by the request timeout *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`23d279e`](https://github.com/rmhubbert/rmhttp2/commit/23d279e52ea7795058273b284e055496263a1d3f) - add methods for creating a route and adding it to the group *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`eda2134`](https://github.com/rmhubbert/rmhttp2/commit/eda2134f5cc490ba49de8bba0530169810899161) - add Redirect method to create and register redirect handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`dbc407b`](https://github.com/rmhubbert/rmhttp2/commit/dbc407b5a0acd417eb12f59cec22f1f5710f00ff) - add DisableGeneralOptionsHandler config option for Server *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`35c81d0`](https://github.com/rmhubbert/rmhttp2/commit/35c81d0925a3ed0d2c69435134a8cfc0f097e644) - add convenience function for creating simple handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`c5baf7d`](https://github.com/rmhubbert/rmhttp2/commit/c5baf7de6b195f5c00a84711b6d56e6c33843e65) - add custom error handlers for internal 404 & 405 errors *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :bug: Bug Fixes
+- [`8735daf`](https://github.com/rmhubbert/rmhttp2/commit/8735daf746aec3738489e7380d3424ce61bd83ac) - duplicate header write *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`1243703`](https://github.com/rmhubbert/rmhttp2/commit/124370363adcebbd684af4910e70381c8eb2b7a5) - incorrect argument type for handler *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`54ecedf`](https://github.com/rmhubbert/rmhttp2/commit/54ecedf21bd62c5c830cce4e35249d4c09763562) - remove unneeded CORS config as we now wrap rs/cors *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`233e5a9`](https://github.com/rmhubbert/rmhttp2/commit/233e5a91e19b3457933bfd281e62e33e8aeece0a) - remove legacy flags for enabling core functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`022b0c4`](https://github.com/rmhubbert/rmhttp2/commit/022b0c4e80940bc0d87cbeb3ff36e1429b991752) - remove unused vairables from config changes *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`9665337`](https://github.com/rmhubbert/rmhttp2/commit/9665337fce0d64008cee30ee2d8269474ee2249e) - rename httperrorlogger to httplogger *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`8fbeb81`](https://github.com/rmhubbert/rmhttp2/commit/8fbeb81c7528b94f4203edea2b2973e7499a3f17) - additional tests on cors middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`3e564d6`](https://github.com/rmhubbert/rmhttp2/commit/3e564d61b85a7408bf391373ba78f4021947dc32) - tests for convenience handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`35c237d`](https://github.com/rmhubbert/rmhttp2/commit/35c237df25be9184b03ab11066041cae846cb3dd) - add tests for static file handler *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`b7a2ce6`](https://github.com/rmhubbert/rmhttp2/commit/b7a2ce66a6cae3285e1e8991061e5abd629e10de) - fix assert args order *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`5440428`](https://github.com/rmhubbert/rmhttp2/commit/5440428ec3095775c00818230a115166e82d9e51) - add tests for group *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`3b9332d`](https://github.com/rmhubbert/rmhttp2/commit/3b9332d59b302e64d76266e0d3f07e97b2e57d2b) - add tests for Redirect *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`b82bc72`](https://github.com/rmhubbert/rmhttp2/commit/b82bc72c53e05d17e66455f5614c255495d8b043) - add tests for custom error handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.7.0] - 2024-09-26
 ### :sparkles: New Features
 - [`ea6c3d3`](https://github.com/rmhubbert/rmhttp2/commit/ea6c3d3b8105746ff763e0493aa9d7df3a44a581) - add cors middleware package *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -104,3 +135,4 @@
 [v0.5.2]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.1...v0.5.2
 [v0.6.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.2...v0.6.0
 [v0.7.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.6.0...v0.7.0
+[v0.8.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.7.0...v0.8.0
