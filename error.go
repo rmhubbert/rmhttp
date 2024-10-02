@@ -32,7 +32,7 @@ func (e HTTPError) Unwrap() error {
 //
 // This method allows HTTPError to implement the standard library Error interface.
 func (e HTTPError) Error() string {
-	return fmt.Sprintf("error %d: %s", e.Code, e.Err.Error())
+	return fmt.Sprintf("%d: %s", e.Code, e.Err.Error())
 }
 
 // Error is designed as a drop in replacement for http.Error.
