@@ -10,6 +10,7 @@ import (
 // ------------------------------------------------------------------------------------------------
 // TIMEOUT CONFIG
 // ------------------------------------------------------------------------------------------------
+
 // The TimeoutConfig contains settings (with defaults) for configuring timeouts in the system.
 // These settings mostly correlate to those used by the underlying http.Server
 type TimeoutConfig struct {
@@ -25,6 +26,7 @@ type TimeoutConfig struct {
 // ------------------------------------------------------------------------------------------------
 // SSL CONFIG
 // ------------------------------------------------------------------------------------------------
+
 // The SSLConfig contains settings (with defaults) for configuring SSL in the server.
 type SSLConfig struct {
 	Enable bool   `env:"ENABLE_SSL"`
@@ -35,6 +37,7 @@ type SSLConfig struct {
 // ------------------------------------------------------------------------------------------------
 // CONFIG
 // ------------------------------------------------------------------------------------------------
+
 // The Config contains settings (with defaults) for configuring the app, server and router.
 type Config struct {
 	Host                         string `env:"HOST"`
