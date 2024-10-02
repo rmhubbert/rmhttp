@@ -226,3 +226,64 @@ func Test_Group(t *testing.T) {
 		})
 	}
 }
+
+// Test_Convenience_Handlers tests the convenience route handlers
+func Test_Convenience_Handlers(t *testing.T) {
+	// Set up the App
+	app := rmhttp.New()
+	defer func() {
+		_ = app.Shutdown()
+	}()
+
+	tests := []struct {
+		name    string
+		method  string
+		pattern string
+		handler func(string, func(http.ResponseWriter, *http.Request) error) *rmhttp.Route
+	}{
+		{"registers a GET handler", http.MethodGet, "/get", app.Get},
+		{"registers a POST handler", http.MethodPost, "/post", app.Post},
+		{"registers a PATCH handler", http.MethodPatch, "/patch", app.Patch},
+		{"registers a PUT handler", http.MethodPut, "/put", app.Put},
+		{"registers a DELETE handler", http.MethodDelete, "/delete", app.Delete},
+		{"registers a OPTIONS handler", http.MethodOptions, "/options", app.Options},
+	}
+
+	// We need to register our routes before starting the server.
+	for _, test := range tests {
+		content := fmt.Sprintf("%s content", test.method)
+		route := test.handler(test.pattern, createTestHandlerFunc(http.StatusOK, content, nil))
+		assert.IsType(t, &rmhttp.Route{}, route, "it should be of this type")
+		assert.Equal(t, test.pattern, route.ComputedPattern(), "they should be equal")
+	}
+
+	// Start the App and wait for it to be responsive
+	startServer(app)
+
+	// Run our tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			content := fmt.Sprintf("%s content", test.method)
+
+			url := fmt.Sprintf("http://%s%s", testAddress, test.pattern)
+			req, err := http.NewRequest(test.method, url, nil)
+			if err != nil {
+				t.Errorf("failed to create request: %v", err)
+			}
+
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Errorf("get request failed: %v", err)
+			}
+
+			defer res.Body.Close()
+			body, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Errorf("failed to read response body: %v", err)
+			}
+
+			assert.Equal(t, content, string(body), "they should be equal")
+			assert.Equal(t, http.StatusOK, res.StatusCode, "they should be equal")
+		})
+	}
+}
