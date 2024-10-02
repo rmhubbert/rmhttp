@@ -1,4 +1,13 @@
 
+## [v0.8.1] - 2024-10-02
+### :recycle: Refactors
+- [`38225ed`](https://github.com/rmhubbert/rmhttp2/commit/38225ed4a85da5b1f5364a04612c8fd8f629a18f) - simplify HTTP error message *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`75c2057`](https://github.com/rmhubbert/rmhttp2/commit/75c205723b6ac67057e39bbdb9f6f1509f30c636) - add e2e tests for route convenience methods *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`0514913`](https://github.com/rmhubbert/rmhttp2/commit/05149131ca1b3f033ebc3f1d32313d024d303202) - add e2e tests for the custom error methods *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.8.0] - 2024-10-01
 ### :sparkles: New Features
 - [`1e2c67f`](https://github.com/rmhubbert/rmhttp2/commit/1e2c67f066989d78d6c8835fbb9e5063a6c32e80) - add static file handler *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -136,3 +145,4 @@
 [v0.6.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.5.2...v0.6.0
 [v0.7.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.6.0...v0.7.0
 [v0.8.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.7.0...v0.8.0
+[v0.8.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.8.0...v0.8.1
