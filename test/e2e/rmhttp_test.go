@@ -287,3 +287,74 @@ func Test_Convenience_Handlers(t *testing.T) {
 		})
 	}
 }
+
+// Test_Error_Handlers tests being able to register and trigger custom error handlers
+func Test_Error_Handlers(t *testing.T) {
+	// Set up the App
+	app := rmhttp.New()
+	defer func() {
+		_ = app.Shutdown()
+	}()
+
+	tests := []struct {
+		name    string
+		pattern string
+		code    int
+		method  string
+		handler func(func(http.ResponseWriter, *http.Request) error)
+	}{
+		{
+			"registers a 404 error handler",
+			"/404",
+			http.StatusNotFound,
+			http.MethodGet,
+			app.StatusNotFoundHandler,
+		},
+		{
+			"registers a 405 error handler",
+			"/405",
+			http.StatusMethodNotAllowed,
+			http.MethodPost,
+			app.StatusMethodNotAllowedHandler,
+		},
+	}
+
+	// We need to register our routes before starting the server.
+	for _, test := range tests {
+		content := fmt.Sprintf("%d content", test.code)
+		test.handler(createTestHandlerFunc(test.code, content, nil))
+	}
+
+	// We need a known route to test the 405 handler against.
+	app.Get("/405", createTestHandlerFunc(http.StatusOK, "405 content", nil))
+
+	// Start the App and wait for it to be responsive
+	startServer(app)
+
+	// Run our tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			content := fmt.Sprintf("%d content", test.code)
+
+			url := fmt.Sprintf("http://%s%s", testAddress, test.pattern)
+			req, err := http.NewRequest(test.method, url, nil)
+			if err != nil {
+				t.Errorf("failed to create request: %v", err)
+			}
+
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Errorf("get request failed: %v", err)
+			}
+
+			defer res.Body.Close()
+			body, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Errorf("failed to read response body: %v", err)
+			}
+
+			assert.Equal(t, content, string(body), "they should be equal")
+			assert.Equal(t, test.code, res.StatusCode, "they should be equal")
+		})
+	}
+}
