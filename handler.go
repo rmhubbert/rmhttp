@@ -5,6 +5,7 @@ import "net/http"
 // ------------------------------------------------------------------------------------------------
 // HANDLER INTERFACE
 // ------------------------------------------------------------------------------------------------
+
 // Handler implements the http.Handler interface and adds ServeHTTPWithError, allowing Handlers to
 // return errors.
 type Handler interface {
@@ -15,6 +16,7 @@ type Handler interface {
 // ------------------------------------------------------------------------------------------------
 // HANDLERFUNC
 // ------------------------------------------------------------------------------------------------
+
 // HandlerFunc defines the function signature for HTTP handler functions in rmhttp, as well as
 // implementing the rmhttp.Handler interface.
 //

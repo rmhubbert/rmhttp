@@ -5,6 +5,7 @@ import "net/http"
 // ------------------------------------------------------------------------------------------------
 // CONVERSION FUNCTIONS
 // ------------------------------------------------------------------------------------------------
+
 // ConvertHandlerFunc converts, then returns, the passed Net/HTTP compatible HandlerFunc function
 // to one that fulfils the rmhttp.HandlerFunc signature
 func ConvertHandlerFunc(
