@@ -224,6 +224,23 @@ func (app *App) Redirect(pattern string, target string, code int) *Route {
 	return app.Handle("GET", pattern, handler)
 }
 
+// RegisterError associates an HTTP error code with any custom or sentinel errors that their
+// application may produce.
+//
+// Once registered, any errors returned from a handler will be processed centrally by the HTTP Error
+// Handler, allowing for decoupling HTTP codes from the core application errors.
+//
+// The errors argument is variadic, allowing for multiple errors to be registered at once for each
+// status code.
+func (app *App) RegisterError(code int, errors ...error) {
+	if len(errors) == 0 {
+		return
+	}
+	for _, err := range errors {
+		app.errorStatusCodes[err] = code
+	}
+}
+
 // StatusNotFoundHandler registers a handler to be used when an internal 404 error is thrown.
 func (app *App) StatusNotFoundHandler(handler func(http.ResponseWriter, *http.Request) error) {
 	app.errorHandlers[http.StatusNotFound] = HandlerFunc(handler)
