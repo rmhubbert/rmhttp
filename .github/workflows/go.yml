@@ -13,30 +13,30 @@ jobs:
   #################################################
   # Run a static analysis
   #################################################
-  analyse:
-    name: Perform static analysis
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ github.token }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.23.x
-
-      - name: Static analysis
-        uses: dominikh/staticcheck-action@v1.3.1
-        with:
-          version: 2024.1.1
+  # analyse:
+  #   name: Perform static analysis
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         token: ${{ github.token }}
+  #
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v5
+  #       with:
+  #         go-version: 1.23.x
+  #
+  #     - name: Static analysis
+  #       uses: dominikh/staticcheck-action@v1.3.1
+  #       with:
+  #         version: 2024.1.1
 
   #################################################
   # Run various linters
   #################################################
   lint:
-    name: Lint
+    name: Analyse & Lint
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
@@ -53,7 +53,7 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.60.3
-          args: -D staticcheck -E goimports -E gofmt -E gomoddirectives -E gosec -E predeclared
+          args: -E staticcheck -E goimports -E gofmt -E gomoddirectives -E gosec -E predeclared -E bodyclose -E durationcheck -E errname -E gocheckcompilerdirectives -E nosprintfhostport -E reassign -E testifylint
 
   #################################################
   # Run tests
