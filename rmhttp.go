@@ -2,13 +2,6 @@
 // by http.Server and http.ServeMux, and adds an intuitive fluent interface for easy use and
 // configuration of route grouping, centralised error handling, logging, CORS, panic
 // recovery, SSL configuration, header management, timeouts and middleware.
-//
-// The package allows you to use either standard http.Handler functions, or rmhttp.Handler
-// functions, which are identical to http.Handler functions, with the addition of
-// returning an error. Returning an error from your handlers allows rmhttp to
-// provide centralised error handling, but if you'd rather handle your
-// errors in your handler, you can simply use the net/http
-// compayible App, and use net/http handlers natively.
 package rmhttp
 
 import (
