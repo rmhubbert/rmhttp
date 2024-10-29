@@ -80,7 +80,7 @@ jobs:
   #################################################
   semver-bump:
     name: Increment the version
-    needs: [analyse, lint, test]
+    needs: [lint, test]
     runs-on: ubuntu-22.04
     outputs:
       next-version: ${{ steps.semver.outputs.next }}
