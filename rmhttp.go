@@ -279,6 +279,25 @@ func (app *App) Route(route *Route) {
 	app.rootGroup.Route(route)
 }
 
+// WithMiddleware is a convenience method for adding global middleware handlers.
+//
+// This method will return a pointer to the app, allowing the user to chain
+// any of the other builder methods that the app implements.
+func (app *App) WithMiddleware(middlewares ...func(Handler) Handler) *App {
+	app.rootGroup.WithMiddleware(middlewares...)
+	return app
+}
+
+// Use is a convenience method for adding global middleware handlers. It uses WithMiddleware
+// behind the scenes.
+//
+// This method will return a pointer to the app, allowing the user to chain any of the
+// other builder methods that the app implements.
+func (app *App) Use(middlewares ...func(Handler) Handler) *App {
+	app.rootGroup.WithMiddleware(middlewares...)
+	return app
+}
+
 // Compile prepares the app for starting by applying the middleware, and loading the Routes. It
 // should be the last function to be called before starting the Server.
 func (app *App) Compile() {
