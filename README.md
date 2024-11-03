@@ -4,7 +4,7 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/rmhubbert/rmhttp?color=%23007D9C)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rmhubbert/rmhttp/latest?color=%23007D9C) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?color=%23007D9C)](CONTRIBUTING.md)
 
-**rmhttp** provides a lightweight wrapper around the Go standard library HTTP server and router provided by [net/http](https://pkg.go.dev/net/http) that allows for the easy implementation of centralised error handling, groups, header management, and middleware (at the route, group and server level).
+**rmhttp** provides a lightweight wrapper around the Go standard library HTTP server and router provided by [net/http](https://pkg.go.dev/net/http) that allows for the easy implementation of timeouts, centralised error handling, groups, header management, and middleware (at the route, group and server level).
 
 Handlers and middleware functions are kept as close to the standard library implementation as possible, with one addition; they can return an error. This allows you to simply return any errors from your handler, and have **rmhttp** transform the error into an HTTP response with a corresponding status code.
 
@@ -157,6 +157,34 @@ func myHandler := func(w http.ResponseWriter, r *http.Request) error {
 func main() {
     rmh := rmhttp.New().WithHeader("X-Hello", "World")
     rmh.Get("/hello", myHandler).WithHeader("X-My", "Header")
+
+    log.Fatal(rmh.Start())
+}
+```
+
+### Timeouts
+
+Timeouts can be easily added at the global, group, and route level by calling WithTimeout() on the desired target. The length of timeout is set in seconds.
+
+```go
+package main
+
+import (
+	"log"
+	"net/http"
+
+	"github.com/rmhubbert/rmhttp"
+)
+
+func myHandler := func(w http.ResponseWriter, r *http.Request) error {
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("Hello World"))
+    return nil
+}
+
+func main() {
+    rmh := rmhttp.New().WithTimeout(5, "Global timeout message")
+    rmh.Get("/hello", myHandler).WithTimeout(3, "Route timeout message")
 
     log.Fatal(rmh.Start())
 }
