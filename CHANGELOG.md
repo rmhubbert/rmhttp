@@ -1,4 +1,9 @@
 
+## [v0.10.0] - 2024-11-03
+### :sparkles: New Features
+- [`30aaec2`](https://github.com/rmhubbert/rmhttp/commit/30aaec2bec02720ddb921f9babcacb4511942544) - add WithTimeout at app level *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.9.0] - 2024-10-29
 ### :sparkles: New Features
 - [`a0b6c15`](https://github.com/rmhubbert/rmhttp2/commit/a0b6c15fad1691579eb688f30fc6624c92889d8c) - add error registering *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -153,3 +158,4 @@
 [v0.8.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.7.0...v0.8.0
 [v0.8.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.8.0...v0.8.1
 [v0.9.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.8.1...v0.9.0
+[v0.10.0]: https://github.com/rmhubbert/rmhttp/compare/v0.9.0...v0.10.0
