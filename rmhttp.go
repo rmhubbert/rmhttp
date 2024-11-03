@@ -272,6 +272,15 @@ func (app *App) Route(route *Route) {
 	app.rootGroup.Route(route)
 }
 
+// WithTimeout sets a request timeout amount and message at the global level.
+//
+// This method will return a pointer to the app, allowing the user to
+// chain any of the other builder methods that the app implements.
+func (app *App) WithTimeout(timeout time.Duration, message string) *App {
+	app.rootGroup.Timeout = NewTimeout(timeout, message)
+	return app
+}
+
 // WithMiddleware is a convenience method for adding global middleware handlers.
 //
 // This method will return a pointer to the app, allowing the user to chain
