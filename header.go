@@ -4,13 +4,13 @@ import "net/http"
 
 // HeaderMiddleware creates and returns a MiddlewareFunc that will apply all of the headers
 // that have been passed in.
-func HeaderMiddleware(headers map[string]string) MiddlewareFunc {
-	return func(next Handler) Handler {
-		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+func HeaderMiddleware(headers map[string]string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			for key, value := range headers {
 				w.Header().Add(key, value)
 			}
-			return next.ServeHTTPWithError(w, r)
+			next.ServeHTTP(w, r)
 		})
 	}
 }

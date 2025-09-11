@@ -19,7 +19,7 @@ type TimeoutConfig struct {
 	TCPIdleTimeout         int    `env:"TCP_IDLE_TIMEOUT"         envDefault:"120"`
 	TCPWriteTimeout        int    `env:"TCP_WRITE_TIMEOUT"        envDefault:"5"`
 	TCPWriteTimeoutPadding int    `env:"TCP_WRITE_TIMEOUT_BUFFER" envDefault:"1"`
-	RequestTimeout         int    `env:"HTTP_REQUEST_TIMEOUT"     envDefault:"7"`
+	RequestTimeout         int    `env:"HTTP_REQUEST_TIMEOUT"     envDefault:"5"`
 	TimeoutMessage         string `env:"HTTP_TIMEOUT_MESSAGE"     envDefault:"Request Timeout"`
 }
 

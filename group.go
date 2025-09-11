@@ -14,7 +14,7 @@ import (
 // add headers, timeout and middleware once to every sub group and route included in the group.
 type Group struct {
 	Pattern    string
-	Middleware []MiddlewareFunc
+	Middleware []func(http.Handler) http.Handler
 	Timeout    Timeout
 	Headers    map[string]string
 	Parent     *Group
@@ -36,7 +36,7 @@ func NewGroup(pattern string) *Group {
 //
 // This method will return a pointer to the receiver Group, allowing the user to
 // chain any of the other builder methods that Group implements.
-func (group *Group) Handle(method string, pattern string, handler Handler) *Group {
+func (group *Group) Handle(method string, pattern string, handler http.Handler) *Group {
 	route := NewRoute(
 		strings.TrimSpace(strings.ToUpper(method)),
 		strings.TrimSpace(strings.ToLower(pattern)),
@@ -53,9 +53,9 @@ func (group *Group) Handle(method string, pattern string, handler Handler) *Grou
 func (group *Group) HandleFunc(
 	method string,
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Group {
-	return group.Handle(method, pattern, HandlerFunc(handlerFunc))
+	return group.Handle(method, pattern, http.HandlerFunc(handlerFunc))
 }
 
 // Get binds the passed handler to the specified route pattern for GET requests.
@@ -64,7 +64,7 @@ func (group *Group) HandleFunc(
 // any of the other builder methods that Group implements.
 func (group *Group) Get(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Group {
 	return group.HandleFunc(http.MethodGet, pattern, handlerFunc)
 }
@@ -75,7 +75,7 @@ func (group *Group) Get(
 // any of the other builder methods that Group implements.
 func (group *Group) Post(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Group {
 	return group.HandleFunc(http.MethodPost, pattern, handlerFunc)
 }
@@ -86,7 +86,7 @@ func (group *Group) Post(
 // any of the other builder methods that Group implements.
 func (group *Group) Put(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Group {
 	return group.HandleFunc(http.MethodPut, pattern, handlerFunc)
 }
@@ -97,7 +97,7 @@ func (group *Group) Put(
 // any of the other builder methods that Group implements.
 func (group *Group) Patch(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Group {
 	return group.HandleFunc(http.MethodPatch, pattern, handlerFunc)
 }
@@ -108,7 +108,7 @@ func (group *Group) Patch(
 // any of the other builder methods that Group implements.
 func (group *Group) Delete(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Group {
 	return group.HandleFunc(http.MethodDelete, pattern, handlerFunc)
 }
@@ -119,7 +119,7 @@ func (group *Group) Delete(
 // any of the other builder methods that Group implements.
 func (group *Group) Options(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Group {
 	return group.HandleFunc(http.MethodOptions, pattern, handlerFunc)
 }
@@ -161,9 +161,9 @@ func (group *Group) Group(g *Group) *Group {
 //
 // This method will return a pointer to the receiver Group, allowing the user to chain any of the
 // other builder methods that Group implements.
-func (group *Group) WithMiddleware(middlewares ...func(Handler) Handler) *Group {
+func (group *Group) WithMiddleware(middlewares ...func(http.Handler) http.Handler) *Group {
 	for _, mw := range middlewares {
-		group.Middleware = append(group.Middleware, MiddlewareFunc(mw))
+		group.Middleware = append(group.Middleware, mw)
 	}
 	return group
 }
@@ -173,7 +173,7 @@ func (group *Group) WithMiddleware(middlewares ...func(Handler) Handler) *Group 
 //
 // This method will return a pointer to the receiver Group, allowing the user to chain any of the
 // other builder methods that Group implements.
-func (group *Group) Use(middlewares ...func(Handler) Handler) *Group {
+func (group *Group) Use(middlewares ...func(http.Handler) http.Handler) *Group {
 	return group.WithMiddleware(middlewares...)
 }
 

@@ -16,7 +16,7 @@ import (
 type Router struct {
 	Mux           *http.ServeMux
 	Logger        Logger
-	errorHandlers map[int]Handler
+	errorHandlers map[int]http.Handler
 }
 
 // NewRouter intialises, creates, and then returns a pointer to a Router.
@@ -24,7 +24,7 @@ func NewRouter(logger Logger) *Router {
 	return &Router{
 		Mux:           http.NewServeMux(),
 		Logger:        logger,
-		errorHandlers: make(map[int]Handler),
+		errorHandlers: make(map[int]http.Handler),
 	}
 }
 
@@ -45,17 +45,13 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Handler returns the Handler that the Mux wants to use for this request.
 	handler, pattern := rt.Mux.Handler(r)
 
-	// If the pattern is empty, we probably have an internal error handler.
-	if pattern == "" {
-		if _, ok := handler.(Handler); !ok {
-			// If we get here, then we have an http.Handler, which means that it is an internal error
-			// handler. Check to see if we have a custom error handler for this error code, and use
-			// that if so.
-			cw := NewCaptureWriter(w)
-			handler.ServeHTTP(cw, r)
-			if h, ok := rt.errorHandlers[cw.Code]; ok {
-				handler = h
-			}
+	if pattern == "" && handler != nil {
+		// If pattern is empty, we have an internal error handler. Check to see if we have a custom
+		// error handler for this error code, and use that if so.
+		cw := NewCaptureWriter(w)
+		handler.ServeHTTP(cw, r)
+		if h, ok := rt.errorHandlers[cw.Code]; ok {
+			handler = h
 		}
 	}
 
@@ -64,11 +60,11 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // AddErrorHandler maps the passed response code and handler. These error handlers will be used
 // instead of the http.Handler equivalents when available.
-func (rt *Router) AddErrorHandler(code int, handler Handler) {
+func (rt *Router) AddErrorHandler(code int, handler http.Handler) {
 	rt.errorHandlers[code] = handler
 }
 
 // Handle registers the passed Route with the underlying HTTP request multiplexer.
-func (rt *Router) Handle(method string, pattern string, handler Handler) {
+func (rt *Router) Handle(method string, pattern string, handler http.Handler) {
 	rt.Mux.Handle(fmt.Sprintf("%s %s", method, pattern), handler)
 }
