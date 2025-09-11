@@ -2,13 +2,11 @@ package recoverer
 
 import (
 	"net/http"
-
-	"github.com/rmhubbert/rmhttp"
 )
 
-func Middleware() rmhttp.MiddlewareFunc {
-	return func(next rmhttp.Handler) rmhttp.Handler {
-		return rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+func Middleware() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if rvr := recover(); rvr != nil {
 					if r.Header.Get("Connection") != "Upgrade" {
@@ -16,7 +14,7 @@ func Middleware() rmhttp.MiddlewareFunc {
 					}
 				}
 			}()
-			return next.ServeHTTPWithError(w, r)
+			next.ServeHTTP(w, r)
 		})
 	}
 }
