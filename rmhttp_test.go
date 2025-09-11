@@ -18,7 +18,7 @@ import (
 // Test_Handle checks that a handler can be successfully added to the App
 func Test_Handle(t *testing.T) {
 	app := New()
-	app.Handle("get", "/handle", HandlerFunc(createTestHandlerFunc(200, "test body", nil)))
+	app.Handle("get", "/handle", http.HandlerFunc(createTestHandlerFunc(200, "test body")))
 	routes := app.Routes()
 	assert.Len(t, routes, 1, "they should be equal")
 
@@ -35,7 +35,7 @@ func Test_Handle(t *testing.T) {
 // Test_HandleFunc checks that a handlerFunc can be successfully added to the App
 func Test_HandleFunc(t *testing.T) {
 	app := New()
-	app.HandleFunc("get", "/handlefunc", createTestHandlerFunc(200, "test body", nil))
+	app.HandleFunc("get", "/handlefunc", createTestHandlerFunc(200, "test body"))
 
 	routes := app.Routes()
 	assert.Len(t, routes, 1, "they should be equal")
@@ -57,7 +57,7 @@ func Test_Convenience_Handlers(t *testing.T) {
 	tests := []struct {
 		name    string
 		method  string
-		handler func(string, func(http.ResponseWriter, *http.Request) error) *Route
+		handler func(string, http.HandlerFunc) *Route
 	}{
 		{"Get creates and returns a Route with a GET method", "GET", app.Get},
 		{"Post creates and returns a Route with a Post method", "POST", app.Post},
@@ -70,7 +70,7 @@ func Test_Convenience_Handlers(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			pattern := "/handler"
-			test.handler(pattern, createTestHandlerFunc(200, "test body", nil))
+			test.handler(pattern, createTestHandlerFunc(200, "test body"))
 
 			routes := app.Routes()
 
@@ -146,10 +146,8 @@ func Test_Static(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			err = route.Handler.ServeHTTPWithError(w, req)
-			if err != nil {
-				t.Errorf("route error: %s", err)
-			}
+			route.Handler.ServeHTTP(w, req)
+
 			res := w.Result()
 			defer res.Body.Close()
 			body, err := io.ReadAll(res.Body)
@@ -218,10 +216,8 @@ func Test_Redirect(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			err = route.Handler.ServeHTTPWithError(w, req)
-			if err != nil {
-				t.Errorf("route error: %s", err)
-			}
+			route.Handler.ServeHTTP(w, req)
+
 			res := w.Result()
 			defer res.Body.Close()
 
@@ -237,7 +233,7 @@ func Test_Routes(t *testing.T) {
 	route := NewRoute(
 		"GET",
 		"/test",
-		HandlerFunc(createTestHandlerFunc(http.StatusOK, "test body", nil)),
+		http.HandlerFunc(createTestHandlerFunc(http.StatusOK, "test body")),
 	)
 	app.Route(route)
 
@@ -264,7 +260,7 @@ func Test_Compile(t *testing.T) {
 	route := app.HandleFunc(
 		http.MethodGet,
 		testPattern,
-		createTestHandlerFunc(http.StatusOK, testBody, nil),
+		createTestHandlerFunc(http.StatusOK, testBody),
 	)
 	route.Use(
 		createTestMiddlewareHandler("x-mw1", "mw1"),
@@ -285,7 +281,6 @@ func Test_Compile(t *testing.T) {
 	// Assuming that Compile worked correctly and registered our test handler with
 	// the mux, we should receive the handler back from this call.
 	handler, pattern := app.Router.Mux.Handler(req)
-	h := handler.(Handler)
 	assert.Equal(
 		t,
 		fmt.Sprintf("%s %s", http.MethodGet, testPattern),
@@ -293,13 +288,19 @@ func Test_Compile(t *testing.T) {
 		"they should be the same",
 	)
 
-	// Call ServeHTTPWithError on the handler so that we can inspect and confirm that
-	// the response status code and body are what would expect to see from the
-	// test handler.
+	// Call ServeHTTP on the handler so that we can inspect and confirm that the response status code
+	// and body are what would expect to see from the test handler.
 	w := httptest.NewRecorder()
-	_ = h.ServeHTTPWithError(w, req)
+	handler.ServeHTTP(w, req)
+
 	res := w.Result()
-	defer res.Body.Close()
+	defer func() {
+		err := res.Body.Close()
+		if err != nil {
+			t.Errorf("failed to close response body: %v", err)
+		}
+	}()
+
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Errorf("failed to read response body: %v", err)

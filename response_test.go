@@ -21,21 +21,19 @@ func Test_CaptureWriter_Persist(t *testing.T) {
 	route := NewRoute(
 		http.MethodGet,
 		testPattern,
-		HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody, nil)),
+		http.HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody)),
 	)
 
 	count := 3
 	for i := 0; i < count; i++ {
-		route.Use(func(next Handler) Handler {
-			return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+		route.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				cw := NewCaptureWriter(w)
 				defer cw.Persist()
 
 				cw.Header().Add("x-pre-"+strconv.Itoa(i), "pre-"+strconv.Itoa(i))
-				err := next.ServeHTTPWithError(cw, r)
+				next.ServeHTTP(cw, r)
 				cw.Header().Add("x-post-"+strconv.Itoa(i), "post-"+strconv.Itoa(i))
-
-				return err
 			})
 		})
 	}
@@ -52,9 +50,16 @@ func Test_CaptureWriter_Persist(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	_ = handler.ServeHTTPWithError(w, req)
+	handler.ServeHTTP(w, req)
+
 	res := w.Result()
-	defer res.Body.Close()
+	defer func() {
+		err := res.Body.Close()
+		if err != nil {
+			t.Errorf("failed to close request body: %v", err)
+		}
+	}()
+
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Errorf("failed to read response body: %v", err)

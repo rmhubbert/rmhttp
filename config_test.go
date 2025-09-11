@@ -19,7 +19,7 @@ var defaultTimeoutConfig = TimeoutConfig{
 	TCPIdleTimeout:         120,
 	TCPWriteTimeout:        5,
 	TCPWriteTimeoutPadding: 1,
-	RequestTimeout:         7,
+	RequestTimeout:         5,
 	TimeoutMessage:         "Request Timeout",
 }
 
@@ -130,7 +130,10 @@ func Test_LoadConfig_from_env(t *testing.T) {
 
 	// Set the environment variables
 	for key, value := range vars {
-		os.Setenv(key, value)
+		err := os.Setenv(key, value)
+		if err != nil {
+			t.Errorf("failed to set environment variable: %v", err)
+		}
 	}
 
 	cfg, err := LoadConfig(Config{})
@@ -158,7 +161,10 @@ func Test_LoadConfig_from_env(t *testing.T) {
 
 	// Clean up the environment variables
 	for key := range vars {
-		os.Unsetenv(key)
+		err := os.Unsetenv(key)
+		if err != nil {
+			t.Errorf("failed to unset environment variable: %v", err)
+		}
 	}
 }
 

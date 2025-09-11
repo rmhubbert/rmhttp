@@ -20,7 +20,7 @@ func Test_Group_Handle(t *testing.T) {
 	group.Handle(
 		"get",
 		handlerPattern,
-		HandlerFunc(createTestHandlerFunc(200, "test body", nil)),
+		http.HandlerFunc(createTestHandlerFunc(200, "test body")),
 	)
 	routes := group.ComputedRoutes()
 	assert.Len(t, routes, 1, "they should be equal")
@@ -43,7 +43,7 @@ func Test_Group_HandleFunc(t *testing.T) {
 	group.HandleFunc(
 		"get",
 		handlerPattern,
-		createTestHandlerFunc(200, "test body", nil),
+		createTestHandlerFunc(200, "test body"),
 	)
 	routes := group.ComputedRoutes()
 	assert.Len(t, routes, 1, "they should be equal")
@@ -68,7 +68,7 @@ func Test_Group_Convenience_Handlers(t *testing.T) {
 	tests := []struct {
 		name    string
 		method  string
-		handler func(string, func(http.ResponseWriter, *http.Request) error) *Group
+		handler func(string, http.HandlerFunc) *Group
 	}{
 		{"Get creates a route and adds it to the group with a GET method", "GET", group.Get},
 		{"Post creates a route and adds it to the group with a Post method", "POST", group.Post},
@@ -92,7 +92,7 @@ func Test_Group_Convenience_Handlers(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test.handler(handlerPattern, createTestHandlerFunc(200, "test body", nil))
+			test.handler(handlerPattern, createTestHandlerFunc(200, "test body"))
 
 			routes := group.ComputedRoutes()
 
