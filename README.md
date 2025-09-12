@@ -4,9 +4,9 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/rmhubbert/rmhttp?color=%23007D9C)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rmhubbert/rmhttp/latest?color=%23007D9C) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?color=%23007D9C)](CONTRIBUTING.md)
 
-**rmhttp** provides a lightweight wrapper around the Go standard library HTTP server and router provided by [net/http](https://pkg.go.dev/net/http) that allows for the easy implementation of timeouts, groups, header management, and middleware (at the route, group and server level).
+**rmhttp** provides a lightweight wrapper around the Go standard library net/http server and router provided by [net/http](https://pkg.go.dev/net/http) that allows for the easy addition of timeouts, groups, headers, and middleware (at the route, group and server level).
 
-This package aims to make it easier to configure your routes and middleware, but then hand off as much as possible to the standard library once the server is running. Standard handlers and middleware are used throughout.
+This package aims to make it easier to configure your routes and middleware, but then hand off as much as possible to the standard library once the server is running. Standard net/http handlers and middleware functions are used throughout.
 
 ## Installation
 
