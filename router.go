@@ -2,6 +2,7 @@ package rmhttp
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/rmhubbert/rmhttp/pkg/capturewriter"
@@ -17,12 +18,12 @@ import (
 // properly.
 type Router struct {
 	Mux           *http.ServeMux
-	Logger        Logger
+	Logger        *slog.Logger
 	errorHandlers map[int]http.Handler
 }
 
 // NewRouter intialises, creates, and then returns a pointer to a Router.
-func NewRouter(logger Logger) *Router {
+func NewRouter(logger *slog.Logger) *Router {
 	return &Router{
 		Mux:           http.NewServeMux(),
 		Logger:        logger,
