@@ -44,8 +44,7 @@ func main() {
     // Options() methods are also available.
     rmh.Get("/hello", myHandler)
 
-    // Start() handles the server lifecycyle, including graceful
-    // shutdown.
+    // ListenAndServe() starts the server.
     log.Fatal(rmh.ListenAndServe())
 }
 ```
