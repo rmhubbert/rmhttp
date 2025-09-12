@@ -1,6 +1,6 @@
 module github.com/rmhubbert/rmhttp/middleware/cors
 
-go 1.23.0
+go 1.24.6
 
 require (
 	github.com/rs/cors v1.11.1
