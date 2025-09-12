@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"os"
-	"os/signal"
 	"time"
 )
 
@@ -103,39 +101,4 @@ func (srv *Server) ListenAndServeTLS() error {
 // running.
 func (srv *Server) Shutdown(ctx context.Context) error {
 	return srv.Server.Shutdown(ctx)
-}
-
-// Start starts and manages the lifecycle of the underlyinh http.Server, facilitating graceful
-// shutdowns and optional SSL support.
-func (srv *Server) Start(useTLS bool) error {
-	idleConnsClosed := make(chan struct{})
-	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
-		<-sigint
-
-		// We received an interrupt signal, shut down.
-		if err := srv.Shutdown(context.Background()); err != nil {
-			// Error from closing listeners, or context timeout:
-			srv.Logger.Error(fmt.Sprintf("rmhttp server shutdown failed: %v", err))
-		}
-		close(idleConnsClosed)
-	}()
-
-	if useTLS && srv.cert != "" && srv.key != "" {
-		srv.Logger.Info(fmt.Sprintf("starting rmhttp server with SSL on %v", srv.Address()))
-		if err := srv.ListenAndServeTLS(); err != http.ErrServerClosed {
-			srv.Logger.Error(fmt.Sprintf("rmhttp server with SSL start failed: %v", err))
-			return err
-		}
-	} else {
-		srv.Logger.Info(fmt.Sprintf("starting rmhttp server on %v", srv.Address()))
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			srv.Logger.Error(fmt.Sprintf("rmhttp server start failed: %v", err))
-			return err
-		}
-	}
-
-	<-idleConnsClosed
-	return nil
 }
