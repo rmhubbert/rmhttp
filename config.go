@@ -2,6 +2,7 @@ package rmhttp
 
 import (
 	"fmt"
+	"log/slog"
 
 	"dario.cat/mergo"
 	env "github.com/caarlos0/env/v11"
@@ -44,7 +45,7 @@ type Config struct {
 	Port                         int    `env:"PORT"  envDefault:"8080"`
 	Debug                        bool   `env:"DEBUG"`
 	DisableGeneralOptionsHandler bool
-	Logger                       Logger
+	Logger                       *slog.Logger
 	SSL                          SSLConfig
 	Timeout                      TimeoutConfig
 }
