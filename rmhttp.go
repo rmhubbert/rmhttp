@@ -221,7 +221,7 @@ func (app *App) StatusNotFoundHandler(handler http.HandlerFunc) {
 func (app *App) StatusMethodNotAllowedHandler(
 	handler http.HandlerFunc,
 ) {
-	app.errorHandlers[http.StatusMethodNotAllowed] = handler
+	app.errorHandlers[http.StatusMethodNotAllowed] = http.HandlerFunc(handler)
 }
 
 // Group creates, initialises, and returns a pointer to a Route Group.
