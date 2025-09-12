@@ -73,8 +73,7 @@ import (
 )
 
 func my404Handler := func(w http.ResponseWriter, r *http.Request) {
-    w.WriteHeader(http.StatusNotFound)
-    w.Write([]byte("Hello World"))
+    http.Error(w, http.StatusNotFound, "404 Not Found")
 }
 
 func main() {
