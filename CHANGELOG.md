@@ -1,4 +1,9 @@
 
+## [v1.2.1] - 2025-09-12
+### :bug: Bug Fixes
+- [`eaac717`](https://github.com/rmhubbert/rmhttp/commit/eaac71773279b0b2ee7589b976e108ede29d4b88) - custom error handler not cast to http.HandlerFunc *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v1.0.0] - 2025-09-12
 ### :boom: BREAKING CHANGES
 - due to [`c5e3f86`](https://github.com/rmhubbert/rmhttp/commit/c5e3f86c8b68cb5396a3eac2df19144603546cb4) - use standard library HTTP handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
@@ -238,3 +243,4 @@
 [v0.10.0]: https://github.com/rmhubbert/rmhttp/compare/v0.9.0...v0.10.0
 [v0.11.0]: https://github.com/rmhubbert/rmhttp/compare/v0.10.0...v0.11.0
 [v1.0.0]: https://github.com/rmhubbert/rmhttp/compare/v0.11.0...v1.0.0
+[v1.2.1]: https://github.com/rmhubbert/rmhttp/compare/v1.2.0...v1.2.1
