@@ -20,7 +20,7 @@ import (
 // App encapsulates the application and provides the public API, as well as orchestrating the core
 // library functionality.
 type App struct {
-	logger        Logger
+	logger        *slog.Logger
 	Server        *Server
 	Router        *Router
 	rootGroup     *Group
@@ -284,21 +284,7 @@ func (app *App) Compile() {
 	routes := app.rootGroup.ComputedRoutes()
 
 	for _, route := range routes {
-		// The order in which we load the middleware matters.
-		//
-		// 1. HTTP Error logger - needs to be first in, last out to properly calculate request duration.
-		// 2. Headers - user added headers may be needed by any other middleware they add.
-		// 3. General middleware - user decides on the order here.
-		// 4. HTTP Error handler - only applies as the stack unwinds. we want to process errors as early
-		// as possible so that all the other middleware only needs to handle HTTPErrors.
-		// 5. Timeout - we directly wrap every handler with a timeout for security reasons.
-		middleware := []func(http.Handler) http.Handler{
-			// HTTPLoggerMiddleware(app.logger),
-			// HeaderMiddleware(route.ComputedHeaders()),
-		}
-		middleware = append(middleware, route.ComputedMiddleware()...)
-		// middleware = append(middleware, HTTPErrorHandlerMiddleware())
-
+		middleware := route.ComputedMiddleware()
 		if timeout := route.ComputedTimeout(); timeout.Enabled {
 			// Give the Server a chance to update it's TCP level timeout so that the connection doesn't
 			// timeout before the request. It will only update if this timeout is longer than the
@@ -315,14 +301,9 @@ func (app *App) Compile() {
 		app.Router.Handle(route.Method, route.Pattern, handler)
 	}
 
-	// Apply global middlware and add the error handlers to the router.
+	// Add the error handlers to the router with any global middleware added.
 	for code, handler := range app.errorHandlers {
-		middleware := []func(http.Handler) http.Handler{
-			// HTTPLoggerMiddleware(app.logger),
-		}
-		// middleware = append(middleware, app.rootGroup.Middleware...)
-		// middleware = append(middleware, HTTPErrorHandlerMiddleware(app.errorStatusCodes))
-		app.Router.AddErrorHandler(code, applyMiddleware(handler, middleware))
+		app.Router.AddErrorHandler(code, applyMiddleware(handler, app.rootGroup.Middleware))
 	}
 }
 
