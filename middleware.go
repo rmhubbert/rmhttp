@@ -1,13 +1,16 @@
 package rmhttp
 
+import "net/http"
+
 // ------------------------------------------------------------------------------------------------
 // MIDDLEWARE
 // ------------------------------------------------------------------------------------------------
 
-type MiddlewareFunc func(Handler) Handler
-
 // applyMiddleware wraps the passed Handler with each of the middleware functions passed.
-func applyMiddleware(next Handler, middlewares []MiddlewareFunc) Handler {
+func applyMiddleware(
+	next http.Handler,
+	middlewares []func(http.Handler) http.Handler,
+) http.Handler {
 	if len(middlewares) == 0 {
 		return next
 	}

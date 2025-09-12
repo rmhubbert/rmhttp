@@ -19,8 +19,8 @@ import (
 type Route struct {
 	Method     string
 	Pattern    string
-	Handler    Handler
-	Middleware []MiddlewareFunc
+	Handler    http.Handler
+	Middleware []func(http.Handler) http.Handler
 	Timeout    Timeout
 	Headers    map[string]string
 	Parent     *Group
@@ -30,7 +30,7 @@ type Route struct {
 // validation step ensures that a valid HTTP method has been passed (http.MethodGet will be
 // used, if not). The method will also be transformed to uppercase, and the pattern to
 // lowercase.
-func NewRoute(method string, pattern string, handler Handler) *Route {
+func NewRoute(method string, pattern string, handler http.Handler) *Route {
 	m := strings.ToUpper(method)
 	if !slices.Contains(ValidHTTPMethods(), m) {
 		method = http.MethodGet
@@ -99,7 +99,7 @@ func (route *Route) findEnabledTimeout(parent *Group) Timeout {
 }
 
 // Middleware returns the slice of MiddlewareFuncs that have been added to the Route.
-func (route *Route) ComputedMiddleware() []MiddlewareFunc {
+func (route *Route) ComputedMiddleware() []func(http.Handler) http.Handler {
 	m := route.Middleware
 	return m
 }
@@ -121,10 +121,8 @@ func (route *Route) ComputedMiddleware() []MiddlewareFunc {
 //
 // This method will return a pointer to the receiver Route, allowing the user to chain any of the
 // other builder methods that Route implements.
-func (route *Route) WithMiddleware(middlewares ...func(Handler) Handler) *Route {
-	for _, mw := range middlewares {
-		route.Middleware = append(route.Middleware, MiddlewareFunc(mw))
-	}
+func (route *Route) WithMiddleware(middlewares ...func(http.Handler) http.Handler) *Route {
+	route.Middleware = append(route.Middleware, middlewares...)
 	return route
 }
 
@@ -133,7 +131,7 @@ func (route *Route) WithMiddleware(middlewares ...func(Handler) Handler) *Route 
 //
 // This method will return a pointer to the receiver Route, allowing the user to chain any of the
 // other builder methods that Route implements.
-func (route *Route) Use(middlewares ...func(Handler) Handler) *Route {
+func (route *Route) Use(middlewares ...func(http.Handler) http.Handler) *Route {
 	return route.WithMiddleware(middlewares...)
 }
 

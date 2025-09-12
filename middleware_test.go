@@ -22,7 +22,7 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 	route := NewRoute(
 		http.MethodGet,
 		testPattern,
-		HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody, nil)),
+		http.HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody)),
 	)
 	route.Use(
 		createTestMiddlewareHandler("x-mw1", "mw1"),
@@ -45,7 +45,13 @@ func Test_Middleware_ApplyMmiddleware(t *testing.T) {
 	w := httptest.NewRecorder()
 	route.Handler.ServeHTTP(w, req)
 	res := w.Result()
-	defer res.Body.Close()
+	defer func() {
+		err := res.Body.Close()
+		if err != nil {
+			t.Errorf("failed to close response body: %v", err)
+		}
+	}()
+
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Errorf("failed to read response body: %v", err)

@@ -16,25 +16,23 @@ func (ml MockLogger) Info(string, ...any)  {}
 func (ml MockLogger) Warn(string, ...any)  {}
 func (ml MockLogger) Error(string, ...any) {}
 
-// createTestHandlerFunc creates, initialises, and returns a rmhttp.HandlerFunc compatible function.
+// createTestHandlerFunc creates, initialises, and returns an http.HandlerFunc compatible function.
 func createTestHandlerFunc(
 	status int,
 	body string,
-	err error,
-) func(http.ResponseWriter, *http.Request) error {
-	return func(w http.ResponseWriter, r *http.Request) error {
+) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
 		_, _ = w.Write([]byte(body))
-		return err
 	}
 }
 
-// createTestMiddlewareFunc creates, initialises and returns a rmhttp compatible middleware function
-func createTestMiddlewareHandler(header string, value string) func(Handler) Handler {
-	return func(next Handler) Handler {
-		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+// createTestMiddlewareFunc creates, initialises and returns a compatible middleware function
+func createTestMiddlewareHandler(header string, value string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add(header, value)
-			return next.ServeHTTPWithError(w, r)
+			next.ServeHTTP(w, r)
 		})
 	}
 }

@@ -20,12 +20,11 @@ import (
 // App encapsulates the application and provides the public API, as well as orchestrating the core
 // library functionality.
 type App struct {
-	logger           Logger
-	Server           *Server
-	Router           *Router
-	rootGroup        *Group
-	errorStatusCodes map[error]int
-	errorHandlers    map[int]Handler
+	logger        *slog.Logger
+	Server        *Server
+	Router        *Router
+	rootGroup     *Group
+	errorHandlers map[int]http.Handler
 }
 
 // New creates, initialises and returns a pointer to a new App. An optional configuration can be
@@ -79,26 +78,25 @@ func New(c ...Config) *App {
 		config.Timeout.TimeoutMessage,
 	)
 
-	errorHandlers := map[int]Handler{
+	errorHandlers := map[int]http.Handler{
 		http.StatusNotFound:         createDefaultHandler(http.StatusNotFound),
 		http.StatusMethodNotAllowed: createDefaultHandler(http.StatusMethodNotAllowed),
 	}
 
 	return &App{
-		Server:           server,
-		Router:           router,
-		logger:           config.Logger,
-		rootGroup:        rootGroup,
-		errorStatusCodes: make(map[error]int),
-		errorHandlers:    errorHandlers,
+		Server:        server,
+		Router:        router,
+		logger:        config.Logger,
+		rootGroup:     rootGroup,
+		errorHandlers: errorHandlers,
 	}
 }
 
-// Handle binds the passed rmhttp.Handler to the specified route method and pattern.
+// Handle binds the passed http.Handler to the specified route method and pattern.
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
-func (app *App) Handle(method string, pattern string, handler Handler) *Route {
+func (app *App) Handle(method string, pattern string, handler http.Handler) *Route {
 	route := NewRoute(
 		strings.TrimSpace(strings.ToUpper(method)),
 		strings.TrimSpace(strings.ToLower(pattern)),
@@ -108,17 +106,16 @@ func (app *App) Handle(method string, pattern string, handler Handler) *Route {
 	return route
 }
 
-// HandleFunc converts the passed handler function to a rmhttp.HandlerFunc, and then binds it to
-// the specified route method and pattern.
+// HandleFunc binds the passed http.HandlerFunc to the specified route method and pattern.
 //
 // This method will return a pointer to the new Route, allowing the user to chain
 // any of the other builder methods that Route implements.
 func (app *App) HandleFunc(
 	method string,
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Route {
-	return app.Handle(method, pattern, HandlerFunc(handlerFunc))
+	return app.Handle(method, pattern, http.HandlerFunc(handlerFunc))
 }
 
 // Get binds the passed handler to the specified route pattern for GET requests.
@@ -127,7 +124,7 @@ func (app *App) HandleFunc(
 // any of the other builder methods that Route implements.
 func (app *App) Get(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Route {
 	return app.HandleFunc(http.MethodGet, pattern, handlerFunc)
 }
@@ -138,7 +135,7 @@ func (app *App) Get(
 // any of the other builder methods that Route implements.
 func (app *App) Post(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Route {
 	return app.HandleFunc(http.MethodPost, pattern, handlerFunc)
 }
@@ -149,7 +146,7 @@ func (app *App) Post(
 // any of the other builder methods that Route implements.
 func (app *App) Put(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Route {
 	return app.HandleFunc(http.MethodPut, pattern, handlerFunc)
 }
@@ -160,7 +157,7 @@ func (app *App) Put(
 // any of the other builder methods that Route implements.
 func (app *App) Patch(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Route {
 	return app.HandleFunc(http.MethodPatch, pattern, handlerFunc)
 }
@@ -171,7 +168,7 @@ func (app *App) Patch(
 // any of the other builder methods that Route implements.
 func (app *App) Delete(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Route {
 	return app.HandleFunc(http.MethodDelete, pattern, handlerFunc)
 }
@@ -182,7 +179,7 @@ func (app *App) Delete(
 // any of the other builder methods that Route implements.
 func (app *App) Options(
 	pattern string,
-	handlerFunc func(http.ResponseWriter, *http.Request) error,
+	handlerFunc http.HandlerFunc,
 ) *Route {
 	return app.HandleFunc(http.MethodOptions, pattern, handlerFunc)
 }
@@ -195,8 +192,7 @@ func (app *App) Options(
 // any of the other builder methods that Route implements.
 func (app *App) Static(pattern string, targetDir string) *Route {
 	fsh := http.StripPrefix(pattern, http.FileServer(http.Dir(targetDir)))
-	handlerFunc := ConvertHandlerFunc(fsh.ServeHTTP)
-	return app.HandleFunc(http.MethodGet, pattern, handlerFunc)
+	return app.HandleFunc(http.MethodGet, pattern, fsh.ServeHTTP)
 }
 
 // Redirect creates and binds a redirect handler to the specified pattern for GET requests.
@@ -210,40 +206,22 @@ func (app *App) Redirect(pattern string, target string, code int) *Route {
 	if code < http.StatusMultipleChoices || code > http.StatusPermanentRedirect {
 		code = http.StatusTemporaryRedirect
 	}
-	handler := HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, target, code)
-		return nil
 	})
 	return app.Handle("GET", pattern, handler)
 }
 
-// RegisterError associates an HTTP error code with any custom or sentinel errors that their
-// application may produce.
-//
-// Once registered, any errors returned from a handler will be processed centrally by the HTTP Error
-// Handler, allowing for decoupling HTTP codes from the core application errors.
-//
-// The errors argument is variadic, allowing for multiple errors to be registered at once for each
-// status code.
-func (app *App) RegisterError(code int, errors ...error) {
-	if len(errors) == 0 {
-		return
-	}
-	for _, err := range errors {
-		app.errorStatusCodes[err] = code
-	}
-}
-
 // StatusNotFoundHandler registers a handler to be used when an internal 404 error is thrown.
-func (app *App) StatusNotFoundHandler(handler func(http.ResponseWriter, *http.Request) error) {
-	app.errorHandlers[http.StatusNotFound] = HandlerFunc(handler)
+func (app *App) StatusNotFoundHandler(handler http.HandlerFunc) {
+	app.errorHandlers[http.StatusNotFound] = http.HandlerFunc(handler)
 }
 
 // StatusMethodNotAllowedHandler registers a handler to be used when an internal 405 error is thrown.
 func (app *App) StatusMethodNotAllowedHandler(
-	handler func(http.ResponseWriter, *http.Request) error,
+	handler http.HandlerFunc,
 ) {
-	app.errorHandlers[http.StatusMethodNotAllowed] = HandlerFunc(handler)
+	app.errorHandlers[http.StatusMethodNotAllowed] = handler
 }
 
 // Group creates, initialises, and returns a pointer to a Route Group.
@@ -285,7 +263,7 @@ func (app *App) WithTimeout(timeout time.Duration, message string) *App {
 //
 // This method will return a pointer to the app, allowing the user to chain
 // any of the other builder methods that the app implements.
-func (app *App) WithMiddleware(middlewares ...func(Handler) Handler) *App {
+func (app *App) WithMiddleware(middlewares ...func(http.Handler) http.Handler) *App {
 	app.rootGroup.WithMiddleware(middlewares...)
 	return app
 }
@@ -295,7 +273,7 @@ func (app *App) WithMiddleware(middlewares ...func(Handler) Handler) *App {
 //
 // This method will return a pointer to the app, allowing the user to chain any of the
 // other builder methods that the app implements.
-func (app *App) Use(middlewares ...func(Handler) Handler) *App {
+func (app *App) Use(middlewares ...func(http.Handler) http.Handler) *App {
 	app.rootGroup.WithMiddleware(middlewares...)
 	return app
 }
@@ -306,21 +284,7 @@ func (app *App) Compile() {
 	routes := app.rootGroup.ComputedRoutes()
 
 	for _, route := range routes {
-		// The order in which we load the middleware matters.
-		//
-		// 1. HTTP Error logger - needs to be first in, last out to properly calculate request duration.
-		// 2. Headers - user added headers may be needed by any other middleware they add.
-		// 3. General middleware - user decides on the order here.
-		// 4. HTTP Error handler - only applies as the stack unwinds. we want to process errors as early
-		// as possible so that all the other middleware only needs to handle HTTPErrors.
-		// 5. Timeout - we directly wrap every handler with a timeout for security reasons.
-		middleware := []MiddlewareFunc{
-			HTTPLoggerMiddleware(app.logger),
-			HeaderMiddleware(route.ComputedHeaders()),
-		}
-		middleware = append(middleware, route.ComputedMiddleware()...)
-		middleware = append(middleware, HTTPErrorHandlerMiddleware(app.errorStatusCodes))
-
+		middleware := route.ComputedMiddleware()
 		if timeout := route.ComputedTimeout(); timeout.Enabled {
 			// Give the Server a chance to update it's TCP level timeout so that the connection doesn't
 			// timeout before the request. It will only update if this timeout is longer than the
@@ -337,14 +301,9 @@ func (app *App) Compile() {
 		app.Router.Handle(route.Method, route.Pattern, handler)
 	}
 
-	// Apply global middlware and add the error handlers to the router.
+	// Add the error handlers to the router with any global middleware added.
 	for code, handler := range app.errorHandlers {
-		middleware := []MiddlewareFunc{
-			HTTPLoggerMiddleware(app.logger),
-		}
-		middleware = append(middleware, app.rootGroup.Middleware...)
-		middleware = append(middleware, HTTPErrorHandlerMiddleware(app.errorStatusCodes))
-		app.Router.AddErrorHandler(code, applyMiddleware(handler, middleware))
+		app.Router.AddErrorHandler(code, applyMiddleware(handler, app.rootGroup.Middleware))
 	}
 }
 

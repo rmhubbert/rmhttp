@@ -15,20 +15,25 @@ import (
 // APP E2E TESTS
 // ------------------------------------------------------------------------------------------------
 
+var config = rmhttp.Config{
+	Port: defaultPort,
+}
+
 // Test_Handler tests binding an rmhttp.Handler to a method & pattern with a selection of route
 // patterns, methods and status codes.
 func Test_Handle(t *testing.T) {
 	// Set up the App
-	app := rmhttp.New()
+	app := rmhttp.New(config)
 	defer func() {
 		_ = app.Shutdown()
 	}()
+
 	// Add handlers for all of our tests
 	for _, test := range handlerTests {
 		route := app.Handle(
 			test.method,
 			test.pattern,
-			rmhttp.HandlerFunc(createTestHandlerFunc(test.status, test.body, test.err)),
+			http.HandlerFunc(createTestHandlerFunc(test.status, test.body)),
 		)
 		assert.Equal(
 			t,
@@ -53,7 +58,13 @@ func Test_Handle(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -69,7 +80,7 @@ func Test_Handle(t *testing.T) {
 // patterns, methods and status codes.
 func Test_HandleFunc(t *testing.T) {
 	// Set up the App
-	app := rmhttp.New()
+	app := rmhttp.New(config)
 	defer func() {
 		_ = app.Shutdown()
 	}()
@@ -79,7 +90,7 @@ func Test_HandleFunc(t *testing.T) {
 		route := app.HandleFunc(
 			test.method,
 			test.pattern,
-			createTestHandlerFunc(test.status, test.body, test.err),
+			createTestHandlerFunc(test.status, test.body),
 		)
 		assert.Equal(
 			t,
@@ -105,7 +116,13 @@ func Test_HandleFunc(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -120,7 +137,7 @@ func Test_HandleFunc(t *testing.T) {
 // Test_Route tests route handling with pre-created Routes.
 func Test_Route(t *testing.T) {
 	// Set up the App
-	app := rmhttp.New()
+	app := rmhttp.New(config)
 	defer func() {
 		_ = app.Shutdown()
 	}()
@@ -130,7 +147,7 @@ func Test_Route(t *testing.T) {
 		route := rmhttp.NewRoute(
 			test.method,
 			test.pattern,
-			rmhttp.HandlerFunc(createTestHandlerFunc(test.status, test.body, test.err)),
+			http.HandlerFunc(createTestHandlerFunc(test.status, test.body)),
 		)
 		app.Route(route)
 
@@ -159,7 +176,13 @@ func Test_Route(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -174,7 +197,7 @@ func Test_Route(t *testing.T) {
 // Test_Group tests route handling within groups.
 func Test_Group(t *testing.T) {
 	// Set up the App
-	app := rmhttp.New()
+	app := rmhttp.New(config)
 	defer func() {
 		_ = app.Shutdown()
 	}()
@@ -185,7 +208,7 @@ func Test_Group(t *testing.T) {
 		route := rmhttp.NewRoute(
 			test.method,
 			test.pattern,
-			rmhttp.HandlerFunc(createTestHandlerFunc(test.status, test.body, test.err)),
+			http.HandlerFunc(createTestHandlerFunc(test.status, test.body)),
 		)
 		group.Route(route)
 
@@ -215,7 +238,13 @@ func Test_Group(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -230,7 +259,7 @@ func Test_Group(t *testing.T) {
 // Test_Convenience_Handlers tests the convenience route handlers
 func Test_Convenience_Handlers(t *testing.T) {
 	// Set up the App
-	app := rmhttp.New()
+	app := rmhttp.New(config)
 	defer func() {
 		_ = app.Shutdown()
 	}()
@@ -239,7 +268,7 @@ func Test_Convenience_Handlers(t *testing.T) {
 		name    string
 		method  string
 		pattern string
-		handler func(string, func(http.ResponseWriter, *http.Request) error) *rmhttp.Route
+		handler func(string, http.HandlerFunc) *rmhttp.Route
 	}{
 		{"registers a GET handler", http.MethodGet, "/get", app.Get},
 		{"registers a POST handler", http.MethodPost, "/post", app.Post},
@@ -252,7 +281,7 @@ func Test_Convenience_Handlers(t *testing.T) {
 	// We need to register our routes before starting the server.
 	for _, test := range tests {
 		content := fmt.Sprintf("%s content", test.method)
-		route := test.handler(test.pattern, createTestHandlerFunc(http.StatusOK, content, nil))
+		route := test.handler(test.pattern, createTestHandlerFunc(http.StatusOK, content))
 		assert.IsType(t, &rmhttp.Route{}, route, "it should be of this type")
 		assert.Equal(t, test.pattern, route.ComputedPattern(), "they should be equal")
 	}
@@ -276,7 +305,13 @@ func Test_Convenience_Handlers(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -291,7 +326,7 @@ func Test_Convenience_Handlers(t *testing.T) {
 // Test_Error_Handlers tests being able to register and trigger custom error handlers
 func Test_Error_Handlers(t *testing.T) {
 	// Set up the App
-	app := rmhttp.New()
+	app := rmhttp.New(config)
 	defer func() {
 		_ = app.Shutdown()
 	}()
@@ -301,7 +336,7 @@ func Test_Error_Handlers(t *testing.T) {
 		pattern string
 		code    int
 		method  string
-		handler func(func(http.ResponseWriter, *http.Request) error)
+		handler func(http.HandlerFunc)
 	}{
 		{
 			"registers a 404 error handler",
@@ -322,11 +357,11 @@ func Test_Error_Handlers(t *testing.T) {
 	// We need to register our routes before starting the server.
 	for _, test := range tests {
 		content := fmt.Sprintf("%d content", test.code)
-		test.handler(createTestHandlerFunc(test.code, content, nil))
+		test.handler(createTestHandlerFunc(test.code, content))
 	}
 
 	// We need a known route to test the 405 handler against.
-	app.Get("/405", createTestHandlerFunc(http.StatusOK, "405 content", nil))
+	app.Get("/405", createTestHandlerFunc(http.StatusOK, "405 content"))
 
 	// Start the App and wait for it to be responsive
 	startServer(app)
@@ -347,7 +382,13 @@ func Test_Error_Handlers(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)

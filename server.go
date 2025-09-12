@@ -3,6 +3,7 @@ package rmhttp
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -32,7 +33,7 @@ type ServerConfig struct {
 type Server struct {
 	Server              http.Server
 	Router              http.Handler
-	Logger              Logger
+	Logger              *slog.Logger
 	Host                string
 	Port                int
 	cert                string
@@ -44,7 +45,7 @@ type Server struct {
 func NewServer(
 	config ServerConfig,
 	router http.Handler,
-	logger Logger,
+	logger *slog.Logger,
 ) *Server {
 	srv := Server{
 		Server: http.Server{

@@ -26,7 +26,7 @@ func Test_Router_ErrorHandlers(t *testing.T) {
 		errorCode    int
 		expectedCode int
 		expectedBody string
-		handler      HandlerFunc
+		handler      http.HandlerFunc
 	}{
 		{
 			"the custom 404 handler is used when an internal 404 error is thrown",
@@ -35,7 +35,7 @@ func Test_Router_ErrorHandlers(t *testing.T) {
 			http.StatusNotFound,
 			http.StatusNotFound,
 			"custom 404",
-			HandlerFunc(createTestHandlerFunc(http.StatusNotFound, "custom 404", nil)),
+			http.HandlerFunc(createTestHandlerFunc(http.StatusNotFound, "custom 404")),
 		},
 		{
 			"the custom 405 handler is used when an internal 405 error is thrown",
@@ -44,7 +44,7 @@ func Test_Router_ErrorHandlers(t *testing.T) {
 			http.StatusMethodNotAllowed,
 			http.StatusMethodNotAllowed,
 			"custom 405",
-			HandlerFunc(createTestHandlerFunc(http.StatusMethodNotAllowed, "custom 405", nil)),
+			http.HandlerFunc(createTestHandlerFunc(http.StatusMethodNotAllowed, "custom 405")),
 		},
 		{
 			"the configured handler is used when no internal 404 or 405 error is thrown",
@@ -53,7 +53,7 @@ func Test_Router_ErrorHandlers(t *testing.T) {
 			http.StatusMethodNotAllowed,
 			http.StatusOK,
 			"pattern body",
-			HandlerFunc(createTestHandlerFunc(http.StatusMethodNotAllowed, "custom 405", nil)),
+			http.HandlerFunc(createTestHandlerFunc(http.StatusMethodNotAllowed, "custom 405")),
 		},
 	}
 
@@ -64,7 +64,7 @@ func Test_Router_ErrorHandlers(t *testing.T) {
 	router.Handle(
 		http.MethodGet,
 		"/pattern",
-		HandlerFunc(createTestHandlerFunc(http.StatusOK, "pattern body", nil)),
+		http.HandlerFunc(createTestHandlerFunc(http.StatusOK, "pattern body")),
 	)
 
 	for _, test := range tests {
@@ -84,7 +84,13 @@ func Test_Router_ErrorHandlers(t *testing.T) {
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			res := w.Result()
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)

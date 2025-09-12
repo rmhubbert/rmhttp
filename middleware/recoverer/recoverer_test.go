@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/rmhubbert/rmhttp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +14,7 @@ import (
 // ------------------------------------------------------------------------------------------------
 
 const (
-	testAddress string = "localhost:8080"
+	testAddress string = "localhost:8123"
 )
 
 // Test_Recoverer checks that a panic thrown within a request can be recovered from, and then
@@ -27,38 +26,29 @@ func Test_Recoverer(t *testing.T) {
 		name          string
 		expectedCode  int
 		panicExpected bool
-		route         *rmhttp.Route
+		handler       http.Handler
 	}{
 		{
 			"a panic is recovered from and the response status is set to 500",
 			http.StatusInternalServerError,
 			true,
-			rmhttp.NewRoute(
-				http.MethodGet,
-				testPattern,
-				rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-					panic("Paniced!")
-				}),
-			),
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				panic("Paniced!")
+			}),
 		},
 		{
 			"Recoverer does nothing when no panic has occurred",
 			http.StatusOK,
 			false,
-			rmhttp.NewRoute(
-				http.MethodGet,
-				testPattern,
-				rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-					w.WriteHeader(http.StatusOK)
-					return nil
-				}),
-			),
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			}),
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test.route.Handler = Middleware()(test.route.Handler)
+			h := Middleware()(test.handler)
 
 			url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -67,9 +57,14 @@ func Test_Recoverer(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			_ = test.route.Handler.ServeHTTPWithError(w, req)
+			h.ServeHTTP(w, req)
 			res := w.Result()
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Fatalf("failed to close response body: %v", err)
+				}
+			}()
 
 			if test.panicExpected {
 				assert.Equal(

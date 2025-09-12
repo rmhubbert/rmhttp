@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -23,10 +22,10 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 	testBody := "Timeout body"
 	url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
 
-	t.Run("timeout handler intercepts long running handler and returns error", func(t *testing.T) {
-		handler := HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+	t.Run("timeout handler intercepts long running handler and throws error", func(t *testing.T) {
+		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			time.Sleep(2 * time.Second)
-			return nil
+			_, _ = w.Write([]byte("Hello"))
 		})
 
 		// Create a request that would trigger our test handler
@@ -36,22 +35,42 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		}
 
 		w := httptest.NewRecorder()
-		route := NewRoute(http.MethodGet, testPattern, handler)
-		timeout := NewTimeout(1*time.Second, timeoutMessage)
-		route.Handler = NewTimeoutHandler(handler, timeout)
+		route := NewRoute(
+			http.MethodGet,
+			testPattern,
+			handler,
+		).WithTimeout(1*time.Second, timeoutMessage)
+		middleware := []func(http.Handler) http.Handler{TimeoutMiddleware(route.ComputedTimeout())}
+		h := applyMiddleware(
+			route.Handler,
+			middleware,
+		)
+		h.ServeHTTP(w, req)
 
-		timeoutErr := route.Handler.ServeHTTPWithError(w, req)
-		te := timeoutErr.(HTTPError)
+		res := w.Result()
+		defer func() {
+			err := res.Body.Close()
+			if err != nil {
+				t.Errorf("failed to close response body: %v", err)
+			}
+		}()
 
-		assert.Equal(t, http.StatusServiceUnavailable, te.Code, "they should be equal")
-		assert.Equal(t, timeoutMessage, te.Err.Error(), "they should be equal")
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("failed to read response body: %v", err)
+		}
+
+		assert.Equal(t, http.StatusServiceUnavailable, res.StatusCode, "they should be equal")
+		assert.Equal(t, timeoutMessage, string(body), "they should be equal")
 	})
 
 	t.Run("timeout handler passes through handler without error", func(t *testing.T) {
-		handler := HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody, nil))
-		route := NewRoute(http.MethodGet, testPattern, handler)
-		timeout := NewTimeout(1*time.Second, timeoutMessage)
-		route.Handler = NewTimeoutHandler(handler, timeout)
+		handler := http.HandlerFunc(createTestHandlerFunc(http.StatusOK, testBody))
+		route := NewRoute(
+			http.MethodGet,
+			testPattern,
+			handler,
+		).WithTimeout(1*time.Second, timeoutMessage)
 
 		// Create a request that would trigger our test handler
 		req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -60,15 +79,20 @@ func Test_Timeout_applyTimeout(t *testing.T) {
 		}
 
 		w := httptest.NewRecorder()
-		timeoutErr := route.Handler.ServeHTTPWithError(w, req)
+		route.Handler.ServeHTTP(w, req)
 		res := w.Result()
-		defer res.Body.Close()
+		defer func() {
+			err := res.Body.Close()
+			if err != nil {
+				t.Errorf("failed to close response body: %v", err)
+			}
+		}()
+
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
 			t.Errorf("failed to read response body: %v", err)
 		}
 
-		require.NoError(t, timeoutErr, "there should be no error")
 		assert.Equal(t, testBody, string(body), "they should be equal")
 		assert.Equal(t, http.StatusOK, res.StatusCode, "they should be equal")
 	})
