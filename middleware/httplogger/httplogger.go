@@ -7,13 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rmhubbert/rmhttp"
+	"github.com/rmhubbert/rmhttp/pkg/capturewriter"
 )
 
 func Middleware(logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			cw := rmhttp.NewCaptureWriter(w)
+			cw := capturewriter.New(w)
 			defer cw.Persist()
 
 			start := time.Now()
@@ -34,8 +34,8 @@ func Middleware(logger *slog.Logger) func(http.Handler) http.Handler {
 
 			code := cw.Code
 			message := cw.Body
-			hasErrorStatus := false
 
+			var hasErrorStatus = false
 			if code >= http.StatusBadRequest {
 				hasErrorStatus = true
 			}
