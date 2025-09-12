@@ -46,7 +46,7 @@ func main() {
 
     // Start() handles the server lifecycyle, including graceful
     // shutdown.
-    log.Fatal(rmh.Start())
+    log.Fatal(rmh.ListenAndServe())
 }
 ```
 
@@ -82,7 +82,7 @@ func main() {
     // This handler will replace the default 404 HTTP status code handler.
     rmh.StatusNotFoundHandler(my404Handler)
 
-    log.Fatal(rmh.Start())
+    log.Fatal(rmh.ListenAndServe())
 }
 ```
 
@@ -111,7 +111,7 @@ func main() {
     // The route will be accessible at /api/hello.
     rmh.Group("/api").Get("/hello", myHandler)
 
-    log.Fatal(rmh.Start())
+    log.Fatal(rmh.ListenAndServe())
 }
 ```
 
@@ -138,7 +138,7 @@ func main() {
     rmh := rmhttp.New().WithHeader("X-Hello", "World")
     rmh.Get("/hello", myHandler).WithHeader("X-My", "Header")
 
-    log.Fatal(rmh.Start())
+    log.Fatal(rmh.ListenAndServe())
 }
 ```
 
@@ -165,7 +165,7 @@ func main() {
     rmh := rmhttp.New().WithTimeout(5, "Global timeout message")
     rmh.Get("/hello", myHandler).WithTimeout(3, "Route timeout message")
 
-    log.Fatal(rmh.Start())
+    log.Fatal(rmh.ListenAndServe())
 }
 ```
 
@@ -193,7 +193,7 @@ func main() {
     rmh := rmhttp.New().WithMiddleware(recoverer.Middleware())
     rmh.Get("/hello", myHandler)
 
-    log.Fatal(rmh.Start())
+    log.Fatal(rmh.ListenAndServe())
 }
 ```
 
@@ -203,6 +203,6 @@ func main() {
 
 ## Contributing
 
-Contributions are always welcome via [Pull Request](https://github.com/rmhubbert/rmhttp/pulls). Please make sure to add tests and make sure they are passing before submitting. It's also a good idea to lint your code with golint.
+Contributions are always welcome via [Pull Request](https://github.com/rmhubbert/rmhttp/pulls). Please make sure to add tests and make sure they are passing before submitting. It's also a good idea to lint your code with golintci-lint, using the config in this directory.
 
 Contributors are expected to abide by the guidelines outlined in the [Contributor Covenant Code of Conduct](CONTRIBUTING.md)
