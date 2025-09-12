@@ -1,4 +1,76 @@
 
+## [v1.0.0] - 2025-09-12
+### :boom: BREAKING CHANGES
+- due to [`c5e3f86`](https://github.com/rmhubbert/rmhttp/commit/c5e3f86c8b68cb5396a3eac2df19144603546cb4) - use standard library HTTP handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  use standard library HTTP handlers
+
+- due to [`de5e261`](https://github.com/rmhubbert/rmhttp/commit/de5e2612ad8266fa0cea3f1289476bb3d51955d3) - use standard library HTTP handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  use standard library HTTP handlers
+
+- due to [`c464bec`](https://github.com/rmhubbert/rmhttp/commit/c464bece7c12a70d97d06d6abb2046f9c0d62d6c) - simple wrapper around rs/cors *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  simple wrapper around rs/cors
+
+- due to [`bdb2693`](https://github.com/rmhubbert/rmhttp/commit/bdb26930ef0d26dcae125f64c704fad638fd6020) - move httplogger middleware to its own package *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  move httplogger middleware to its own package
+
+- due to [`7abcee1`](https://github.com/rmhubbert/rmhttp/commit/7abcee1e474f6e625b55179686d06e1df2240efb) - move capturewriter into its own package *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  move capturewriter into its own package
+
+- due to [`b294dae`](https://github.com/rmhubbert/rmhttp/commit/b294dae6216b6b736b84307f0aab774750168b35) - remove unneeded functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  remove unneeded functionality
+
+- due to [`e4505f4`](https://github.com/rmhubbert/rmhttp/commit/e4505f454167160277e46fc677a87f01d7c2c260) - remove default global middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  remove default global middleware
+
+- due to [`09f6cbe`](https://github.com/rmhubbert/rmhttp/commit/09f6cbe7f0be720a87ad430a66acdae993dfd04e) - force use of slog for logging *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  force use of slog for logging
+
+- due to [`6eff4fa`](https://github.com/rmhubbert/rmhttp/commit/6eff4faaebcb53faad6f81ea20fe8d1fafc5963a) - remove unneeded middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  remove unneeded middleware
+
+- due to [`dbfc0b5`](https://github.com/rmhubbert/rmhttp/commit/dbfc0b5f8d129b9a727374266ca9aec52d4f16b2) - remove unneeded interface *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  remove unneeded interface
+
+- due to [`19a5d83`](https://github.com/rmhubbert/rmhttp/commit/19a5d83723d55ca1b88c5715ec1466cb5a2828cf) - remove unneeded functions *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  remove unneeded functions
+
+
+### :sparkles: New Features
+- [`c5e3f86`](https://github.com/rmhubbert/rmhttp/commit/c5e3f86c8b68cb5396a3eac2df19144603546cb4) - use standard library HTTP handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`bdeb614`](https://github.com/rmhubbert/rmhttp/commit/bdeb61438bd0861bfc1997e2003dea506c54c289) - remove rmhttp dependency, in favour of standard library HTTP functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`ecc8b01`](https://github.com/rmhubbert/rmhttp/commit/ecc8b0180403abf47282a12d42407b5c1ba85526) - remove unneeded functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`c464bec`](https://github.com/rmhubbert/rmhttp/commit/c464bece7c12a70d97d06d6abb2046f9c0d62d6c) - simple wrapper around rs/cors *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`e3f03a6`](https://github.com/rmhubbert/rmhttp/commit/e3f03a60990698e39e5e0c2ffc55c3caf9351448) - remove rmhttp dependency *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`bdb2693`](https://github.com/rmhubbert/rmhttp/commit/bdb26930ef0d26dcae125f64c704fad638fd6020) - move httplogger middleware to its own package *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`7abcee1`](https://github.com/rmhubbert/rmhttp/commit/7abcee1e474f6e625b55179686d06e1df2240efb) - move capturewriter into its own package *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`b294dae`](https://github.com/rmhubbert/rmhttp/commit/b294dae6216b6b736b84307f0aab774750168b35) - remove unneeded functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`3386fe0`](https://github.com/rmhubbert/rmhttp/commit/3386fe03740902044e50e12f8edf5d40db7c1948) - use new capturewriter package *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`7d65e27`](https://github.com/rmhubbert/rmhttp/commit/7d65e27c9007e760ed33c35b3cf58d76a2b2c7fe) - remove unneeded loop *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`e4505f4`](https://github.com/rmhubbert/rmhttp/commit/e4505f454167160277e46fc677a87f01d7c2c260) - remove default global middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`09f6cbe`](https://github.com/rmhubbert/rmhttp/commit/09f6cbe7f0be720a87ad430a66acdae993dfd04e) - force use of slog for logging *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`6eff4fa`](https://github.com/rmhubbert/rmhttp/commit/6eff4faaebcb53faad6f81ea20fe8d1fafc5963a) - remove unneeded middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`dbfc0b5`](https://github.com/rmhubbert/rmhttp/commit/dbfc0b5f8d129b9a727374266ca9aec52d4f16b2) - remove unneeded interface *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`4eb7046`](https://github.com/rmhubbert/rmhttp/commit/4eb7046c1a7489e14679725363a4d71d966125e8) - use slog.Logger directly *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`19a5d83`](https://github.com/rmhubbert/rmhttp/commit/19a5d83723d55ca1b88c5715ec1466cb5a2828cf) - remove unneeded functions *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`de5e261`](https://github.com/rmhubbert/rmhttp/commit/de5e2612ad8266fa0cea3f1289476bb3d51955d3) - use standard library HTTP handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`a90241f`](https://github.com/rmhubbert/rmhttp/commit/a90241fcdb2ede56d5a6f1d1e6a44bccfa9cba1d) - linting fixes *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.11.0] - 2025-09-12
 ### :sparkles: New Features
 - [`ce09291`](https://github.com/rmhubbert/rmhttp/commit/ce0929167633ecdbd8405adb783c5b3775abad09) - add capturewriter package *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -165,3 +237,4 @@
 [v0.9.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.8.1...v0.9.0
 [v0.10.0]: https://github.com/rmhubbert/rmhttp/compare/v0.9.0...v0.10.0
 [v0.11.0]: https://github.com/rmhubbert/rmhttp/compare/v0.10.0...v0.11.0
+[v1.0.0]: https://github.com/rmhubbert/rmhttp/compare/v0.11.0...v1.0.0
