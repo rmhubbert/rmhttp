@@ -11,6 +11,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/rmhubbert/rmhttp/middleware/headers"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -284,7 +286,16 @@ func (app *App) Compile() {
 	routes := app.rootGroup.ComputedRoutes()
 
 	for _, route := range routes {
-		middleware := route.ComputedMiddleware()
+		middleware := []func(http.Handler) http.Handler{}
+
+		if len(route.ComputedHeaders()) > 0 {
+			middleware = append(middleware, headers.Middleware(route.ComputedHeaders()))
+		}
+
+		if len(route.ComputedMiddleware()) > 0 {
+			middleware = append(middleware, route.ComputedMiddleware()...)
+		}
+
 		if timeout := route.ComputedTimeout(); timeout.Enabled {
 			// Give the Server a chance to update it's TCP level timeout so that the connection doesn't
 			// timeout before the request. It will only update if this timeout is longer than the
@@ -293,17 +304,20 @@ func (app *App) Compile() {
 			middleware = append(middleware, TimeoutMiddleware(route.ComputedTimeout()))
 		}
 
-		handler := applyMiddleware(
-			route.Handler,
-			middleware,
-		)
+		var handler = route.Handler
+		if len(middleware) > 0 {
+			handler = applyMiddleware(
+				route.Handler,
+				middleware,
+			)
+		}
 
 		app.Router.Handle(route.Method, route.Pattern, handler)
 	}
 
 	// Add the error handlers to the router with any global middleware added.
-	for code, handler := range app.errorHandlers {
-		app.Router.AddErrorHandler(code, applyMiddleware(handler, app.rootGroup.Middleware))
+	for code, errorHandler := range app.errorHandlers {
+		app.Router.AddErrorHandler(code, applyMiddleware(errorHandler, app.rootGroup.Middleware))
 	}
 }
 
@@ -317,13 +331,6 @@ func (app *App) ListenAndServe() error {
 func (app *App) ListenAndServeTLS() error {
 	app.Compile()
 	return app.Server.ListenAndServeTLS()
-}
-
-// Start compiles and loads the registered Routes, and then starts the Server with graceful
-// shutdown management.
-func (app *App) Start() error {
-	app.Compile()
-	return app.Server.Start(false)
 }
 
 // Shutdown stops the Server.
