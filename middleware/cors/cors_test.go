@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/rmhubbert/rmhttp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +14,7 @@ import (
 // ------------------------------------------------------------------------------------------------
 
 const (
-	testAddress string = "localhost:8080"
+	testAddress string = "localhost:8123"
 )
 
 // Test_Cors checks that the expected CORS headers are returned for both preflight and standard
@@ -31,7 +30,7 @@ func Test_Cors(t *testing.T) {
 		expectedCode    int
 		expectedHeaders map[string]string
 		options         Options
-		route           *rmhttp.Route
+		handler         http.Handler
 	}{
 		{
 			"CORS preflight headers are returned with status 204 on OPTIONS requests with no config",
@@ -43,14 +42,9 @@ func Test_Cors(t *testing.T) {
 				"Access-Control-Allow-Methods": "GET",
 			},
 			Options{},
-			rmhttp.NewRoute(
-				http.MethodGet,
-				testPattern,
-				rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-					w.WriteHeader(http.StatusOK)
-					return nil
-				}),
-			),
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			}),
 		},
 		{
 			"CORS standard headers are returned with status 200 on GET requests with no config",
@@ -61,14 +55,9 @@ func Test_Cors(t *testing.T) {
 				"Access-Control-Allow-Origin": "*",
 			},
 			Options{},
-			rmhttp.NewRoute(
-				http.MethodGet,
-				testPattern,
-				rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-					w.WriteHeader(http.StatusOK)
-					return nil
-				}),
-			),
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			}),
 		},
 		{
 			"CORS preflight headers are returned with status 204 on OPTIONS requests with config",
@@ -82,14 +71,9 @@ func Test_Cors(t *testing.T) {
 			Options{
 				AllowedOrigins: []string{"test.local"},
 			},
-			rmhttp.NewRoute(
-				http.MethodGet,
-				testPattern,
-				rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-					w.WriteHeader(http.StatusOK)
-					return nil
-				}),
-			),
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			}),
 		},
 		{
 			"CORS standard headers are returned with status 200 on GET requests with config",
@@ -102,20 +86,15 @@ func Test_Cors(t *testing.T) {
 			Options{
 				AllowedOrigins: []string{"test.local"},
 			},
-			rmhttp.NewRoute(
-				http.MethodGet,
-				testPattern,
-				rmhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
-					w.WriteHeader(http.StatusOK)
-					return nil
-				}),
-			),
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			}),
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test.route.Handler = Middleware(test.options)(test.route.Handler)
+			handler := Middleware(test.options)(test.handler)
 
 			url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
 			req, err := http.NewRequest(test.method, url, nil)
@@ -127,9 +106,14 @@ func Test_Cors(t *testing.T) {
 			req.Header.Add("Origin", "test.local")
 
 			w := httptest.NewRecorder()
-			_ = test.route.Handler.ServeHTTPWithError(w, req)
+			handler.ServeHTTP(w, req)
 			res := w.Result()
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
 
 			assert.Equal(
 				t,
