@@ -4,15 +4,9 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/rmhubbert/rmhttp?color=%23007D9C)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rmhubbert/rmhttp/latest?color=%23007D9C) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?color=%23007D9C)](CONTRIBUTING.md)
 
-**rmhttp** provides a lightweight wrapper around the Go standard library HTTP server and router provided by [net/http](https://pkg.go.dev/net/http) that allows for the easy implementation of timeouts, centralised error handling, groups, header management, and middleware (at the route, group and server level).
+**rmhttp** provides a lightweight wrapper around the Go standard library HTTP server and router provided by [net/http](https://pkg.go.dev/net/http) that allows for the easy implementation of timeouts, groups, header management, and middleware (at the route, group and server level).
 
-Handlers and middleware functions are kept as close to the standard library implementation as possible, with one addition; they can return an error. This allows you to simply return any errors from your handler, and have **rmhttp** transform the error into an HTTP response with a corresponding status code.
-
-You can easily register any custom or sentinel error with **rmhttp** with the required HTTP status code, and the library will handle creating the correct response for you. It's also worth noting that you can also set your responses manually, if you don't want to use that particular functionality.
-
-In addition to the centralised error handling, **rmhttp** also offers convenience methods for binding handlers to all of the available HTTP methods, easy grouping (and subgrouping) of your routes, plus header and middleware management at the global, group and route level.
-
-[Go v1.23](https://go.dev/doc/go1.23) is the minimum supported version, as **rmhttp** takes advantage of the [net/http routing enhancements](https://go.dev/blog/routing-enhancements) released in v1.22.
+This package aims to make it easier to configure your routes and middleware, but then hand off as much as possible to the standard library once the server is running. Standard handlers and middleware are used throughout.
 
 ## Installation
 
@@ -36,10 +30,9 @@ import (
 	"github.com/rmhubbert/rmhttp"
 )
 
-func myHandler := func(w http.ResponseWriter, r *http.Request) error {
+func myHandler := func(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
     w.Write([]byte("Hello World"))
-    return nil
 }
 
 func main() {
@@ -67,7 +60,7 @@ Configuration options can be set via environment variables or by passing in a Co
 
 ### Error Handling
 
-You can register any custom or sentinel error with **rmhttp** via the RegisterError() method. This method takes the HTTP status code that you want to register and a variadic list of errors to register that status code for. Once registered, simply returning that error from your handler will trigger the associated status code to be returned alongside the error message.
+You can register your own handlers for 404 and 403 errors. These errors are normally triggered internally by http.ServeMux, and are normally not configurable.
 
 ```go
 package main
@@ -79,26 +72,15 @@ import (
 	"github.com/rmhubbert/rmhttp"
 )
 
-type CustomError struct{}
-
-func (err CustomError) Error() string {
-	return "custom 400 error"
-}
-
-var ErrMy400 = errors.New("my 400 error")
-
-func myHandler := func(w http.ResponseWriter, r *http.Request) error {
-    w.WriteHeader(http.StatusOK)
+func my404Handler := func(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusNotFound)
     w.Write([]byte("Hello World"))
-    return ErrMy400
 }
 
 func main() {
     rmh := rmhttp.New()
-    // This handler will return a 400 HTTP status code.
-    rmh.Get("/hello", myHandler)
-
-    rmh.RegisterError(400, CustomError{}, ErrMy400)
+    // This handler will replace the default 404 HTTP status code handler.
+    rmh.StatusNotFoundHandler(my404Handler)
 
     log.Fatal(rmh.Start())
 }
@@ -118,10 +100,9 @@ import (
 	"github.com/rmhubbert/rmhttp"
 )
 
-func myHandler := func(w http.ResponseWriter, r *http.Request) error {
+func myHandler := func(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
     w.Write([]byte("Hello World"))
-    return nil
 }
 
 func main() {
@@ -148,10 +129,9 @@ import (
 	"github.com/rmhubbert/rmhttp"
 )
 
-func myHandler := func(w http.ResponseWriter, r *http.Request) error {
+func myHandler := func(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
     w.Write([]byte("Hello World"))
-    return nil
 }
 
 func main() {
@@ -176,10 +156,9 @@ import (
 	"github.com/rmhubbert/rmhttp"
 )
 
-func myHandler := func(w http.ResponseWriter, r *http.Request) error {
+func myHandler := func(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
     w.Write([]byte("Hello World"))
-    return nil
 }
 
 func main() {
@@ -205,10 +184,9 @@ import (
 	"github.com/rmhubbert/rmhttp/middleware/recoverer"
 )
 
-func myHandler := func(w http.ResponseWriter, r *http.Request) error {
+func myHandler := func(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
     w.Write([]byte("Hello World"))
-    return nil
 }
 
 func main() {
