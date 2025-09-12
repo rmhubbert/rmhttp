@@ -1,4 +1,13 @@
 
+## [v1.5.0] - 2025-09-12
+### :sparkles: New Features
+- [`f8394bd`](https://github.com/rmhubbert/rmhttp/commit/f8394bde85d425df7702a23c32b8c015c78328ef) - add headers middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`f2d28fc`](https://github.com/rmhubbert/rmhttp/commit/f2d28fcf6e8643064a0c26114ca29e5997243eb3) - remove Start method in favour of letting http.Server handle starting directly *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :bug: Bug Fixes
+- [`ebe3184`](https://github.com/rmhubbert/rmhttp/commit/ebe3184935a249f2720da6b4cd129e2446a0bc77) - headers not being compiled *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v1.2.1] - 2025-09-12
 ### :bug: Bug Fixes
 - [`eaac717`](https://github.com/rmhubbert/rmhttp/commit/eaac71773279b0b2ee7589b976e108ede29d4b88) - custom error handler not cast to http.HandlerFunc *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -244,3 +253,4 @@
 [v0.11.0]: https://github.com/rmhubbert/rmhttp/compare/v0.10.0...v0.11.0
 [v1.0.0]: https://github.com/rmhubbert/rmhttp/compare/v0.11.0...v1.0.0
 [v1.2.1]: https://github.com/rmhubbert/rmhttp/compare/v1.2.0...v1.2.1
+[v1.5.0]: https://github.com/rmhubbert/rmhttp/compare/v1.4.0...v1.5.0
