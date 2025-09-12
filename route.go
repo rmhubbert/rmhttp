@@ -122,9 +122,7 @@ func (route *Route) ComputedMiddleware() []func(http.Handler) http.Handler {
 // This method will return a pointer to the receiver Route, allowing the user to chain any of the
 // other builder methods that Route implements.
 func (route *Route) WithMiddleware(middlewares ...func(http.Handler) http.Handler) *Route {
-	for _, mw := range middlewares {
-		route.Middleware = append(route.Middleware, mw)
-	}
+	route.Middleware = append(route.Middleware, middlewares...)
 	return route
 }
 

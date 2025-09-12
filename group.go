@@ -162,9 +162,7 @@ func (group *Group) Group(g *Group) *Group {
 // This method will return a pointer to the receiver Group, allowing the user to chain any of the
 // other builder methods that Group implements.
 func (group *Group) WithMiddleware(middlewares ...func(http.Handler) http.Handler) *Group {
-	for _, mw := range middlewares {
-		group.Middleware = append(group.Middleware, mw)
-	}
+	group.Middleware = append(group.Middleware, middlewares...)
 	return group
 }
 
