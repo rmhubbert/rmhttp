@@ -95,8 +95,8 @@ jobs:
           token: ${{ github.token }}
           branch: main
           majorList: "build!, ci!, docs!, feat!, fix!, perf!, refactor!, style!, test!"
-          minorList: "feat"
-          patchList: "fix, perf, refactor, test"
+          minorList: "feat, docs"
+          patchList: "fix, perf, refactor, test, ci, build"
 
       - name: Push next version tag
         uses: thejeff77/action-push-tag@v1.0.0
@@ -128,7 +128,7 @@ jobs:
           allowUpdates: true
           draft: false
           makeLatest: true
-          prerelease: true
+          prerelease: false
           name: ${{ needs.semver-bump.outputs.next-version }}
           tag: ${{ needs.semver-bump.outputs.next-version }}
           body: ${{ steps.changelog.outputs.changes }}
