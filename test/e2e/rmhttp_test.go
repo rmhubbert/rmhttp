@@ -116,7 +116,13 @@ func Test_HandleFunc(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -170,7 +176,13 @@ func Test_Route(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -226,7 +238,13 @@ func Test_Group(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -287,7 +305,13 @@ func Test_Convenience_Handlers(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -358,7 +382,13 @@ func Test_Error_Handlers(t *testing.T) {
 				t.Errorf("get request failed: %v", err)
 			}
 
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)

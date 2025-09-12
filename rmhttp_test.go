@@ -149,7 +149,13 @@ func Test_Static(t *testing.T) {
 			route.Handler.ServeHTTP(w, req)
 
 			res := w.Result()
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				t.Errorf("failed to read response body: %v", err)
@@ -219,7 +225,12 @@ func Test_Redirect(t *testing.T) {
 			route.Handler.ServeHTTP(w, req)
 
 			res := w.Result()
-			defer res.Body.Close()
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
 
 			assert.Equal(t, test.expectedCode, res.StatusCode, "they should be equal")
 			assert.Equal(t, test.target, res.Header.Get("Location"), "they should be equal")
