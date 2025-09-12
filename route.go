@@ -144,8 +144,8 @@ func (route *Route) WithTimeout(timeout time.Duration, message string) *Route {
 	return route
 }
 
-// WithHeader sets an HTTP header for this route. Calling this method more than once will either
-// overwrite an existing header, or add a new one.
+// WithHeader sets an HTTP header for this Route. Calling this method with the same key more than
+// once will overwrite the existing header.
 //
 // This method will return a pointer to the receiver Route, allowing the user to chain any of the
 // other builder methods that Route implements.

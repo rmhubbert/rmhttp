@@ -257,7 +257,17 @@ func (app *App) Route(route *Route) {
 // This method will return a pointer to the app, allowing the user to
 // chain any of the other builder methods that the app implements.
 func (app *App) WithTimeout(timeout time.Duration, message string) *App {
-	app.rootGroup.Timeout = NewTimeout(timeout, message)
+	app.rootGroup.WithTimeout(timeout, message)
+	return app
+}
+
+// WithHeader adds an HTTP header at the global level. Calling this method more than once with the
+// same key will overwrite the existing header.
+//
+// This method will return a pointer to the app, allowing the user to
+// chain any of the other builder methods that the app implements.
+func (app *App) WithHeader(key string, value string) *App {
+	app.rootGroup.WithHeader(key, value)
 	return app
 }
 

@@ -175,8 +175,8 @@ func (group *Group) Use(middlewares ...func(http.Handler) http.Handler) *Group {
 	return group.WithMiddleware(middlewares...)
 }
 
-// WithHeader sets an HTTP header for this Group. Calling this method more than once will either
-// overwrite an existing header, or add a new one.
+// WithHeader sets an HTTP header for this Group. Calling this method with the same key more than
+// once will overwrite the existing header.
 //
 // This method will return a pointer to the receiver Group, allowing the user to chain any of the
 // other builder methods that Group implements.
