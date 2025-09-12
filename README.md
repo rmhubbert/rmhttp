@@ -59,7 +59,7 @@ Configuration options can be set via environment variables or by passing in a Co
 
 ### Error Handling
 
-You can register your own handlers for 404 and 403 errors. These errors are normally triggered internally by http.ServeMux, and are normally not configurable.
+You can register your own handlers for 404 and 405 errors. These errors are normally triggered internally by http.ServeMux, and are normally not configurable.
 
 ```go
 package main
@@ -72,13 +72,20 @@ import (
 )
 
 func my404Handler := func(w http.ResponseWriter, r *http.Request) {
-    http.Error(w, http.StatusNotFound, "404 Not Found")
+    http.Error(w, "My 404 Message", http.StatusNotFound)
+}
+
+func my405Handler := func(w http.ResponseWriter, r *http.Request) {
+    http.Error(w, "My 405 Message", http.StatusMethodNotAllowed)
 }
 
 func main() {
     rmh := rmhttp.New()
     // This handler will replace the default 404 HTTP status code handler.
     rmh.StatusNotFoundHandler(my404Handler)
+
+	// This handler will replace the default 405 HTTP status code handler.
+    rmh.StatusMethodNotAllowedHandler(my405Handler)
 
     log.Fatal(rmh.ListenAndServe())
 }
