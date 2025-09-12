@@ -1,4 +1,9 @@
 
+## [v0.11.0] - 2025-09-12
+### :sparkles: New Features
+- [`ce09291`](https://github.com/rmhubbert/rmhttp/commit/ce0929167633ecdbd8405adb783c5b3775abad09) - add capturewriter package *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v0.10.0] - 2024-11-03
 ### :sparkles: New Features
 - [`30aaec2`](https://github.com/rmhubbert/rmhttp/commit/30aaec2bec02720ddb921f9babcacb4511942544) - add WithTimeout at app level *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -159,3 +164,4 @@
 [v0.8.1]: https://github.com/rmhubbert/rmhttp2/compare/v0.8.0...v0.8.1
 [v0.9.0]: https://github.com/rmhubbert/rmhttp2/compare/v0.8.1...v0.9.0
 [v0.10.0]: https://github.com/rmhubbert/rmhttp/compare/v0.9.0...v0.10.0
+[v0.11.0]: https://github.com/rmhubbert/rmhttp/compare/v0.10.0...v0.11.0
