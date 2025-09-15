@@ -1,4 +1,15 @@
 
+## [v2.0.0] - 2025-09-15
+### :boom: BREAKING CHANGES
+- due to [`116929e`](https://github.com/rmhubbert/rmhttp/commit/116929ec77a6805cb1573884eb4a5922e81d64bb) - move middleware directory into pkg *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  move middleware directory into pkg
+
+
+### :recycle: Refactors
+- [`116929e`](https://github.com/rmhubbert/rmhttp/commit/116929ec77a6805cb1573884eb4a5922e81d64bb) - move middleware directory into pkg *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v1.8.0] - 2025-09-12
 ### :sparkles: New Features
 - [`1792a23`](https://github.com/rmhubbert/rmhttp/commit/1792a23ade7a51f1a61b75b66986ffc28fa55077) - add ability to add HTTP headers at the global level *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -260,3 +271,4 @@
 [v1.2.1]: https://github.com/rmhubbert/rmhttp/compare/v1.2.0...v1.2.1
 [v1.5.0]: https://github.com/rmhubbert/rmhttp/compare/v1.4.0...v1.5.0
 [v1.8.0]: https://github.com/rmhubbert/rmhttp/compare/v1.7.0...v1.8.0
+[v2.0.0]: https://github.com/rmhubbert/rmhttp/compare/v1.8.0...v2.0.0
