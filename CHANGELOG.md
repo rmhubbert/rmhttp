@@ -1,4 +1,9 @@
 
+## [v1.8.0] - 2025-09-12
+### :sparkles: New Features
+- [`1792a23`](https://github.com/rmhubbert/rmhttp/commit/1792a23ade7a51f1a61b75b66986ffc28fa55077) - add ability to add HTTP headers at the global level *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v1.5.0] - 2025-09-12
 ### :sparkles: New Features
 - [`f8394bd`](https://github.com/rmhubbert/rmhttp/commit/f8394bde85d425df7702a23c32b8c015c78328ef) - add headers middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -254,3 +259,4 @@
 [v1.0.0]: https://github.com/rmhubbert/rmhttp/compare/v0.11.0...v1.0.0
 [v1.2.1]: https://github.com/rmhubbert/rmhttp/compare/v1.2.0...v1.2.1
 [v1.5.0]: https://github.com/rmhubbert/rmhttp/compare/v1.4.0...v1.5.0
+[v1.8.0]: https://github.com/rmhubbert/rmhttp/compare/v1.7.0...v1.8.0
