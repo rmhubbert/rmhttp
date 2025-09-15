@@ -1,4 +1,4 @@
-module github.com/rmhubbert/rmhttp/middleware/cors
+module github.com/rmhubbert/rmhttp/pkg/middleware/cors
 
 go 1.24.6
 
