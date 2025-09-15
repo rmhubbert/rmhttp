@@ -399,3 +399,65 @@ func Test_Error_Handlers(t *testing.T) {
 		})
 	}
 }
+
+// Test_Route_With_Headers tests that headers can be added to routes
+func Test_Route_With_Headers(t *testing.T) {
+	// Set up the App
+	app := rmhttp.New(config)
+	defer func() {
+		_ = app.Shutdown()
+	}()
+
+	// Add handlers for all of our tests
+	for _, test := range handlerTests {
+		route := rmhttp.NewRoute(
+			test.method,
+			test.pattern,
+			http.HandlerFunc(createTestHandlerFunc(test.status, test.body)),
+		)
+		route.WithHeader("x-key", "value")
+		app.Route(route)
+
+		expectedPattern := fmt.Sprintf("%s %s", test.method, test.pattern)
+		assert.Equal(
+			t,
+			expectedPattern,
+			fmt.Sprintf("%s %s", test.method, route.ComputedPattern()),
+		)
+	}
+
+	// Start the App and wait for it to be responsive
+	startServer(app)
+
+	// Run our tests
+	for _, test := range handlerTests {
+		t.Run(test.name, func(t *testing.T) {
+			url := fmt.Sprintf("http://%s%s", testAddress, test.pattern)
+			req, err := http.NewRequest(test.method, url, nil)
+			if err != nil {
+				t.Errorf("failed to create request: %v", err)
+			}
+
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Errorf("get request failed: %v", err)
+			}
+
+			defer func() {
+				err := res.Body.Close()
+				if err != nil {
+					t.Errorf("failed to close response body: %v", err)
+				}
+			}()
+
+			body, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Errorf("failed to read response body: %v", err)
+			}
+
+			assert.Equal(t, test.body, string(body), "they should be equal")
+			assert.Equal(t, test.status, res.StatusCode, "they should be equal")
+			assert.Equal(t, "value", res.Header.Get("x-key"), "they should be equal")
+		})
+	}
+}
