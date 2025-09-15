@@ -1,4 +1,9 @@
 
+## [v2.1.0] - 2025-09-15
+### :bug: Bug Fixes
+- [`7692195`](https://github.com/rmhubbert/rmhttp/commit/76921950679a9592f245f2ba67a114c816ba43e2) - wrong paths in go.mod for middleware after moving *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v2.0.0] - 2025-09-15
 ### :boom: BREAKING CHANGES
 - due to [`116929e`](https://github.com/rmhubbert/rmhttp/commit/116929ec77a6805cb1573884eb4a5922e81d64bb) - move middleware directory into pkg *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
@@ -272,3 +277,4 @@
 [v1.5.0]: https://github.com/rmhubbert/rmhttp/compare/v1.4.0...v1.5.0
 [v1.8.0]: https://github.com/rmhubbert/rmhttp/compare/v1.7.0...v1.8.0
 [v2.0.0]: https://github.com/rmhubbert/rmhttp/compare/v1.8.0...v2.0.0
+[v2.1.0]: https://github.com/rmhubbert/rmhttp/compare/v2.0.0...v2.1.0
