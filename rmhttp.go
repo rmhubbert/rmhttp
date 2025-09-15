@@ -1,7 +1,7 @@
 // Package rmhttp implements a lightweight wrapper around the standard library web server provided
 // by http.Server and http.ServeMux, and adds an intuitive fluent interface for easy use and
-// configuration of route grouping, centralised error handling, logging, CORS, panic
-// recovery, SSL configuration, header management, timeouts and middleware.
+// configuration of route grouping, logging, CORS, panic recovery, header management, timeouts,
+// and middleware.
 package rmhttp
 
 import (
@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rmhubbert/rmhttp/middleware/headers"
+	"github.com/rmhubbert/rmhttp/pkg/middleware/headers"
 )
 
 // ------------------------------------------------------------------------------------------------
