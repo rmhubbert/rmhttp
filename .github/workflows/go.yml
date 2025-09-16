@@ -97,6 +97,8 @@ jobs:
           majorList: "build!, ci!, docs!, feat!, fix!, perf!, refactor!, style!, test!"
           minorList: "feat, docs"
           patchList: "fix, perf, refactor, test, ci, build"
+          noNewCommitBehavior: silent
+          noVersionBumpBehavior: silent
 
       - name: Push next version tag
         uses: thejeff77/action-push-tag@v1.0.0
