@@ -100,8 +100,19 @@ func (route *Route) findEnabledTimeout(parent *Group) Timeout {
 
 // Middleware returns the slice of MiddlewareFuncs that have been added to the Route.
 func (route *Route) ComputedMiddleware() []func(http.Handler) http.Handler {
-	m := route.Middleware
-	return m
+	return route.findMiddleware(route.Parent, route.Middleware)
+}
+
+// findMiddleware searches for any middleware in any parent Group.
+func (route *Route) findMiddleware(
+	parent *Group,
+	middleware []func(http.Handler) http.Handler,
+) []func(http.Handler) http.Handler {
+	if parent == nil {
+		return middleware
+	}
+	middleware = append(parent.Middleware, middleware...)
+	return route.findMiddleware(parent.Parent, middleware)
 }
 
 // WithMiddleware adds Middleware handlers to the receiver Route.
