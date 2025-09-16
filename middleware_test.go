@@ -14,7 +14,7 @@ import (
 // MIDDLEWARE TESTS
 // ------------------------------------------------------------------------------------------------
 
-func Test_Middleware_ApplyMmiddleware(t *testing.T) {
+func Test_Middleware_ApplyMiddleware(t *testing.T) {
 	// Create a middleware service
 	// Create a handler to test with
 	testPattern := "/test"
