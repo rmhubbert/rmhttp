@@ -34,24 +34,16 @@ func NewRouter(logger *slog.Logger) *Router {
 // ServeHTTP allows the Router to fulfill the http.Handler interface, meaning that we can use it as
 // a handler for the underlying HTTP request multiplexer (which by default is a http.ServeMux).
 //
-// Having the Router act as the primary handler allows us to inject our custom ResponseWriter and
-// add the system logger to the Request (for use by any middleware).
-//
-// We can also intercept any error handlers returned by the underlying mux, and make sure that they
-// are properly wrapped by the HTTP Error Handler and HTTP Logger (assuming the system is
-// configured to enable them), as well as any middleware that was configured for the
-// route.
-//
-// The Router is one of the few places where you will see ServeHTTP used instead of
-// ServeHTTPWithError in the system.
+// We also intercept any error handlers returned by the underlying mux, and replace them with any
+// custom error handlers that have been registered.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Handler returns the Handler that the Mux wants to use for this request.
 	handler, pattern := rt.Mux.Handler(r)
 
 	if pattern == "" && handler != nil {
 		// If pattern is empty, we have an internal error handler. Check to see if we have a custom
-		// error handler for this error code, and use that if so.
+		// error handler for this error code, and use that if we do.
 		cw := capturewriter.New(w)
+		cw.PassThrough = false
 		handler.ServeHTTP(cw, r)
 		if h, ok := rt.errorHandlers[cw.Code]; ok {
 			handler = h

@@ -11,63 +11,52 @@ import (
 // CAPTURE WRITER
 // ------------------------------------------------------------------------------------------------
 
-// A CaptureWriter wraps a http.ResponseWriter in order to capture HTTP the response code, body &
-// headers that handlers will set. We do this to allow further processing based on this values
-// before the final response is written, as writing a response status code can only be done
-// once.
+// A CaptureWriter wraps a http.ResponseWriter in order to capture HTTP the response code & body
+// that handlers will set. We do this to allow reading these values after they have been set,
+// as this is not normally possible on a ResponseWriter.
 type CaptureWriter struct {
-	Writer http.ResponseWriter
-	Code   int
-	Body   string
-	header http.Header
-	Mu     sync.Mutex
+	Writer      http.ResponseWriter
+	Code        int
+	Body        string
+	Mu          sync.Mutex
+	PassThrough bool
 }
 
+// New creates, instantiates, and returns a new CaptureWriter.
 func New(w http.ResponseWriter) *CaptureWriter {
 	return &CaptureWriter{
-		Writer: w,
-		header: make(http.Header),
+		Writer:      w,
+		PassThrough: true,
 	}
 }
 
 // Write implements part of the http.ResponseWriter interface. We override it here in order to
-// store the response body without actually writing the response.
+// store the response body, before optionally writing to the underlying ResponseWriter.
 func (cw *CaptureWriter) Write(body []byte) (int, error) {
 	cw.Mu.Lock()
 	defer cw.Mu.Unlock()
 	cw.Body = string(body)
+	if cw.PassThrough {
+		return cw.Writer.Write(body)
+	}
 	return len(cw.Body), nil
 }
 
 // WriteHeader implements part of the http.ResponseWriter interface. We override it here in order to
-// store the response code without actually writing the response.
+// store the response code, before optionally writing to the underlying ResponseWriter.
 func (cw *CaptureWriter) WriteHeader(code int) {
 	cw.Mu.Lock()
 	defer cw.Mu.Unlock()
 	cw.Code = code
+	if cw.PassThrough {
+		cw.Writer.WriteHeader(code)
+	}
 }
 
-// Header implements part of the http.ResponseWriter interface. We override it here in order to
-// store any added headers without actually writing the response.
-func (cw *CaptureWriter) Header() http.Header { return cw.header }
-
-// Persist writes the current status, body and headers to the underlying ResponseWriter.
-func (cw *CaptureWriter) Persist() {
-	cw.Mu.Lock()
-	defer cw.Mu.Unlock()
-
-	// Order is important here. WriteHeader writes all headers, not just the status code, so we need
-	// to add any other headers before calling WriteHeader.
-	header := cw.Writer.Header()
-	for key, values := range cw.header {
-		for _, value := range values {
-			header.Add(key, value)
-		}
-	}
-	// Also, it's important that we call WriteHeader before Write, as Write will call WriteHeader with
-	// a 200 status code, if it hasn't already been set.
-	cw.Writer.WriteHeader(cw.Code)
-	_, _ = cw.Writer.Write([]byte(cw.Body))
+// Header implements part of the http.ResponseWriter interface. We simply pass this to the
+// underlying ResponseWriter, as you can already retrieve a Header from that.
+func (cw *CaptureWriter) Header() http.Header {
+	return cw.Writer.Header()
 }
 
 // Push implements the Pusher interface.
