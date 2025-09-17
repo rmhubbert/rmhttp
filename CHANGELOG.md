@@ -1,4 +1,26 @@
 
+## [v3.0.0] - 2025-09-16
+### :boom: BREAKING CHANGES
+- due to [`37cd721`](https://github.com/rmhubbert/rmhttp/commit/37cd721870e8e28c539714020cbedbbe43bcc1f9) - pass through commands to underlying ResponseWriter be default. Remove Persist method. *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  pass through commands to underlying ResponseWriter be default. Remove Persist method.
+
+
+### :sparkles: New Features
+- [`a99e1a5`](https://github.com/rmhubbert/rmhttp/commit/a99e1a535904e218f1206db42881126c06e099b4) - add ability to complile middleware from self, plus any parents *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :bug: Bug Fixes
+- [`9476e99`](https://github.com/rmhubbert/rmhttp/commit/9476e9926da60bc662c234da358eca8b57102472) - incorrect path for headers middleware import *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`37cd721`](https://github.com/rmhubbert/rmhttp/commit/37cd721870e8e28c539714020cbedbbe43bcc1f9) - pass through commands to underlying ResponseWriter be default. Remove Persist method. *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`517bc88`](https://github.com/rmhubbert/rmhttp/commit/517bc8801a498baf4057b783a80eeb1da96aefc5) - remove default timeout on root route group *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`456f42c`](https://github.com/rmhubbert/rmhttp/commit/456f42c19010f6ae0cb85ea1c21f5316b9630426) - add e2e test for adding headers to routes *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`af7164c`](https://github.com/rmhubbert/rmhttp/commit/af7164c8193effc8b28c7eaefc2c556da806de72) - fix typo *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v2.1.0] - 2025-09-15
 ### :bug: Bug Fixes
 - [`7692195`](https://github.com/rmhubbert/rmhttp/commit/76921950679a9592f245f2ba67a114c816ba43e2) - wrong paths in go.mod for middleware after moving *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -278,3 +300,4 @@
 [v1.8.0]: https://github.com/rmhubbert/rmhttp/compare/v1.7.0...v1.8.0
 [v2.0.0]: https://github.com/rmhubbert/rmhttp/compare/v1.8.0...v2.0.0
 [v2.1.0]: https://github.com/rmhubbert/rmhttp/compare/v2.0.0...v2.1.0
+[v3.0.0]: https://github.com/rmhubbert/rmhttp/compare/v2.1.0...v3.0.0
