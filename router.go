@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-
-	"github.com/rmhubbert/rmhttp/pkg/capturewriter"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -42,7 +40,7 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if pattern == "" && handler != nil {
 		// If pattern is empty, we have an internal error handler. Check to see if we have a custom
 		// error handler for this error code, and use that if we do.
-		cw := capturewriter.New(w)
+		cw := NewCaptureWriter(w)
 		cw.PassThrough = false
 		handler.ServeHTTP(cw, r)
 		if h, ok := rt.errorHandlers[cw.Code]; ok {

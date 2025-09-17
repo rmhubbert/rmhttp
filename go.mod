@@ -6,7 +6,6 @@ require (
 	dario.cat/mergo v1.0.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/getsentry/sentry-go v0.35.3
-	github.com/rmhubbert/rmhttp/pkg/capturewriter v0.0.0-20250916131828-b3f76240eeee
 	github.com/rmhubbert/rmhttp/pkg/middleware/headers v0.0.0-20250916131828-b3f76240eeee
 	github.com/stretchr/testify v1.11.1
 )
