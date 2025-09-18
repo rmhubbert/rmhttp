@@ -31,16 +31,22 @@ func Middleware(logger *slog.Logger) func(http.Handler) http.Handler {
 				path += "?" + query
 			}
 			agent := r.UserAgent()
+			referer := r.Referer()
+			proto := r.Proto
+			logType := "http"
 
 			if code >= http.StatusBadRequest {
 				logger.Error(
 					http.StatusText(code),
+					"type", logType,
 					"status", code,
 					"ip", ip,
 					"method", r.Method,
 					"host", host,
 					"path", path,
+					"referer", referer,
 					"ua", agent,
+					"proto", proto,
 					"size", written,
 					"duration", duration,
 				)
@@ -49,12 +55,15 @@ func Middleware(logger *slog.Logger) func(http.Handler) http.Handler {
 
 			logger.Info(
 				http.StatusText(m.Code),
+				"type", logType,
 				"status", code,
 				"ip", ip,
 				"method", r.Method,
 				"host", host,
 				"path", path,
+				"referer", referer,
 				"ua", agent,
+				"proto", proto,
 				"size", written,
 				"duration", duration,
 			)

@@ -3,7 +3,7 @@ module github.com/rmhubbert/rmhttp/pkg/middleware/httplogger
 go 1.24.6
 
 require (
-	github.com/rmhubbert/rmhttp/pkg/capturewriter v0.0.0-20250912154826-5c168444a289
+	github.com/felixge/httpsnoop v1.0.4
 	github.com/stretchr/testify v1.11.1
 )
 
