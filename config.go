@@ -28,11 +28,11 @@ type ServerConfig struct {
 	TCPWriteTimeoutPadding       int    `env:"TCP_WRITE_TIMEOUT_PADDING" envDefault:"1"`
 	RequestTimeout               int    `env:"HTTP_REQUEST_TIMEOUT"      envDefault:"5"`
 	TimeoutMessage               string `env:"HTTP_TIMEOUT_MESSAGE"      envDefault:"Request Timeout"`
+	MaxHeaderBytes               int    `env:"HTTP_MAX_HEADER_BYTES"`
 	Host                         string `env:"HOST"`
 	Port                         int    `env:"PORT"                      envDefault:"8080"`
 	DisableGeneralOptionsHandler bool
 	TLSConfig                    *tls.Config
-	MaxHeaderBytes               int
 	TLSNextProto                 map[string]func(*http.Server, *tls.Conn, http.Handler)
 	ConnState                    func(net.Conn, http.ConnState)
 	ErrorLog                     *log.Logger
