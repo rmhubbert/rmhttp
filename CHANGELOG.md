@@ -1,4 +1,21 @@
 
+## [v4.0.0] - 2025-09-18
+### :boom: BREAKING CHANGES
+- due to [`76ff37b`](https://github.com/rmhubbert/rmhttp/commit/76ff37b717d9dd609b13c12a54d3e24a70ec2af2) - replace timeout config with server config which allows setting every property of the underlying http.Server *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  replace timeout config with server config which allows setting every property of the underlying http.Server
+
+
+### :sparkles: New Features
+- [`fbb3efd`](https://github.com/rmhubbert/rmhttp/commit/fbb3efd1e15acd7ab7f6618e6c8441f495d2816b) - refactor to use httpsnoop & add IP address and user agent logging *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`ed2189c`](https://github.com/rmhubbert/rmhttp/commit/ed2189c8b18d54c2caac80502f65a9bbdfc2c764) - add Apache standard logging fields, plus use httpsnoop to capture status code, etc *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`0e3c53e`](https://github.com/rmhubbert/rmhttp/commit/0e3c53e47dfe9ab5a29249b10f03672326008f52) - move capturewriter back into primary package *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`04aa68f`](https://github.com/rmhubbert/rmhttp/commit/04aa68f785de808a3f24fec2616e55d173cede2d) - remove capturewriter package *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`76ff37b`](https://github.com/rmhubbert/rmhttp/commit/76ff37b717d9dd609b13c12a54d3e24a70ec2af2) - replace timeout config with server config which allows setting every property of the underlying http.Server *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v3.0.0] - 2025-09-16
 ### :boom: BREAKING CHANGES
 - due to [`37cd721`](https://github.com/rmhubbert/rmhttp/commit/37cd721870e8e28c539714020cbedbbe43bcc1f9) - pass through commands to underlying ResponseWriter be default. Remove Persist method. *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
@@ -301,3 +318,4 @@
 [v2.0.0]: https://github.com/rmhubbert/rmhttp/compare/v1.8.0...v2.0.0
 [v2.1.0]: https://github.com/rmhubbert/rmhttp/compare/v2.0.0...v2.1.0
 [v3.0.0]: https://github.com/rmhubbert/rmhttp/compare/v2.1.0...v3.0.0
+[v4.0.0]: https://github.com/rmhubbert/rmhttp/compare/v3.0.0...v4.0.0
