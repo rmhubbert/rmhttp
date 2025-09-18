@@ -1,4 +1,12 @@
 
+## [v4.1.0] - 2025-09-18
+### :sparkles: New Features
+- [`ccc1b6b`](https://github.com/rmhubbert/rmhttp/commit/ccc1b6bae08001b8a08e99461d2941a23643b74e) - add env variable for MaxHeaderBytes in the ServerConfig *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`f959607`](https://github.com/rmhubbert/rmhttp/commit/f959607a2643955b526c8431b9549c329b6e4dfb) - change default port used for e2e tests to avoid clashing with running applications *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v4.0.0] - 2025-09-18
 ### :boom: BREAKING CHANGES
 - due to [`76ff37b`](https://github.com/rmhubbert/rmhttp/commit/76ff37b717d9dd609b13c12a54d3e24a70ec2af2) - replace timeout config with server config which allows setting every property of the underlying http.Server *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
@@ -319,3 +327,4 @@
 [v2.1.0]: https://github.com/rmhubbert/rmhttp/compare/v2.0.0...v2.1.0
 [v3.0.0]: https://github.com/rmhubbert/rmhttp/compare/v2.1.0...v3.0.0
 [v4.0.0]: https://github.com/rmhubbert/rmhttp/compare/v3.0.0...v4.0.0
+[v4.1.0]: https://github.com/rmhubbert/rmhttp/compare/v4.0.0...v4.1.0
