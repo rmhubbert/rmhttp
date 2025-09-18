@@ -3,7 +3,6 @@ package rmhttp
 import (
 	"os"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,7 +12,7 @@ import (
 // CONFIG TESTS
 // ------------------------------------------------------------------------------------------------
 
-var defaultTimeoutConfig = TimeoutConfig{
+var defaultServerConfig = ServerConfig{
 	TCPReadTimeout:         2,
 	TCPReadHeaderTimeout:   1,
 	TCPIdleTimeout:         120,
@@ -21,21 +20,13 @@ var defaultTimeoutConfig = TimeoutConfig{
 	TCPWriteTimeoutPadding: 1,
 	RequestTimeout:         5,
 	TimeoutMessage:         "Request Timeout",
-}
-
-var defaultSSLConfig = SSLConfig{
-	Enable: false,
-	Cert:   "",
-	Key:    "",
+	Port:                   8080,
 }
 
 var defaultConfig = Config{
-	Host:    "",
-	Port:    8080,
-	Debug:   false,
-	Logger:  nil,
-	SSL:     defaultSSLConfig,
-	Timeout: defaultTimeoutConfig,
+	Debug:  false,
+	Logger: nil,
+	Server: defaultServerConfig,
 }
 
 // Test_LoadConfig_default tests the default config. It simulates no user config being passed
@@ -51,12 +42,9 @@ func Test_LoadConfig_default(t *testing.T) {
 		Value    any
 		Expected any
 	}{
-		{"default host", cfg.Host, defaultConfig.Host},
-		{"default port", cfg.Port, defaultConfig.Port},
 		{"default debug flag", cfg.Debug, defaultConfig.Debug},
 		{"default logger", cfg.Logger, defaultConfig.Logger},
-		{"default SSL config", cfg.SSL, defaultConfig.SSL},
-		{"default timeout config", cfg.Timeout, defaultConfig.Timeout},
+		{"default timeout config", cfg.Server, defaultConfig.Server},
 	}
 
 	for _, test := range tests {
@@ -73,59 +61,39 @@ func Test_LoadConfig_from_env(t *testing.T) {
 	host := "localhost"
 	port := 80
 	debug := true
-	enablePanicRecovery := true
-	enableHTTPErrorHandling := true
-	enableHTTPLogging := true
-	loggerAllowedMethods := []string{"GET", "POST"}
-
-	// SSLConfig related env variables and config
-	sslEnable := true
-	sslCert := "/path/to/cert"
-	sslKey := "/path/to/key"
-
-	envSSLConfig := SSLConfig{
-		Enable: sslEnable,
-		Cert:   sslCert,
-		Key:    sslKey,
-	}
 
 	// TimeoutConfig related env variables and config
 	tcpReadTimeout := 10
 	tcpReadHeaderTimeout := 10
 	tcpIdleTimeout := 10
 	tcpWriteTimeout := 10
-	tcpWriteTimeoutBuffer := 10
+	tcpWriteTimeoutPadding := 10
 	httpRequestTimeout := 10
 	timeoutMessage := "Hello, World!"
 
-	envTimeoutConfig := TimeoutConfig{
+	envServerConfig := ServerConfig{
 		TCPReadTimeout:         tcpReadTimeout,
 		TCPReadHeaderTimeout:   tcpReadHeaderTimeout,
 		TCPIdleTimeout:         tcpIdleTimeout,
 		TCPWriteTimeout:        tcpWriteTimeout,
-		TCPWriteTimeoutPadding: tcpWriteTimeoutBuffer,
+		TCPWriteTimeoutPadding: tcpWriteTimeoutPadding,
 		RequestTimeout:         httpRequestTimeout,
 		TimeoutMessage:         timeoutMessage,
+		Host:                   host,
+		Port:                   port,
 	}
 
 	vars := map[string]string{
-		"HOST":                       host,
-		"PORT":                       strconv.Itoa(port),
-		"DEBUG":                      strconv.FormatBool(debug),
-		"ENABLE_PANIC_RECOVERY":      strconv.FormatBool(enablePanicRecovery),
-		"ENABLE_HTTP_ERROR_HANDLING": strconv.FormatBool(enableHTTPErrorHandling),
-		"ENABLE_HTTP_LOGGING":        strconv.FormatBool(enableHTTPLogging),
-		"LOGGER_ALLOWED_METHODS":     strings.Join(loggerAllowedMethods, ","),
-		"ENABLE_SSL":                 strconv.FormatBool(sslEnable),
-		"SSL_CERT":                   sslCert,
-		"SSL_KEY":                    sslKey,
-		"TCP_READ_TIMEOUT":           strconv.Itoa(tcpReadTimeout),
-		"TCP_READ_HEADER_TIMEOUT":    strconv.Itoa(tcpReadHeaderTimeout),
-		"TCP_IDLE_TIMEOUT":           strconv.Itoa(tcpIdleTimeout),
-		"TCP_WRITE_TIMEOUT":          strconv.Itoa(tcpWriteTimeout),
-		"TCP_WRITE_TIMEOUT_BUFFER":   strconv.Itoa(tcpWriteTimeoutBuffer),
-		"HTTP_REQUEST_TIMEOUT":       strconv.Itoa(httpRequestTimeout),
-		"HTTP_TIMEOUT_MESSAGE":       timeoutMessage,
+		"HOST":                      host,
+		"PORT":                      strconv.Itoa(port),
+		"DEBUG":                     strconv.FormatBool(debug),
+		"TCP_READ_TIMEOUT":          strconv.Itoa(tcpReadTimeout),
+		"TCP_READ_HEADER_TIMEOUT":   strconv.Itoa(tcpReadHeaderTimeout),
+		"TCP_IDLE_TIMEOUT":          strconv.Itoa(tcpIdleTimeout),
+		"TCP_WRITE_TIMEOUT":         strconv.Itoa(tcpWriteTimeout),
+		"TCP_WRITE_TIMEOUT_PADDING": strconv.Itoa(tcpWriteTimeoutPadding),
+		"HTTP_REQUEST_TIMEOUT":      strconv.Itoa(httpRequestTimeout),
+		"HTTP_TIMEOUT_MESSAGE":      timeoutMessage,
 	}
 
 	// Set the environment variables
@@ -146,11 +114,8 @@ func Test_LoadConfig_from_env(t *testing.T) {
 		Value    any
 		Expected any
 	}{
-		{"host set from an environment variable", cfg.Host, host},
-		{"port set from an environment variable", cfg.Port, port},
 		{"debug flag set from an environment variable", cfg.Debug, debug},
-		{"SSL config set from environment variables", cfg.SSL, envSSLConfig},
-		{"timeout config set from environment variables", cfg.Timeout, envTimeoutConfig},
+		{"timeout config set from environment variables", cfg.Server, envServerConfig},
 	}
 
 	for _, test := range tests {
@@ -176,18 +141,7 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 	port := 80
 	debug := true
 
-	// SSLConfig related env variables and config
-	sslEnable := true
-	sslCert := "/path/to/cert"
-	sslKey := "/path/to/key"
-
-	userSSLConfig := SSLConfig{
-		Enable: sslEnable,
-		Cert:   sslCert,
-		Key:    sslKey,
-	}
-
-	// TimeoutConfig related env variables and config
+	// ServerConfig related env variables and config
 	tcpReadTimeout := 10
 	tcpReadHeaderTimeout := 10
 	tcpIdleTimeout := 10
@@ -196,7 +150,7 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 	httpRequestTimeout := 10
 	timeoutMessage := "Hello, World!"
 
-	userTimeoutConfig := TimeoutConfig{
+	userServerConfig := ServerConfig{
 		TCPReadTimeout:         tcpReadTimeout,
 		TCPReadHeaderTimeout:   tcpReadHeaderTimeout,
 		TCPIdleTimeout:         tcpIdleTimeout,
@@ -204,14 +158,13 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 		TCPWriteTimeoutPadding: tcpWriteTimeoutBuffer,
 		RequestTimeout:         httpRequestTimeout,
 		TimeoutMessage:         timeoutMessage,
+		Port:                   port,
+		Host:                   host,
 	}
 
 	userConfig := Config{
-		Host:    host,
-		Port:    port,
-		Debug:   debug,
-		SSL:     userSSLConfig,
-		Timeout: userTimeoutConfig,
+		Debug:  debug,
+		Server: userServerConfig,
 	}
 
 	cfg, err := LoadConfig(userConfig)
@@ -224,11 +177,8 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 		Value    any
 		Expected any
 	}{
-		{"host set from a user defined config", cfg.Host, host},
-		{"port set from a user defined config", cfg.Port, port},
 		{"debug flag set from a user defined config", cfg.Debug, debug},
-		{"SSL config set from a user defined config", cfg.SSL, userSSLConfig},
-		{"timeout config set from a user defined config", cfg.Timeout, userTimeoutConfig},
+		{"timeout config set from a user defined config", cfg.Server, userServerConfig},
 	}
 
 	for _, test := range tests {
@@ -245,18 +195,8 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 	host := "localhost"
 	// port := 80
 	// debug := true
-	// SSLConfig related env variables and config
-	// sslEnable := true
-	// sslCert := "/path/to/cert"
-	sslKey := "/path/to/key"
 
-	partialSSLConfig := SSLConfig{
-		// Enable: sslEnable,
-		// Cert:   sslCert,
-		Key: sslKey,
-	}
-
-	// TimeoutConfig related env variables and config
+	// ServerConfig related env variables and config
 	tcpReadTimeout := 10
 	// tcpReadHeaderTimeout := 10
 	// tcpIdleTimeout := 10
@@ -265,7 +205,7 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 	httpRequestTimeout := 10
 	timeoutMessage := "Hello, World!"
 
-	partialTimeoutConfig := TimeoutConfig{
+	partialServerConfig := ServerConfig{
 		TCPReadTimeout: tcpReadTimeout,
 		// TCPReadHeaderTimeout:  tcpReadHeaderTimeout,
 		// TCPIdleTimeout:        tcpIdleTimeout,
@@ -273,14 +213,12 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 		TCPWriteTimeoutPadding: tcpWriteTimeoutBuffer,
 		RequestTimeout:         httpRequestTimeout,
 		TimeoutMessage:         timeoutMessage,
+		Host:                   host,
 	}
 
 	partialConfig := Config{
-		Host: host,
-		// Port:                    port,
 		// Debug:                   debug,
-		SSL:     partialSSLConfig,
-		Timeout: partialTimeoutConfig,
+		Server: partialServerConfig,
 	}
 
 	cfg, err := LoadConfig(partialConfig)
@@ -293,58 +231,61 @@ func Test_LoadConfig_with_user_partially_defined_config(t *testing.T) {
 		Value    any
 		Expected any
 	}{
-		{"host set from a partially defined user config", cfg.Host, host},
-		{"port set from a partially defined user config", cfg.Port, defaultConfig.Port},
 		{"debug flag set from a partially defined user config", cfg.Debug, defaultConfig.Debug},
 		{
-			"enable SSL flag set from a partially defined user config",
-			cfg.SSL.Enable,
-			defaultSSLConfig.Enable,
+			"Host set from a partially defined user config",
+			cfg.Server.Host,
+			partialServerConfig.Host,
 		},
 		{
-			"SSL certificate path set from a partially defined user config",
-			cfg.SSL.Cert,
-			defaultSSLConfig.Cert,
-		},
-		{
-			"SSL key path set from a partially defined user config",
-			cfg.SSL.Key,
-			partialSSLConfig.Key,
+			"Port set from a partially defined user config",
+			cfg.Server.Port,
+			defaultServerConfig.Port,
 		},
 		{
 			"TCP read timeout set from a partially defined user config",
-			cfg.Timeout.TCPReadTimeout,
-			partialTimeoutConfig.TCPReadTimeout,
+			cfg.Server.TCPReadTimeout,
+			partialServerConfig.TCPReadTimeout,
 		},
 		{
 			"TCP read header timeout set from a partially defined user config",
-			cfg.Timeout.TCPReadHeaderTimeout,
-			defaultTimeoutConfig.TCPReadHeaderTimeout,
+			cfg.Server.TCPReadHeaderTimeout,
+			defaultServerConfig.TCPReadHeaderTimeout,
+		},
+		{
+			"TCP read timeout set from a partially defined user config",
+			cfg.Server.TCPReadTimeout,
+			partialServerConfig.TCPReadTimeout,
+		},
+		{
+			"TCP read header timeout set from a partially defined user config",
+			cfg.Server.TCPReadHeaderTimeout,
+			defaultServerConfig.TCPReadHeaderTimeout,
 		},
 		{
 			"TCP idle timeout set from a partially defined user config",
-			cfg.Timeout.TCPIdleTimeout,
-			defaultTimeoutConfig.TCPIdleTimeout,
+			cfg.Server.TCPIdleTimeout,
+			defaultServerConfig.TCPIdleTimeout,
 		},
 		{
 			"TCP write timeout set from a partially defined user config",
-			cfg.Timeout.TCPWriteTimeout,
-			defaultTimeoutConfig.TCPWriteTimeout,
+			cfg.Server.TCPWriteTimeout,
+			defaultServerConfig.TCPWriteTimeout,
 		},
 		{
 			"TCP write timeout buffer set from a partially defined user config",
-			cfg.Timeout.TCPWriteTimeoutPadding,
-			partialTimeoutConfig.TCPWriteTimeoutPadding,
+			cfg.Server.TCPWriteTimeoutPadding,
+			partialServerConfig.TCPWriteTimeoutPadding,
 		},
 		{
 			"HTTP request timeout set from a partially defined user config",
-			cfg.Timeout.RequestTimeout,
-			partialTimeoutConfig.RequestTimeout,
+			cfg.Server.RequestTimeout,
+			partialServerConfig.RequestTimeout,
 		},
 		{
 			"timeout message set from a partially defined user config",
-			cfg.Timeout.TimeoutMessage,
-			partialTimeoutConfig.TimeoutMessage,
+			cfg.Server.TimeoutMessage,
+			partialServerConfig.TimeoutMessage,
 		},
 	}
 

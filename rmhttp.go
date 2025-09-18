@@ -60,19 +60,12 @@ func New(c ...Config) *App {
 	}
 
 	router := NewRouter(config.Logger)
-	serverConfig := ServerConfig{
-		TimeoutConfig:                config.Timeout,
-		SSLConfig:                    config.SSL,
-		Host:                         config.Host,
-		Port:                         config.Port,
-		DisableGeneralOptionsHandler: config.DisableGeneralOptionsHandler,
-	}
 	server := NewServer(
-		serverConfig,
+		config.Server,
 		router,
 		config.Logger,
 	)
-	server.maybeUpdateTimeout(time.Duration(config.Timeout.RequestTimeout) * time.Second)
+	server.maybeUpdateTimeout(time.Duration(config.Server.RequestTimeout) * time.Second)
 
 	rootGroup := NewGroup("")
 	// rootGroup.Timeout = NewTimeout(
@@ -337,10 +330,11 @@ func (app *App) ListenAndServe() error {
 	return app.Server.ListenAndServe()
 }
 
-// ListenAndServeTLS compiles and loads the registered Routes, and then starts the Server with SSL.
-func (app *App) ListenAndServeTLS() error {
+// ListenAndServeTLS compiles and loads the registered Routes, and then starts the Server with the
+// SSL certificate and key at the file paths passed as the arguments.
+func (app *App) ListenAndServeTLS(cert string, key string) error {
 	app.Compile()
-	return app.Server.ListenAndServeTLS()
+	return app.Server.ListenAndServeTLS(cert, key)
 }
 
 // Shutdown stops the Server.

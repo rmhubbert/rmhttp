@@ -16,7 +16,9 @@ import (
 // ------------------------------------------------------------------------------------------------
 
 var config = rmhttp.Config{
-	Port: defaultPort,
+	Server: rmhttp.ServerConfig{
+		Port: defaultPort,
+	},
 }
 
 // Test_Handler tests binding an rmhttp.Handler to a method & pattern with a selection of route

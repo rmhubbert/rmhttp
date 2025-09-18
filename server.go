@@ -9,20 +9,6 @@ import (
 )
 
 // ------------------------------------------------------------------------------------------------
-// SERVER CONFIG
-// ------------------------------------------------------------------------------------------------
-
-type ServerConfig struct {
-	TimeoutConfig
-	SSLConfig
-	Host                         string
-	Port                         int
-	Cert                         string
-	Key                          string
-	DisableGeneralOptionsHandler bool
-}
-
-// ------------------------------------------------------------------------------------------------
 // SERVER
 // ------------------------------------------------------------------------------------------------
 
@@ -32,10 +18,8 @@ type Server struct {
 	Server              http.Server
 	Router              http.Handler
 	Logger              *slog.Logger
-	Host                string
 	Port                int
-	cert                string
-	key                 string
+	Host                string
 	writeTimeoutPadding time.Duration
 }
 
@@ -53,16 +37,24 @@ func NewServer(
 			WriteTimeout:                 time.Duration(config.TCPWriteTimeout) * time.Second,
 			IdleTimeout:                  time.Duration(config.TCPIdleTimeout) * time.Second,
 			DisableGeneralOptionsHandler: config.DisableGeneralOptionsHandler,
+			// TLSConfig:                    config.TLSConfig,
+			// MaxHeaderBytes:               config.MaxHeaderBytes,
+			// TLSNextProto:                 config.TLSNextProto,
+			// ConnState:                    config.ConnState,
+			// ErrorLog:                     config.ErrorLog,
+			// BaseContext:                  config.BaseContext,
+			// ConnContext:                  config.ConnContext,
+			// HTTP2:                        config.HTTP2,
+			// Protocols:                    config.Protocols,
 		},
 		Router:              router,
 		Host:                config.Host,
 		Port:                config.Port,
-		cert:                config.Cert,
-		key:                 config.Key,
 		writeTimeoutPadding: time.Duration(config.TCPWriteTimeoutPadding) * time.Second,
 		Logger:              logger,
 	}
-	srv.Server.Addr = srv.Address()
+	srv.Server.Addr = fmt.Sprintf("%s:%d", config.Host, config.Port)
+	fmt.Printf("Server listening on %s\n", srv.Server.Addr)
 	return &srv
 }
 
@@ -80,11 +72,6 @@ func (srv *Server) maybeUpdateTimeout(timeout time.Duration) {
 	}
 }
 
-// Address returns the server host and port as a formatted string ($HOST:$PORT).
-func (srv *Server) Address() string {
-	return fmt.Sprintf("%s:%d", srv.Host, srv.Port)
-}
-
 // ListenAndServe directly proxies the http.Server.ListenAndServe method. It starts the server
 // without TLS support on the configured address and port.
 func (srv *Server) ListenAndServe() error {
@@ -93,8 +80,8 @@ func (srv *Server) ListenAndServe() error {
 
 // ListenAndServeTLS directly proxies the http.Server.ListenAndServeTLS method. It starts the
 // server with TLS support on the configured address and port.
-func (srv *Server) ListenAndServeTLS() error {
-	return srv.Server.ListenAndServeTLS(srv.cert, srv.key)
+func (srv *Server) ListenAndServeTLS(cert string, key string) error {
+	return srv.Server.ListenAndServeTLS(cert, key)
 }
 
 // Shutdown directly proxies the net/http.Server.Shutdown method. It will stop the Server, if

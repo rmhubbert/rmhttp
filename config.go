@@ -1,8 +1,13 @@
 package rmhttp
 
 import (
+	"context"
+	"crypto/tls"
 	"fmt"
+	"log"
 	"log/slog"
+	"net"
+	"net/http"
 
 	"dario.cat/mergo"
 	env "github.com/caarlos0/env/v11"
@@ -12,27 +17,29 @@ import (
 // TIMEOUT CONFIG
 // ------------------------------------------------------------------------------------------------
 
-// The TimeoutConfig contains settings (with defaults) for configuring timeouts in the system.
-// These settings mostly correlate to those used by the underlying http.Server
-type TimeoutConfig struct {
-	TCPReadTimeout         int    `env:"TCP_READ_TIMEOUT"         envDefault:"2"`
-	TCPReadHeaderTimeout   int    `env:"TCP_READ_HEADER_TIMEOUT"  envDefault:"1"`
-	TCPIdleTimeout         int    `env:"TCP_IDLE_TIMEOUT"         envDefault:"120"`
-	TCPWriteTimeout        int    `env:"TCP_WRITE_TIMEOUT"        envDefault:"5"`
-	TCPWriteTimeoutPadding int    `env:"TCP_WRITE_TIMEOUT_BUFFER" envDefault:"1"`
-	RequestTimeout         int    `env:"HTTP_REQUEST_TIMEOUT"     envDefault:"5"`
-	TimeoutMessage         string `env:"HTTP_TIMEOUT_MESSAGE"     envDefault:"Request Timeout"`
-}
-
-// ------------------------------------------------------------------------------------------------
-// SSL CONFIG
-// ------------------------------------------------------------------------------------------------
-
-// The SSLConfig contains settings (with defaults) for configuring SSL in the server.
-type SSLConfig struct {
-	Enable bool   `env:"ENABLE_SSL"`
-	Cert   string `env:"SSL_CERT"`
-	Key    string `env:"SSL_KEY"`
+// The ServerConfig contains settings (with defaults) for configuring the underlying http.Server,
+// as well as some additional timeout related properties. The server properties correlate to
+// those found at https://pkg.go.dev/net/http#Server.
+type ServerConfig struct {
+	TCPReadTimeout               int    `env:"TCP_READ_TIMEOUT"          envDefault:"2"`
+	TCPReadHeaderTimeout         int    `env:"TCP_READ_HEADER_TIMEOUT"   envDefault:"1"`
+	TCPIdleTimeout               int    `env:"TCP_IDLE_TIMEOUT"          envDefault:"120"`
+	TCPWriteTimeout              int    `env:"TCP_WRITE_TIMEOUT"         envDefault:"5"`
+	TCPWriteTimeoutPadding       int    `env:"TCP_WRITE_TIMEOUT_PADDING" envDefault:"1"`
+	RequestTimeout               int    `env:"HTTP_REQUEST_TIMEOUT"      envDefault:"5"`
+	TimeoutMessage               string `env:"HTTP_TIMEOUT_MESSAGE"      envDefault:"Request Timeout"`
+	Host                         string `env:"HOST"`
+	Port                         int    `env:"PORT"                      envDefault:"8080"`
+	DisableGeneralOptionsHandler bool
+	TLSConfig                    *tls.Config
+	MaxHeaderBytes               int
+	TLSNextProto                 map[string]func(*http.Server, *tls.Conn, http.Handler)
+	ConnState                    func(net.Conn, http.ConnState)
+	ErrorLog                     *log.Logger
+	BaseContext                  func(net.Listener) context.Context
+	ConnContext                  func(ctx context.Context, c net.Conn) context.Context
+	HTTP2                        *http.HTTP2Config
+	Protocols                    *http.Protocols
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -41,13 +48,9 @@ type SSLConfig struct {
 
 // The Config contains settings (with defaults) for configuring the app, server and router.
 type Config struct {
-	Host                         string `env:"HOST"`
-	Port                         int    `env:"PORT"  envDefault:"8080"`
-	Debug                        bool   `env:"DEBUG"`
-	DisableGeneralOptionsHandler bool
-	Logger                       *slog.Logger
-	SSL                          SSLConfig
-	Timeout                      TimeoutConfig
+	Debug  bool `env:"DEBUG"`
+	Logger *slog.Logger
+	Server ServerConfig
 }
 
 // loadConfig parses the environment variables defined in the Config objects (with defaults), then merges those
@@ -66,17 +69,11 @@ func LoadConfig(cfg Config) (Config, error) {
 		return config, fmt.Errorf("failed to merge user supplied and default configs: %v", err)
 	}
 
-	// Merge the SSL config
-	err = mergo.Merge(&config.SSL, cfg.SSL, mergo.WithOverride)
-	if err != nil {
-		return config, fmt.Errorf("failed to merge user supplied and default SSL configs: %v", err)
-	}
-
-	// Merge the Timeout config
-	err = mergo.Merge(&config.Timeout, cfg.Timeout, mergo.WithOverride)
+	// Merge the Server config
+	err = mergo.Merge(&config.Server, cfg.Server, mergo.WithOverride)
 	if err != nil {
 		return config, fmt.Errorf(
-			"failed to merge user supplied and default Timeout configs: %v",
+			"failed to merge user supplied and default server configs: %v",
 			err,
 		)
 	}
