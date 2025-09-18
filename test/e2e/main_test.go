@@ -15,7 +15,7 @@ import (
 // CONVENIENCE FUNCTIONS, CONSTANTS AND VARIABLES FOR E2E TESTING
 // ------------------------------------------------------------------------------------------------
 
-const defaultPort int = 8123
+const defaultPort int = 8321
 
 var testAddress string = "localhost:" + strconv.Itoa(defaultPort)
 
