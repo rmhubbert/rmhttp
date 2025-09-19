@@ -59,7 +59,8 @@ func Test_Router_ErrorHandlers(t *testing.T) {
 
 	out := &bytes.Buffer{}
 	logger := slog.New(slog.NewJSONHandler(out, nil))
-	router := NewRouter(logger)
+	slog.SetDefault(logger)
+	router := NewRouter()
 
 	router.Handle(
 		http.MethodGet,

@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
-	"log/slog"
 	"net"
 	"net/http"
 
@@ -49,7 +48,6 @@ type ServerConfig struct {
 // The Config contains settings (with defaults) for configuring the app, server and router.
 type Config struct {
 	Debug  bool `env:"DEBUG"`
-	Logger *slog.Logger
 	Server ServerConfig
 }
 

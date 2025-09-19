@@ -3,7 +3,6 @@ package rmhttp
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"time"
 )
@@ -17,7 +16,6 @@ import (
 type Server struct {
 	Server              http.Server
 	Router              http.Handler
-	Logger              *slog.Logger
 	Port                int
 	Host                string
 	writeTimeoutPadding time.Duration
@@ -27,7 +25,6 @@ type Server struct {
 func NewServer(
 	config ServerConfig,
 	router http.Handler,
-	logger *slog.Logger,
 ) *Server {
 	srv := Server{
 		Server: http.Server{
@@ -51,10 +48,8 @@ func NewServer(
 		Host:                config.Host,
 		Port:                config.Port,
 		writeTimeoutPadding: time.Duration(config.TCPWriteTimeoutPadding) * time.Second,
-		Logger:              logger,
 	}
 	srv.Server.Addr = fmt.Sprintf("%s:%d", config.Host, config.Port)
-	fmt.Printf("Server listening on %s\n", srv.Server.Addr)
 	return &srv
 }
 

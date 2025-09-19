@@ -1,11 +1,14 @@
 package e2e
 
 import (
-	"fmt"
+	"bytes"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
+	"testing"
 	"time"
 
 	"github.com/rmhubbert/rmhttp"
@@ -17,8 +20,8 @@ import (
 
 const defaultPort int = 8321
 
+var out = &bytes.Buffer{}
 var testAddress string = "localhost:" + strconv.Itoa(defaultPort)
-
 var handlerTests = []struct {
 	name       string
 	method     string
@@ -89,6 +92,12 @@ var handlerTests = []struct {
 	},
 }
 
+func TestMain(m *testing.M) {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(out, nil)))
+	exitCode := m.Run()
+	os.Exit(exitCode)
+}
+
 // createTestHandlerFunc creates, initialises, and returns a rmhttp.HandlerFunc compatible function.
 func createTestHandlerFunc(
 	status int,
@@ -124,7 +133,6 @@ func waitForServer(p int) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Server started successfully")
 		return
 	}
 	log.Fatalf("server on port %s is not up after 10 attempts", port)

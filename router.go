@@ -2,7 +2,6 @@ package rmhttp
 
 import (
 	"fmt"
-	"log/slog"
 	"net/http"
 )
 
@@ -16,15 +15,13 @@ import (
 // properly.
 type Router struct {
 	Mux           *http.ServeMux
-	Logger        *slog.Logger
 	errorHandlers map[int]http.Handler
 }
 
 // NewRouter intialises, creates, and then returns a pointer to a Router.
-func NewRouter(logger *slog.Logger) *Router {
+func NewRouter() *Router {
 	return &Router{
 		Mux:           http.NewServeMux(),
-		Logger:        logger,
 		errorHandlers: make(map[int]http.Handler),
 	}
 }

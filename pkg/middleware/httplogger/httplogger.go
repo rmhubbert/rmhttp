@@ -9,7 +9,7 @@ import (
 	"github.com/felixge/httpsnoop"
 )
 
-func Middleware(logger *slog.Logger) func(http.Handler) http.Handler {
+func Middleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// NOTE: CaptureMetrics triggers next.ServeHTTP(w, r) for you, so do not run it manually as well.
@@ -36,7 +36,7 @@ func Middleware(logger *slog.Logger) func(http.Handler) http.Handler {
 			logType := "http"
 
 			if code >= http.StatusBadRequest {
-				logger.Error(
+				slog.Error(
 					http.StatusText(code),
 					"type", logType,
 					"status", code,
@@ -53,7 +53,7 @@ func Middleware(logger *slog.Logger) func(http.Handler) http.Handler {
 				return
 			}
 
-			logger.Info(
+			slog.Info(
 				http.StatusText(m.Code),
 				"type", logType,
 				"status", code,

@@ -25,7 +25,6 @@ var defaultServerConfig = ServerConfig{
 
 var defaultConfig = Config{
 	Debug:  false,
-	Logger: nil,
 	Server: defaultServerConfig,
 }
 
@@ -43,7 +42,6 @@ func Test_LoadConfig_default(t *testing.T) {
 		Expected any
 	}{
 		{"default debug flag", cfg.Debug, defaultConfig.Debug},
-		{"default logger", cfg.Logger, defaultConfig.Logger},
 		{"default timeout config", cfg.Server, defaultConfig.Server},
 	}
 

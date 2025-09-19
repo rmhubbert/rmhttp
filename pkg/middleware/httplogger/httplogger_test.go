@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,6 +16,14 @@ import (
 // ------------------------------------------------------------------------------------------------
 // HTTP LOGGER TESTS
 // ------------------------------------------------------------------------------------------------
+
+var out = &bytes.Buffer{}
+
+func TestMain(m *testing.M) {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(out, nil)))
+	exitCode := m.Run()
+	os.Exit(exitCode)
+}
 
 type TestLogEntry struct {
 	Level  string `json:"level"`
@@ -62,13 +71,10 @@ func Test_HTTPLogger(t *testing.T) {
 		},
 	}
 
-	out := &bytes.Buffer{}
-	logger := slog.New(slog.NewJSONHandler(out, nil))
-
 	for _, test := range tests {
 		out.Reset()
 		t.Run(test.name, func(t *testing.T) {
-			handler := Middleware(logger)(test.handler)
+			handler := Middleware()(test.handler)
 			url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
 			if err != nil {

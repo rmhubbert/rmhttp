@@ -1,22 +1,26 @@
 package rmhttp
 
-import "net/http"
+import (
+	"bytes"
+	"log/slog"
+	"net/http"
+	"os"
+	"testing"
+)
 
 const (
 	testAddress string = "localhost:8080"
 )
 
-// MockLogger implements the Logger interface but doesn't do any logging. It's only used
-// in tests, where a logger needs passed to an initialising function, but we don't
-// need to test the logging.
-type MockLogger struct{}
+var out = &bytes.Buffer{}
 
-func (ml MockLogger) Debug(string, ...any) {}
-func (ml MockLogger) Info(string, ...any)  {}
-func (ml MockLogger) Warn(string, ...any)  {}
-func (ml MockLogger) Error(string, ...any) {}
+func TestMain(m *testing.M) {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(out, nil)))
+	exitCode := m.Run()
+	os.Exit(exitCode)
+}
 
-// createTestHandlerFunc creates, initialises, and returns an http.HandlerFunc compatible function.
+// creaeTestHandlerFunc creates, initialises, and returns an http.HandlerFunc compatible function.
 func createTestHandlerFunc(
 	status int,
 	body string,

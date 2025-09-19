@@ -6,9 +6,7 @@ package rmhttp
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -22,7 +20,6 @@ import (
 // App encapsulates the application and provides the public API, as well as orchestrating the core
 // library functionality.
 type App struct {
-	logger        *slog.Logger
 	Server        *Server
 	Router        *Router
 	rootGroup     *Group
@@ -44,26 +41,10 @@ func New(c ...Config) *App {
 		panic("cannot load config")
 	}
 
-	// If a custom logger hasn't been passed through the config, create one with
-	// sensible defaults.
-	if config.Logger == nil {
-		logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-		if config.Debug {
-			logger.Debug("creating slog logger with loglevel set to DEBUG")
-			logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-				Level: slog.LevelDebug,
-			}))
-		}
-		logger.Debug("setting logger as default")
-		slog.SetDefault(logger)
-		config.Logger = logger
-	}
-
-	router := NewRouter(config.Logger)
+	router := NewRouter()
 	server := NewServer(
 		config.Server,
 		router,
-		config.Logger,
 	)
 	server.maybeUpdateTimeout(time.Duration(config.Server.RequestTimeout) * time.Second)
 
@@ -81,7 +62,6 @@ func New(c ...Config) *App {
 	return &App{
 		Server:        server,
 		Router:        router,
-		logger:        config.Logger,
 		rootGroup:     rootGroup,
 		errorHandlers: errorHandlers,
 	}
