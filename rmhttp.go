@@ -318,6 +318,6 @@ func (app *App) ListenAndServeTLS(cert string, key string) error {
 }
 
 // Shutdown stops the Server.
-func (app *App) Shutdown() error {
-	return app.Server.Shutdown(context.Background())
+func (app *App) Shutdown(ctx context.Context) error {
+	return app.Server.Shutdown(ctx)
 }
