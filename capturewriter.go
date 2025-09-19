@@ -84,3 +84,10 @@ func (cw *CaptureWriter) Flush() {
 		flusher.Flush()
 	}
 }
+
+// Unwrap returns the underlying http.ResponseWriter. It is used internally by
+// http.ResponseController, which allows you to use custom http.ResponseWriter
+// instances more easily.
+func (cw *CaptureWriter) Unwrap() http.ResponseWriter {
+	return cw.Writer
+}
