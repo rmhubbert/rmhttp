@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -27,7 +28,7 @@ func Test_Handle(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New(config)
 	defer func() {
-		_ = app.Shutdown()
+		_ = app.Shutdown(context.Background())
 	}()
 
 	// Add handlers for all of our tests
@@ -84,7 +85,7 @@ func Test_HandleFunc(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New(config)
 	defer func() {
-		_ = app.Shutdown()
+		_ = app.Shutdown(context.Background())
 	}()
 
 	// Add handlers for all of our tests
@@ -141,7 +142,7 @@ func Test_Route(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New(config)
 	defer func() {
-		_ = app.Shutdown()
+		_ = app.Shutdown(context.Background())
 	}()
 
 	// Add handlers for all of our tests
@@ -201,7 +202,7 @@ func Test_Group(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New(config)
 	defer func() {
-		_ = app.Shutdown()
+		_ = app.Shutdown(context.Background())
 	}()
 
 	group := app.Group("/group")
@@ -263,7 +264,7 @@ func Test_Convenience_Handlers(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New(config)
 	defer func() {
-		_ = app.Shutdown()
+		_ = app.Shutdown(context.Background())
 	}()
 
 	tests := []struct {
@@ -330,7 +331,7 @@ func Test_Error_Handlers(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New(config)
 	defer func() {
-		_ = app.Shutdown()
+		_ = app.Shutdown(context.Background())
 	}()
 
 	tests := []struct {
@@ -407,7 +408,7 @@ func Test_Route_With_Headers(t *testing.T) {
 	// Set up the App
 	app := rmhttp.New(config)
 	defer func() {
-		_ = app.Shutdown()
+		_ = app.Shutdown(context.Background())
 	}()
 
 	// Add handlers for all of our tests
