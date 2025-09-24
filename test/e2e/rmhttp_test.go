@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rmhubbert/rmhttp"
+	"github.com/rmhubbert/rmhttp/v5"
 	"github.com/stretchr/testify/assert"
 )
 

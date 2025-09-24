@@ -1,4 +1,4 @@
-module github.com/rmhubbert/rmhttp/pkg/middleware/headers
+module github.com/rmhubbert/rmhttp/pkg/middleware/headers/v5
 
 go 1.25.1
 
