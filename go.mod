@@ -1,4 +1,4 @@
-module github.com/rmhubbert/rmhttp/v4
+module github.com/rmhubbert/rmhttp/v5
 
 go 1.25.1
 
