@@ -13,7 +13,7 @@ This package aims to make it easier to configure your routes and middleware, but
 Run the following command from your project root directory to install **rmhttp** into your project.
 
 ```bash
-go get github.com/rmhubbert/rmhttp
+go get github.com/rmhubbert/rmhttp/v5
 ```
 
 ## Quickstart
@@ -27,7 +27,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/rmhubbert/rmhttp"
+	"github.com/rmhubbert/rmhttp/v5"
 )
 
 func myHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +68,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/rmhubbert/rmhttp"
+	"github.com/rmhubbert/rmhttp/v5"
 )
 
 func my404Handler := func(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +102,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/rmhubbert/rmhttp"
+	"github.com/rmhubbert/rmhttp/v5"
 )
 
 func myHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -131,7 +131,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/rmhubbert/rmhttp"
+	"github.com/rmhubbert/rmhttp/v5"
 )
 
 func myHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -158,7 +158,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/rmhubbert/rmhttp"
+	"github.com/rmhubbert/rmhttp/v5"
 )
 
 func myHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -185,8 +185,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/rmhubbert/rmhttp"
-	"github.com/rmhubbert/rmhttp/middleware/recoverer"
+	"github.com/rmhubbert/rmhttp/v5"
+	"github.com/rmhubbert/rmhttp/v5/pkg/middleware/recoverer"
 )
 
 func myHandler := func(w http.ResponseWriter, r *http.Request) {
