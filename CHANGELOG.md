@@ -1,4 +1,9 @@
 
+## [v5.1.0] - 2025-09-24
+### :bug: Bug Fixes
+- [`c9f93b5`](https://github.com/rmhubbert/rmhttp/commit/c9f93b562b9f7d0587b35d4b019ae708d74b32f8) - update mod version to 4 *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.0.0] - 2025-09-24
 ### :boom: BREAKING CHANGES
 - due to [`245d273`](https://github.com/rmhubbert/rmhttp/commit/245d273f3d1fae43af8aa54f58b94065c81bc04d) - update public Shutdown method to accept a context *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
@@ -349,3 +354,4 @@
 [v4.0.0]: https://github.com/rmhubbert/rmhttp/compare/v3.0.0...v4.0.0
 [v4.1.0]: https://github.com/rmhubbert/rmhttp/compare/v4.0.0...v4.1.0
 [v5.0.0]: https://github.com/rmhubbert/rmhttp/compare/v4.1.0...v5.0.0
+[v5.1.0]: https://github.com/rmhubbert/rmhttp/compare/v5.0.0...v5.1.0
