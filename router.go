@@ -32,8 +32,12 @@ func NewRouter() *Router {
 // We also intercept any error handlers returned by the underlying mux, and replace them with any
 // custom error handlers that have been registered.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	handler, pattern := rt.Mux.Handler(r)
+	if len(rt.errorHandlers) == 0 {
+		rt.Mux.ServeHTTP(w, r)
+		return
+	}
 
+	handler, pattern := rt.Mux.Handler(r)
 	if pattern == "" && handler != nil {
 		// If pattern is empty, we have an internal error handler. Check to see if we have a custom
 		// error handler for this error code, and use that if we do.
@@ -44,7 +48,6 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			handler = h
 		}
 	}
-
 	handler.ServeHTTP(w, r)
 }
 
