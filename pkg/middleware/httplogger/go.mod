@@ -1,4 +1,4 @@
-module github.com/rmhubbert/rmhttp/pkg/middleware/httplogger/v4
+module github.com/rmhubbert/rmhttp/pkg/middleware/httplogger
 
 go 1.25.1
 

@@ -1,4 +1,4 @@
-module github.com/rmhubbert/rmhttp/pkg/middleware/recoverer/v4
+module github.com/rmhubbert/rmhttp/pkg/middleware/recoverer
 
 go 1.25.1
 
