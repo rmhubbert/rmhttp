@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rmhubbert/rmhttp"
+	"github.com/rmhubbert/rmhttp/v4"
 )
 
 // ------------------------------------------------------------------------------------------------
