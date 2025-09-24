@@ -5,7 +5,7 @@ go 1.25.1
 require (
 	dario.cat/mergo v1.0.2
 	github.com/caarlos0/env/v11 v11.3.1
-	github.com/rmhubbert/rmhttp/pkg/middleware/headers v0.0.0-20250918160022-7edc1ddb5bfc
+	github.com/rmhubbert/rmhttp/pkg/middleware/headers v0.0.0-20250924102545-743585ed1eb1
 	github.com/stretchr/testify v1.11.1
 )
 

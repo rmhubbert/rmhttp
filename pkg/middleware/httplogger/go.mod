@@ -1,6 +1,6 @@
-module github.com/rmhubbert/rmhttp/pkg/middleware/httplogger
+module github.com/rmhubbert/rmhttp/pkg/middleware/httplogger/v4
 
-go 1.24.6
+go 1.25.1
 
 require (
 	github.com/felixge/httpsnoop v1.0.4
