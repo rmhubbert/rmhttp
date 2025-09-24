@@ -5,6 +5,8 @@ go 1.25.1
 require (
 	dario.cat/mergo v1.0.2
 	github.com/caarlos0/env/v11 v11.3.1
+	github.com/felixge/httpsnoop v1.0.4
+	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.11.1
 )
 

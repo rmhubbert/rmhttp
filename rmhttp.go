@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rmhubbert/rmhttp/pkg/middleware/headers/v5"
+	"github.com/rmhubbert/rmhttp/v5/pkg/middleware/headers"
 )
 
 // ------------------------------------------------------------------------------------------------
