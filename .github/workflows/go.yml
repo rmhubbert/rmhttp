@@ -47,12 +47,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.24.x
+          go-version: 1.25.x
 
       - name: Lint
         uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.3
+          version: v2.4
           # args: -E staticcheck -E goimports -E gofmt -E gomoddirectives -E gosec -E predeclared -E bodyclose -E durationcheck -E errname -E gocheckcompilerdirectives -E nosprintfhostport -E reassign -E testifylint
 
   #################################################
@@ -70,7 +70,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.24.x
+          go-version: 1.25.x
 
       - name: Unit Tests
         run: go test -race -vet=off -v ./...
