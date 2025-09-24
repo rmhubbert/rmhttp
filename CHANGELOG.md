@@ -1,4 +1,9 @@
 
+## [v5.3.1] - 2025-09-24
+### :zap: Performance Improvements
+- [`ec5a525`](https://github.com/rmhubbert/rmhttp/commit/ec5a525f6a5677158dd350b3fc3ff3f888807362) - short circuit custom error handler loading if no custom error handlers have been registered *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.1.0] - 2025-09-24
 ### :bug: Bug Fixes
 - [`c9f93b5`](https://github.com/rmhubbert/rmhttp/commit/c9f93b562b9f7d0587b35d4b019ae708d74b32f8) - update mod version to 4 *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -355,3 +360,4 @@
 [v4.1.0]: https://github.com/rmhubbert/rmhttp/compare/v4.0.0...v4.1.0
 [v5.0.0]: https://github.com/rmhubbert/rmhttp/compare/v4.1.0...v5.0.0
 [v5.1.0]: https://github.com/rmhubbert/rmhttp/compare/v5.0.0...v5.1.0
+[v5.3.1]: https://github.com/rmhubbert/rmhttp/compare/v5.3.0...v5.3.1
