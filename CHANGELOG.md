@@ -1,4 +1,24 @@
 
+## [v5.0.0] - 2025-09-24
+### :boom: BREAKING CHANGES
+- due to [`245d273`](https://github.com/rmhubbert/rmhttp/commit/245d273f3d1fae43af8aa54f58b94065c81bc04d) - update public Shutdown method to accept a context *(commit by [@rmhubbert](https://github.com/rmhubbert))*:
+
+  update public Shutdown method to accept a context
+
+
+### :sparkles: New Features
+- [`45cd3ea`](https://github.com/rmhubbert/rmhttp/commit/45cd3eae9b9c0109a3505cc3e96247d12bf63ff5) - add Unwrap method for http.ResponseController compatibility *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`245d273`](https://github.com/rmhubbert/rmhttp/commit/245d273f3d1fae43af8aa54f58b94065c81bc04d) - update public Shutdown method to accept a context *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`6e1614b`](https://github.com/rmhubbert/rmhttp/commit/6e1614bfd15455135f2bbc068dc390b3818f58fb) - add clientoptions initialisation to sentry middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`c5958be`](https://github.com/rmhubbert/rmhttp/commit/c5958bed0ed6265bffd45d5f5248f2b1cfecd2d1) - remove sentry middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`1d6096d`](https://github.com/rmhubbert/rmhttp/commit/1d6096dda58926ee9f87202ed54bd8949029f61e) - use the default slog.Logger instance *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`743585e`](https://github.com/rmhubbert/rmhttp/commit/743585ed1eb17da95eb031c5d0d1b0354a989c32) - fix Shutdown missing argument *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v4.1.0] - 2025-09-18
 ### :sparkles: New Features
 - [`ccc1b6b`](https://github.com/rmhubbert/rmhttp/commit/ccc1b6bae08001b8a08e99461d2941a23643b74e) - add env variable for MaxHeaderBytes in the ServerConfig *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -328,3 +348,4 @@
 [v3.0.0]: https://github.com/rmhubbert/rmhttp/compare/v2.1.0...v3.0.0
 [v4.0.0]: https://github.com/rmhubbert/rmhttp/compare/v3.0.0...v4.0.0
 [v4.1.0]: https://github.com/rmhubbert/rmhttp/compare/v4.0.0...v4.1.0
+[v5.0.0]: https://github.com/rmhubbert/rmhttp/compare/v4.1.0...v5.0.0
