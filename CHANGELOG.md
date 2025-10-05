@@ -1,4 +1,9 @@
 
+## [v5.4.0] - 2025-10-05
+### :sparkles: New Features
+- [`a2fc56e`](https://github.com/rmhubbert/rmhttp/commit/a2fc56e04a31eecc310b3542e234dbb5b68b16e1) - add apikey middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.3.1] - 2025-09-24
 ### :zap: Performance Improvements
 - [`ec5a525`](https://github.com/rmhubbert/rmhttp/commit/ec5a525f6a5677158dd350b3fc3ff3f888807362) - short circuit custom error handler loading if no custom error handlers have been registered *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -361,3 +366,4 @@
 [v5.0.0]: https://github.com/rmhubbert/rmhttp/compare/v4.1.0...v5.0.0
 [v5.1.0]: https://github.com/rmhubbert/rmhttp/compare/v5.0.0...v5.1.0
 [v5.3.1]: https://github.com/rmhubbert/rmhttp/compare/v5.3.0...v5.3.1
+[v5.4.0]: https://github.com/rmhubbert/rmhttp/compare/v5.3.1...v5.4.0
