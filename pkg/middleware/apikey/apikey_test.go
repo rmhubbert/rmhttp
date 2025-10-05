@@ -10,15 +10,15 @@ import (
 )
 
 // ------------------------------------------------------------------------------------------------
-// RECOVERER TESTS
+// APIKEY TESTS
 // ------------------------------------------------------------------------------------------------
 
 const (
 	testAddress string = "localhost:8123"
 )
 
-// Test_Recoverer checks that a panic thrown within a request can be recovered from, and then
-// return an appropriate error.
+// Test_ApiKey tests the apikey middleware to ensure that requests made without the required API
+// key are rejected, while requests with a valid API key are allowed.
 func Test_ApiKey(t *testing.T) {
 	testPattern := "/test"
 	keys := []string{
