@@ -1,4 +1,9 @@
 
+## [v5.6.0] - 2025-10-27
+### :bug: Bug Fixes
+- [`1330246`](https://github.com/rmhubbert/rmhttp/commit/1330246df70fbba83b8569a29ca5e053e9cc1686) - group route prefixes not being applied *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.5.1] - 2025-10-27
 ### :bug: Bug Fixes
 - [`21c3bb2`](https://github.com/rmhubbert/rmhttp/commit/21c3bb2aad3dbae2978f4b86531d5472bf98c490) - incorrect go.mod versioning causing v5.0.0 and v5.1.0 to fail *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -373,3 +378,4 @@
 [v5.3.1]: https://github.com/rmhubbert/rmhttp/compare/v5.3.0...v5.3.1
 [v5.4.0]: https://github.com/rmhubbert/rmhttp/compare/v5.3.1...v5.4.0
 [v5.5.1]: https://github.com/rmhubbert/rmhttp/compare/v5.5.0...v5.5.1
+[v5.6.0]: https://github.com/rmhubbert/rmhttp/compare/v5.5.1...v5.6.0
