@@ -1,4 +1,9 @@
 
+## [v5.5.1] - 2025-10-27
+### :bug: Bug Fixes
+- [`21c3bb2`](https://github.com/rmhubbert/rmhttp/commit/21c3bb2aad3dbae2978f4b86531d5472bf98c490) - incorrect go.mod versioning causing v5.0.0 and v5.1.0 to fail *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.4.0] - 2025-10-05
 ### :sparkles: New Features
 - [`a2fc56e`](https://github.com/rmhubbert/rmhttp/commit/a2fc56e04a31eecc310b3542e234dbb5b68b16e1) - add apikey middleware *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -367,3 +372,4 @@
 [v5.1.0]: https://github.com/rmhubbert/rmhttp/compare/v5.0.0...v5.1.0
 [v5.3.1]: https://github.com/rmhubbert/rmhttp/compare/v5.3.0...v5.3.1
 [v5.4.0]: https://github.com/rmhubbert/rmhttp/compare/v5.3.1...v5.4.0
+[v5.5.1]: https://github.com/rmhubbert/rmhttp/compare/v5.5.0...v5.5.1
