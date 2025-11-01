@@ -1,4 +1,9 @@
 
+## [v5.7.0] - 2025-11-01
+### :white_check_mark: Tests
+- [`dd9ed2a`](https://github.com/rmhubbert/rmhttp/commit/dd9ed2aa886b018897333a737c0b4bde78f9f322) - remove debugging statement and fix typo *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.6.0] - 2025-10-27
 ### :bug: Bug Fixes
 - [`1330246`](https://github.com/rmhubbert/rmhttp/commit/1330246df70fbba83b8569a29ca5e053e9cc1686) - group route prefixes not being applied *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -379,3 +384,4 @@
 [v5.4.0]: https://github.com/rmhubbert/rmhttp/compare/v5.3.1...v5.4.0
 [v5.5.1]: https://github.com/rmhubbert/rmhttp/compare/v5.5.0...v5.5.1
 [v5.6.0]: https://github.com/rmhubbert/rmhttp/compare/v5.5.1...v5.6.0
+[v5.7.0]: https://github.com/rmhubbert/rmhttp/compare/v5.6.0...v5.7.0
