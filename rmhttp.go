@@ -295,7 +295,7 @@ func (app *App) Compile() {
 			)
 		}
 
-		app.Router.Handle(route.Method, route.Pattern, handler)
+		app.Router.Handle(route.Method, route.ComputedPattern(), handler)
 	}
 
 	// Add the error handlers to the router with any global middleware added.
