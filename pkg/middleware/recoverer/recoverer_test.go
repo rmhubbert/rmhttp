@@ -33,7 +33,7 @@ func Test_Recoverer(t *testing.T) {
 			http.StatusInternalServerError,
 			true,
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				panic("Paniced!")
+				panic("Panicked!")
 			}),
 		},
 		{

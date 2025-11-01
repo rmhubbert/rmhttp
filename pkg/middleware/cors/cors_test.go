@@ -123,7 +123,6 @@ func Test_Cors(t *testing.T) {
 			)
 
 			for k, v := range test.expectedHeaders {
-				fmt.Println("HEADER: ", res.Header.Get(k))
 				assert.Equal(t, v, res.Header.Get(k), "they should be equal")
 			}
 		})
