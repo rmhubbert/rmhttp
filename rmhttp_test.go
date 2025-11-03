@@ -324,3 +324,31 @@ func Test_Compile(t *testing.T) {
 	assert.Equal(t, "mw1", res.Header.Get("x-mw1"), "they should be equal")
 	assert.Equal(t, "mw2", res.Header.Get("x-mw2"), "they should be equal")
 }
+
+// Benchmark_Compile benchmarks the performance of compiling routes with middleware.
+// It sets up an app with multiple routes and groups to simulate real-world usage.
+func Benchmark_Compile(b *testing.B) {
+	// Setup: create an app with a variety of routes and groups
+	app := New()
+
+	// Add direct routes
+	for i := range 50 {
+		app.Get(fmt.Sprintf("/route%d", i), createTestHandlerFunc(200, "ok"))
+	}
+
+	// Add groups with nested routes
+	for i := range 10 {
+		g := app.Group(fmt.Sprintf("/group%d", i))
+		for j := range 10 {
+			g.Get(fmt.Sprintf("/sub%d", j), createTestHandlerFunc(200, "ok"))
+		}
+		// Add some middleware to groups for realism
+		g.Use(createTestMiddlewareHandler("x-group", fmt.Sprintf("group%d", i)))
+	}
+
+	// Benchmark Compile() - reset the router each iteration to avoid conflicts
+	for b.Loop() {
+		app.Router = NewRouter()
+		app.Compile()
+	}
+}
