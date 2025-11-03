@@ -1,4 +1,9 @@
 
+## [v5.8.0] - 2025-11-03
+### :white_check_mark: Tests
+- [`588c288`](https://github.com/rmhubbert/rmhttp/commit/588c288c31c781ffeb829b6781c066759718d0d6) - add compile benchmark *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.7.0] - 2025-11-01
 ### :white_check_mark: Tests
 - [`dd9ed2a`](https://github.com/rmhubbert/rmhttp/commit/dd9ed2aa886b018897333a737c0b4bde78f9f322) - remove debugging statement and fix typo *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -385,3 +390,4 @@
 [v5.5.1]: https://github.com/rmhubbert/rmhttp/compare/v5.5.0...v5.5.1
 [v5.6.0]: https://github.com/rmhubbert/rmhttp/compare/v5.5.1...v5.6.0
 [v5.7.0]: https://github.com/rmhubbert/rmhttp/compare/v5.6.0...v5.7.0
+[v5.8.0]: https://github.com/rmhubbert/rmhttp/compare/v5.7.0...v5.8.0
