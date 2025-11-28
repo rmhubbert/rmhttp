@@ -139,7 +139,7 @@ func (group *Group) Route(route *Route) *Group {
 // This method will return a pointer to the receiver Group, allowing the user to chain any of the
 // other builder methods that Group implements.
 func (group *Group) Group(g *Group) *Group {
-	group.Groups[group.Pattern] = g
+	group.Groups[g.Pattern] = g
 	g.Parent = group
 	return group
 }
