@@ -1,4 +1,9 @@
 
+## [v5.9.0] - 2025-11-28
+### :bug: Bug Fixes
+- [`3fac5b2`](https://github.com/rmhubbert/rmhttp/commit/3fac5b24ec08a350cd8da59120a29f480cea2e5b) - sub groups can be overwritten by adding a sibling sub group *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.8.0] - 2025-11-03
 ### :white_check_mark: Tests
 - [`588c288`](https://github.com/rmhubbert/rmhttp/commit/588c288c31c781ffeb829b6781c066759718d0d6) - add compile benchmark *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -391,3 +396,4 @@
 [v5.6.0]: https://github.com/rmhubbert/rmhttp/compare/v5.5.1...v5.6.0
 [v5.7.0]: https://github.com/rmhubbert/rmhttp/compare/v5.6.0...v5.7.0
 [v5.8.0]: https://github.com/rmhubbert/rmhttp/compare/v5.7.0...v5.8.0
+[v5.9.0]: https://github.com/rmhubbert/rmhttp/compare/v5.8.0...v5.9.0
