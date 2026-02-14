@@ -1,4 +1,12 @@
 
+## [v5.10.0] - 2026-02-14
+### :bug: Bug Fixes
+- [`e4ddddf`](https://github.com/rmhubbert/rmhttp/commit/e4ddddf5fd5015f74fc3d28a24481b19a19d1dfa) - dynamic parameters are not parsed *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`25dcd25`](https://github.com/rmhubbert/rmhttp/commit/25dcd257816e777ffd8e338e5de672342197ab98) - add e2e tests to ensure dynamic paramters are properly parsed and added to the request *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.9.0] - 2025-11-28
 ### :bug: Bug Fixes
 - [`3fac5b2`](https://github.com/rmhubbert/rmhttp/commit/3fac5b24ec08a350cd8da59120a29f480cea2e5b) - sub groups can be overwritten by adding a sibling sub group *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -397,3 +405,4 @@
 [v5.7.0]: https://github.com/rmhubbert/rmhttp/compare/v5.6.0...v5.7.0
 [v5.8.0]: https://github.com/rmhubbert/rmhttp/compare/v5.7.0...v5.8.0
 [v5.9.0]: https://github.com/rmhubbert/rmhttp/compare/v5.8.0...v5.9.0
+[v5.10.0]: https://github.com/rmhubbert/rmhttp/compare/v5.9.0...v5.10.0
