@@ -30,7 +30,12 @@ func Test_Group_Handle(t *testing.T) {
 		t.Errorf("route not found: %s", expectedKey)
 	} else {
 		assert.Equal(t, "GET", route.Method, "they should be equal")
-		assert.Equal(t, fmt.Sprintf("%s%s", groupPattern, handlerPattern), route.ComputedPattern(), "they should be equal")
+		assert.Equal(
+			t,
+			fmt.Sprintf("%s%s", groupPattern, handlerPattern),
+			route.ComputedPattern(),
+			"they should be equal",
+		)
 		assert.NotNil(t, route.Handler, "it should not be nil")
 	}
 }
@@ -53,7 +58,12 @@ func Test_Group_HandleFunc(t *testing.T) {
 		t.Errorf("route not found: %s", expectedKey)
 	} else {
 		assert.Equal(t, "GET", route.Method, "they should be equal")
-		assert.Equal(t, fmt.Sprintf("%s%s", groupPattern, handlerPattern), route.ComputedPattern(), "they should be equal")
+		assert.Equal(
+			t,
+			fmt.Sprintf("%s%s", groupPattern, handlerPattern),
+			route.ComputedPattern(),
+			"they should be equal",
+		)
 		assert.NotNil(t, route.Handler, "it should not be nil")
 	}
 }
@@ -101,7 +111,12 @@ func Test_Group_Convenience_Handlers(t *testing.T) {
 				t.Errorf("route not found: %s", expectedKey)
 			} else {
 				assert.Equal(t, test.method, route.Method, "they should be equal")
-				assert.Equal(t, fmt.Sprintf("%s%s", groupPattern, handlerPattern), route.ComputedPattern(), "they should be equal")
+				assert.Equal(
+					t,
+					fmt.Sprintf("%s%s", groupPattern, handlerPattern),
+					route.ComputedPattern(),
+					"they should be equal",
+				)
 				assert.NotNil(t, route.Handler, "it should not be nil")
 			}
 		})
