@@ -32,23 +32,25 @@ func NewRouter() *Router {
 // We also intercept any error handlers returned by the underlying mux, and replace them with any
 // custom error handlers that have been registered.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if len(rt.errorHandlers) == 0 {
-		rt.Mux.ServeHTTP(w, r)
-		return
-	}
-
 	handler, pattern := rt.Mux.Handler(r)
+
+	// Check if we have a custom error handler for this request
 	if pattern == "" && handler != nil {
-		// If pattern is empty, we have an internal error handler. Check to see if we have a custom
-		// error handler for this error code, and use that if we do.
+		// If pattern is empty, we have an internal error handler (404 or 405).
+		// Check to see if we have a custom error handler for this error code.
 		cw := NewCaptureWriter(w)
 		cw.PassThrough = false
 		handler.ServeHTTP(cw, r)
 		if h, ok := rt.errorHandlers[cw.Code]; ok {
 			handler = h
 		}
+		// Use the custom error handler
+		handler.ServeHTTP(w, r)
+		return
 	}
-	handler.ServeHTTP(w, r)
+
+	// For normal requests, use the mux's ServeHTTP to ensure path values are extracted
+	rt.Mux.ServeHTTP(w, r)
 }
 
 // AddErrorHandler maps the passed response code and handler. These error handlers will be used
