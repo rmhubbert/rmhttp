@@ -2,6 +2,59 @@
 // by http.Server and http.ServeMux, and adds an intuitive fluent interface for easy use and
 // configuration of route grouping, logging, CORS, panic recovery, header management, timeouts,
 // and middleware.
+//
+// # Pattern Matching
+//
+// Routes use Go's net/http.ServeMux pattern matching with these features:
+//
+//	Path Parameters:
+//	  - Use {param} for named path parameters (e.g., /users/{id})
+//	  - Access via r.PathValue("param") in handlers
+//
+//	Wildcard Patterns:
+//	  - Use {param...} for trailing wildcard parameters (e.g., /files/{path...})
+//	  - Matches any remaining path segments
+//
+//	Method-Specific Routes:
+//	  - Include method in pattern: POST /users/{id}
+//	  - Method-specific routes take precedence over generic routes
+//
+//	Pattern Precedence:
+//	  1. Exact match with method (e.g., GET /users)
+//	  2. Exact match without method (e.g., /users)
+//	  3. Wildcard match (e.g., /files/{path...})
+//
+// Examples:
+//
+//	app.Get("/users/{id}", handler)              // Path parameter
+//	app.Post("/users/{id}", handler)             // Method-specific
+//	app.Get("/files/{path...}", handler)         // Wildcard
+//	app.Get("/api/{version}/users/{id}", handler) // Multiple params
+//
+// # Middleware
+//
+// Middleware functions are applied in the order they are added, with each
+// middleware wrapping the next. The first middleware added runs first on
+// requests and last on responses.
+//
+// Example:
+//
+//	app.Use(middleware1)  // Runs first on request, last on response
+//	app.Use(middleware2)  // Runs second on request, second on response
+//	app.Use(middleware3)  // Runs third on request, first on response
+//
+// Request flow: middleware1 → middleware2 → middleware3 → handler
+// Response flow: handler → middleware3 → middleware2 → middleware1
+//
+// # Concurrency
+//
+// The App and Server types are designed to be used from multiple goroutines:
+//
+//   - Route registration (Get, Post, etc.) is safe for concurrent use
+//   - Middleware registration is safe for concurrent use
+//   - Server.Start() should be called from a single goroutine
+//
+// The underlying http.ServeMux is used for thread-safe route matching.
 package rmhttp
 
 import (

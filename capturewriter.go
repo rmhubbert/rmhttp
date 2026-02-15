@@ -14,6 +14,10 @@ import (
 // A CaptureWriter wraps a http.ResponseWriter in order to capture HTTP the response code & body
 // that handlers will set. We do this to allow reading these values after they have been set,
 // as this is not normally possible on a ResponseWriter.
+//
+// CaptureWriter is designed to be used for a single request/response cycle.
+// While it has internal synchronization for the Code and Body fields,
+// it should not be shared across concurrent requests.
 type CaptureWriter struct {
 	Writer      http.ResponseWriter
 	Code        int
