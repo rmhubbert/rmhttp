@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -101,4 +102,40 @@ func Test_Router_ErrorHandlers(t *testing.T) {
 			assert.Equal(t, test.expectedCode, res.StatusCode, "they should be equal")
 		})
 	}
+}
+
+// Test_Router_ConcurrentAccess verifies that the router handles concurrent access safely.
+func Test_Router_ConcurrentAccess(t *testing.T) {
+	router := NewRouter()
+	var wg sync.WaitGroup
+
+	// Add a route that will be accessed after concurrent operations
+	router.Handle(
+		http.MethodGet,
+		"/test",
+		http.HandlerFunc(createTestHandlerFunc(http.StatusOK, "test body")),
+	)
+
+	// Concurrently add error handlers and serve requests
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			router.AddErrorHandler(http.StatusNotFound,
+				http.HandlerFunc(createTestHandlerFunc(http.StatusNotFound, "404")))
+
+			req := httptest.NewRequest(http.MethodGet, "/nonexistent", nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+		}(i)
+	}
+
+	wg.Wait()
+
+	// Verify router is still functional
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "test body", w.Body.String())
 }
