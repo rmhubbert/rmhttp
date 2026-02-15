@@ -35,6 +35,9 @@ func NewRoute(method string, pattern string, handler http.Handler) *Route {
 	if !slices.Contains(ValidHTTPMethods(), m) {
 		method = http.MethodGet
 	}
+	if err := validatePattern(pattern); err != nil {
+		panic(fmt.Sprintf("invalid route pattern: %v", err))
+	}
 	return &Route{
 		Method:  method,
 		Pattern: strings.ToLower(pattern),
@@ -168,4 +171,33 @@ func (route *Route) WithHeader(key, value string) *Route {
 // String is used internally to calculate a string signature for use as map keys, etc.
 func (route *Route) String() string {
 	return fmt.Sprint(route.Method, " ", route.Pattern)
+}
+
+// validatePattern checks if a route pattern is valid
+func validatePattern(pattern string) error {
+	if pattern == "" {
+		return fmt.Errorf("route pattern cannot be empty")
+	}
+
+	if len(pattern) > 256 {
+		return fmt.Errorf("route pattern too long (max 256 chars): %s", pattern)
+	}
+
+	// Check for balanced braces in path parameters
+	openBraces := strings.Count(pattern, "{")
+	closeBraces := strings.Count(pattern, "}")
+	if openBraces != closeBraces {
+		return fmt.Errorf("unbalanced braces in pattern: %s", pattern)
+	}
+
+	// Check for invalid characters (basic validation)
+	// Allow alphanumeric, /, -, _, ., {, }, and ...
+	for _, r := range pattern {
+		if (r < 'a' || r > 'z') && (r < 'A' || r > 'Z') && (r < '0' || r > '9') &&
+			r != '/' && r != '-' && r != '_' && r != '.' && r != '{' && r != '}' {
+			return fmt.Errorf("invalid character '%c' in pattern: %s", r, pattern)
+		}
+	}
+
+	return nil
 }
