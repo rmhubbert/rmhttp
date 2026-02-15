@@ -1,6 +1,7 @@
 package rmhttp
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -129,8 +130,11 @@ func (group *Group) Options(
 // This method will return a pointer to the receiver Group, allowing the user to chain any of the
 // other builder methods that Group implements.
 func (group *Group) Route(route *Route) *Group {
-	group.Routes[route.String()] = route
+	// Use the fully computed pattern to avoid collisions
+	// We need to temporarily set the parent to compute the full pattern
 	route.Parent = group
+	computedKey := fmt.Sprintf("%s %s", route.Method, route.ComputedPattern())
+	group.Routes[computedKey] = route
 	return group
 }
 

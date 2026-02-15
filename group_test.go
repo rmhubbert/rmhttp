@@ -3,6 +3,7 @@ package rmhttp
 import (
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,7 +26,7 @@ func Test_Group_Handle(t *testing.T) {
 	routes := group.ComputedRoutes()
 	assert.Len(t, routes, 1, "they should be equal")
 
-	expectedKey := fmt.Sprintf("GET %s", handlerPattern)
+	expectedKey := fmt.Sprintf("GET %s", fmt.Sprintf("%s%s", groupPattern, handlerPattern))
 	if route, ok := routes[expectedKey]; !ok {
 		t.Errorf("route not found: %s", expectedKey)
 	} else {
@@ -53,7 +54,7 @@ func Test_Group_HandleFunc(t *testing.T) {
 	routes := group.ComputedRoutes()
 	assert.Len(t, routes, 1, "they should be equal")
 
-	expectedKey := fmt.Sprintf("GET %s", handlerPattern)
+	expectedKey := fmt.Sprintf("GET %s", fmt.Sprintf("%s%s", groupPattern, handlerPattern))
 	if route, ok := routes[expectedKey]; !ok {
 		t.Errorf("route not found: %s", expectedKey)
 	} else {
@@ -106,7 +107,8 @@ func Test_Group_Convenience_Handlers(t *testing.T) {
 
 			routes := group.ComputedRoutes()
 
-			expectedKey := fmt.Sprintf("%s %s", test.method, handlerPattern)
+			expectedKey := fmt.Sprintf("%s %s", test.method,
+				fmt.Sprintf("%s%s", groupPattern, handlerPattern))
 			if route, ok := routes[expectedKey]; !ok {
 				t.Errorf("route not found: %s", expectedKey)
 			} else {
@@ -121,4 +123,34 @@ func Test_Group_Convenience_Handlers(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Test_Group_PatternCollision checks that routes with the same pattern in different groups don't collide.
+func Test_Group_PatternCollision(t *testing.T) {
+	app := New()
+
+	group1 := app.Group("/api")
+	group1.Get("/users", createTestHandlerFunc(200, "api users"))
+
+	group2 := app.Group("/admin")
+	group2.Get("/users", createTestHandlerFunc(200, "admin users"))
+
+	routes := app.Routes()
+
+	// Verify both routes exist without collision
+	assert.Len(t, routes, 2)
+
+	// Compile the app to load routes into the router
+	app.Compile()
+
+	// Verify each route returns the correct handler
+	req1 := httptest.NewRequest(http.MethodGet, "/api/users", nil)
+	w1 := httptest.NewRecorder()
+	app.Router.ServeHTTP(w1, req1)
+	assert.Equal(t, "api users", w1.Body.String())
+
+	req2 := httptest.NewRequest(http.MethodGet, "/admin/users", nil)
+	w2 := httptest.NewRecorder()
+	app.Router.ServeHTTP(w2, req2)
+	assert.Equal(t, "admin users", w2.Body.String())
 }
