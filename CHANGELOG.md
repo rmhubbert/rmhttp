@@ -1,4 +1,16 @@
 
+## [v5.11.0] - 2026-02-15
+### :sparkles: New Features
+- [`0465577`](https://github.com/rmhubbert/rmhttp/commit/0465577b17fb15783777de74b387d6c1b58ed752) - add basic pattern validation when adding routes *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :bug: Bug Fixes
+- [`2aebdff`](https://github.com/rmhubbert/rmhttp/commit/2aebdffea6dd1045bbc9a2a1395327dc987a4ee2) - grouped routes can overwrite each others paths *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`d0e4864`](https://github.com/rmhubbert/rmhttp/commit/d0e486427dee8de9d7c168ec5b0d13bcf098f14d) - possible data race with concurrent requests *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`c06188b`](https://github.com/rmhubbert/rmhttp/commit/c06188b5c418cdb6f0f8d4773176ced615f24669) - add concurrency and wildcard pattern tests *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.10.0] - 2026-02-14
 ### :bug: Bug Fixes
 - [`e4ddddf`](https://github.com/rmhubbert/rmhttp/commit/e4ddddf5fd5015f74fc3d28a24481b19a19d1dfa) - dynamic parameters are not parsed *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -406,3 +418,4 @@
 [v5.8.0]: https://github.com/rmhubbert/rmhttp/compare/v5.7.0...v5.8.0
 [v5.9.0]: https://github.com/rmhubbert/rmhttp/compare/v5.8.0...v5.9.0
 [v5.10.0]: https://github.com/rmhubbert/rmhttp/compare/v5.9.0...v5.10.0
+[v5.11.0]: https://github.com/rmhubbert/rmhttp/compare/v5.10.0...v5.11.0
