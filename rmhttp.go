@@ -102,10 +102,6 @@ func New(c ...Config) *App {
 	server.maybeUpdateTimeout(time.Duration(config.Server.RequestTimeout) * time.Second)
 
 	rootGroup := NewGroup("")
-	// rootGroup.Timeout = NewTimeout(
-	// 	time.Duration(config.Timeout.RequestTimeout)*time.Second,
-	// 	config.Timeout.TimeoutMessage,
-	// )
 
 	errorHandlers := map[int]http.Handler{
 		http.StatusNotFound:         createDefaultHandler(http.StatusNotFound),
