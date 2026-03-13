@@ -1,4 +1,19 @@
 
+## [v5.13.1] - 2026-03-13
+### :bug: Bug Fixes
+- [`53c4b23`](https://github.com/rmhubbert/rmhttp/commit/53c4b23a9be9bc836e778594fc440178068612da) - httplogger is vulnerable to log injection *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :zap: Performance Improvements
+- [`09354f5`](https://github.com/rmhubbert/rmhttp/commit/09354f5f3f7bfcfee118f9535c22aedf0b8cbff2) - use underlying http.ServeMux if no custom error handlers have been added *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`6ac5175`](https://github.com/rmhubbert/rmhttp/commit/6ac517507813de60bd7cf686074c889b24195cab) - linting *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`ea4b5f8`](https://github.com/rmhubbert/rmhttp/commit/ea4b5f87ffa6735fbd73214c20120a4ddbb655de) - add server tests *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :wrench: Chores
+- [`2cb287a`](https://github.com/rmhubbert/rmhttp/commit/2cb287aefb436527b3b55ea8c9c2d1de71401d29) - remove commented out code *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.12.0] - 2026-02-15
 ### :recycle: Refactors
 - [`1266901`](https://github.com/rmhubbert/rmhttp/commit/12669011c763f782b506a55a7ecfceec4b93d863) - create separate struct for url validation. Ensure that validation complies to RFC 3986 *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -428,3 +443,4 @@
 [v5.10.0]: https://github.com/rmhubbert/rmhttp/compare/v5.9.0...v5.10.0
 [v5.11.0]: https://github.com/rmhubbert/rmhttp/compare/v5.10.0...v5.11.0
 [v5.12.0]: https://github.com/rmhubbert/rmhttp/compare/v5.11.0...v5.12.0
+[v5.13.1]: https://github.com/rmhubbert/rmhttp/compare/v5.13.0...v5.13.1
