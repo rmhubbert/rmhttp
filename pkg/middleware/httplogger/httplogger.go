@@ -7,7 +7,16 @@ import (
 	"strings"
 
 	"github.com/felixge/httpsnoop"
+	"github.com/grokify/mogo/log/sanitize"
 )
+
+// SanitizedString wraps a string that has been sanitized to prevent log injection.
+// It implements slog.LogValuer to ensure gosec recognizes it as safe for logging.
+type SanitizedString string
+
+func (s SanitizedString) LogValue() slog.Value {
+	return slog.StringValue(string(s))
+}
 
 func Middleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -35,35 +44,46 @@ func Middleware() func(http.Handler) http.Handler {
 			proto := r.Proto
 			logType := "http"
 
+			// Sanitize user-controlled input to prevent log injection (CWE-117)
+			// The sanitize.String() function removes/repaces control characters
+			// #nosec G706 - values are sanitized using github.com/grokify/mogo/log/sanitize
+			sanitizedPath := SanitizedString(sanitize.String(path))
+			sanitizedReferer := SanitizedString(sanitize.String(referer))
+			sanitizedAgent := SanitizedString(sanitize.String(agent))
+			sanitizedHost := SanitizedString(sanitize.String(host))
+			sanitizedProto := SanitizedString(sanitize.String(proto))
+
 			if code >= http.StatusBadRequest {
+				// #nosec G706 - values are sanitized using github.com/grokify/mogo/log/sanitize
 				slog.Error(
 					http.StatusText(code),
 					"type", logType,
 					"status", code,
 					"ip", ip,
 					"method", r.Method,
-					"host", host,
-					"path", path,
-					"referer", referer,
-					"ua", agent,
-					"proto", proto,
+					"host", sanitizedHost,
+					"path", sanitizedPath,
+					"referer", sanitizedReferer,
+					"ua", sanitizedAgent,
+					"proto", sanitizedProto,
 					"size", written,
 					"duration", duration,
 				)
 				return
 			}
 
+			// #nosec G706 - values are sanitized using github.com/grokify/mogo/log/sanitize
 			slog.Info(
 				http.StatusText(m.Code),
 				"type", logType,
 				"status", code,
 				"ip", ip,
 				"method", r.Method,
-				"host", host,
-				"path", path,
-				"referer", referer,
-				"ua", agent,
-				"proto", proto,
+				"host", sanitizedHost,
+				"path", sanitizedPath,
+				"referer", sanitizedReferer,
+				"ua", sanitizedAgent,
+				"proto", sanitizedProto,
 				"size", written,
 				"duration", duration,
 			)
