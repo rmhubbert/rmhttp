@@ -34,15 +34,6 @@ func NewServer(
 			WriteTimeout:                 time.Duration(config.TCPWriteTimeout) * time.Second,
 			IdleTimeout:                  time.Duration(config.TCPIdleTimeout) * time.Second,
 			DisableGeneralOptionsHandler: config.DisableGeneralOptionsHandler,
-			// TLSConfig:                    config.TLSConfig,
-			// MaxHeaderBytes:               config.MaxHeaderBytes,
-			// TLSNextProto:                 config.TLSNextProto,
-			// ConnState:                    config.ConnState,
-			// ErrorLog:                     config.ErrorLog,
-			// BaseContext:                  config.BaseContext,
-			// ConnContext:                  config.ConnContext,
-			// HTTP2:                        config.HTTP2,
-			// Protocols:                    config.Protocols,
 		},
 		Router:              router,
 		Host:                config.Host,
@@ -67,15 +58,28 @@ func (srv *Server) maybeUpdateTimeout(timeout time.Duration) {
 	}
 }
 
+// bestRouter returns the faster router for the Server, given the current configuration. If the
+// router has custom error handlers, it returns the Router itself; otherwise, it returns the
+// Router's underlying Mux.
+func (srv *Server) setBestRouter() {
+	if r, ok := srv.Router.(*Router); ok {
+		if !r.HasErrorHandlers() {
+			srv.Router = r.Mux
+		}
+	}
+}
+
 // ListenAndServe directly proxies the http.Server.ListenAndServe method. It starts the server
 // without TLS support on the configured address and port.
 func (srv *Server) ListenAndServe() error {
+	srv.setBestRouter()
 	return srv.Server.ListenAndServe()
 }
 
 // ListenAndServeTLS directly proxies the http.Server.ListenAndServeTLS method. It starts the
 // server with TLS support on the configured address and port.
 func (srv *Server) ListenAndServeTLS(cert string, key string) error {
+	srv.setBestRouter()
 	return srv.Server.ListenAndServeTLS(cert, key)
 }
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
-	"sync/atomic"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -16,9 +15,8 @@ import (
 // also manages custom error handlers to ensure that the HTTP Error Handler can operate
 // properly.
 type Router struct {
-	Mux               *http.ServeMux
-	errorHandlers     sync.Map
-	errorHandlerCount int32
+	Mux           *http.ServeMux
+	errorHandlers sync.Map
 }
 
 // NewRouter intialises, creates, and then returns a pointer to a Router.
@@ -39,12 +37,6 @@ func NewRouter() *Router {
 // requests. The sync.Map provides thread-safe access to the errorHandlers map, and errorCount
 // provides a thread-safe count of error handlers without needing a mutex.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// If there are no error handlers, we can just use the underlying mux.
-	if atomic.LoadInt32(&rt.errorHandlerCount) == 0 {
-		rt.Mux.ServeHTTP(w, r)
-		return
-	}
-
 	handler, pattern := rt.Mux.Handler(r)
 
 	// When ServeMux.Handler() returns an empty pattern, it means either:
@@ -77,10 +69,16 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // AddErrorHandler maps the passed response code and handler. These error handlers will be used
 // instead of the http.Handler equivalents when available.
 func (rt *Router) AddErrorHandler(code int, handler http.Handler) {
-	_, loaded := rt.errorHandlers.LoadOrStore(code, handler)
-	if !loaded {
-		atomic.AddInt32(&rt.errorHandlerCount, 1)
-	}
+	rt.errorHandlers.LoadOrStore(code, handler)
+}
+
+func (rt *Router) HasErrorHandlers() bool {
+	var count int
+	rt.errorHandlers.Range(func(key, value any) bool {
+		count++
+		return true
+	})
+	return count > 0
 }
 
 // Handle registers the passed Route with the underlying HTTP request multiplexer.
