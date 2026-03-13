@@ -36,6 +36,7 @@ func Test_Pattern_Wildcard(t *testing.T) {
 
 	app.Get("/files/{path...}", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
+		//nolint:gosec
 		_, _ = w.Write([]byte(r.PathValue("path")))
 	})
 

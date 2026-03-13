@@ -480,6 +480,7 @@ func createPathValueHandlerFunc(paramNames ...string) func(http.ResponseWriter, 
 		}
 
 		w.WriteHeader(http.StatusOK)
+		//nolint:gosec
 		_, _ = w.Write([]byte(strings.Join(values, "|")))
 	}
 }
@@ -641,6 +642,7 @@ func Test_PathValue_MethodSpecificPatterns(t *testing.T) {
 	app.HandleFunc(http.MethodDelete, "/{resource}", func(w http.ResponseWriter, r *http.Request) {
 		resource := r.PathValue("resource")
 		w.WriteHeader(http.StatusOK)
+		//nolint:gosec
 		_, _ = w.Write([]byte("deleted=" + resource))
 	})
 
