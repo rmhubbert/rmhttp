@@ -1,4 +1,12 @@
 
+## [v5.12.0] - 2026-02-15
+### :recycle: Refactors
+- [`1266901`](https://github.com/rmhubbert/rmhttp/commit/12669011c763f782b506a55a7ecfceec4b93d863) - create separate struct for url validation. Ensure that validation complies to RFC 3986 *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`5b3bb3f`](https://github.com/rmhubbert/rmhttp/commit/5b3bb3f02c33aec362c8b9d0ffd2e13baaf768cc) - add tests for url pattern validator *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.11.0] - 2026-02-15
 ### :sparkles: New Features
 - [`0465577`](https://github.com/rmhubbert/rmhttp/commit/0465577b17fb15783777de74b387d6c1b58ed752) - add basic pattern validation when adding routes *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -419,3 +427,4 @@
 [v5.9.0]: https://github.com/rmhubbert/rmhttp/compare/v5.8.0...v5.9.0
 [v5.10.0]: https://github.com/rmhubbert/rmhttp/compare/v5.9.0...v5.10.0
 [v5.11.0]: https://github.com/rmhubbert/rmhttp/compare/v5.10.0...v5.11.0
+[v5.12.0]: https://github.com/rmhubbert/rmhttp/compare/v5.11.0...v5.12.0
