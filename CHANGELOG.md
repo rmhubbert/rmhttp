@@ -1,4 +1,9 @@
 
+## [v5.14.0] - 2026-03-14
+### :recycle: Refactors
+- [`1b51453`](https://github.com/rmhubbert/rmhttp/commit/1b514536e00ed4f96a340aa19d4fe342af2ee5b7) - go fix *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.13.1] - 2026-03-13
 ### :bug: Bug Fixes
 - [`53c4b23`](https://github.com/rmhubbert/rmhttp/commit/53c4b23a9be9bc836e778594fc440178068612da) - httplogger is vulnerable to log injection *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -444,3 +449,4 @@
 [v5.11.0]: https://github.com/rmhubbert/rmhttp/compare/v5.10.0...v5.11.0
 [v5.12.0]: https://github.com/rmhubbert/rmhttp/compare/v5.11.0...v5.12.0
 [v5.13.1]: https://github.com/rmhubbert/rmhttp/compare/v5.13.0...v5.13.1
+[v5.14.0]: https://github.com/rmhubbert/rmhttp/compare/v5.13.1...v5.14.0
