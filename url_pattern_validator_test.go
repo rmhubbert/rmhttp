@@ -1,6 +1,7 @@
 package rmhttp
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,13 +24,14 @@ func Test_urlPatternValidator_EmptyPattern(t *testing.T) {
 func Test_urlPatternValidator_MaxLength(t *testing.T) {
 	v := newURLPatternValidator()
 
-	longPattern := "a"
-	for i := 0; i < 256; i++ {
-		longPattern += "a"
+	var longPattern strings.Builder
+	longPattern.WriteString("a")
+	for range 256 {
+		longPattern.WriteString("a")
 	}
 
-	err := v.validate(longPattern)
-	assert.EqualError(t, err, "route pattern too long (max 256 chars): "+longPattern)
+	err := v.validate(longPattern.String())
+	assert.EqualError(t, err, "route pattern too long (max 256 chars): "+longPattern.String())
 }
 
 // Test_urlPatternValidator_BalancedBraces tests that unbalanced braces return an error.
