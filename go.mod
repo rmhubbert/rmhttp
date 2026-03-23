@@ -11,7 +11,7 @@ require (
 	dario.cat/mergo v1.0.2
 	github.com/caarlos0/env/v11 v11.4.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/grokify/mogo v0.73.5
+	github.com/grokify/mogo v0.74.0
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.11.1
 )
