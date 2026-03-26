@@ -6,8 +6,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
 github.com/felixge/httpsnoop v1.0.4/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
-github.com/grokify/mogo v0.73.5 h1:Xnzqzr7X3NGeafYphB/J9GQwjeN0Hxv+xWNyEIQeATc=
-github.com/grokify/mogo v0.73.5/go.mod h1:qKdUls+Q9cDj1n4eev07RJKqKroEj7tXpWa7578Bzw4=
+github.com/grokify/mogo v0.74.0 h1:+/Q8+C0IaaLhBf9+TBcw/AbBQppTz7Ypa/uUqLpLClY=
+github.com/grokify/mogo v0.74.0/go.mod h1:qKdUls+Q9cDj1n4eev07RJKqKroEj7tXpWa7578Bzw4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rs/cors v1.11.1 h1:eU3gRzXLRK57F5rKMGMZURNdIG4EoAmX8k94r9wXWHA=
