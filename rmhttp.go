@@ -85,7 +85,7 @@ type App struct {
 // If you chose not to pass in a configuration, rmhttp will first attempt to load configuration
 // values from environment variables, and if they're not found, will apply sensible defaults.
 func New(c ...Config) *App {
-	cfg := Config{}
+	var cfg Config
 	if len(c) > 0 {
 		cfg = c[0]
 	}

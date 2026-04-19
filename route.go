@@ -58,8 +58,7 @@ func (route *Route) buildPattern(pattern string, parent *Group) string {
 	if parent == nil {
 		return pattern
 	}
-	pattern = fmt.Sprintf("%s%s", parent.Pattern, pattern)
-	return route.buildPattern(pattern, parent.Parent)
+	return route.buildPattern(parent.Pattern+pattern, parent.Parent)
 }
 
 // ComputedHeaders dynamically calculates the HTTP headers that have been added to the Route and

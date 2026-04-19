@@ -1,7 +1,6 @@
 package headers
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,18 +9,11 @@ import (
 )
 
 // ------------------------------------------------------------------------------------------------
-// RECOVERER TESTS
+// HEADERS TESTS
 // ------------------------------------------------------------------------------------------------
 
-const (
-	testAddress string = "localhost:8123"
-)
-
-// Test_Recoverer checks that a panic thrown within a request can be recovered from, and then
-// return an appropriate error.
+// Test_Headers checks that headers are properly added to the response.
 func Test_Headers(t *testing.T) {
-	testPattern := "/test"
-
 	tests := []struct {
 		name          string
 		expectedKey   string
@@ -31,7 +23,7 @@ func Test_Headers(t *testing.T) {
 		{
 			"Headers are added to response",
 			"x-key",
-			"key",
+			"value",
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				_, err := w.Write([]byte("Hello"))
 				if err != nil {
@@ -48,8 +40,7 @@ func Test_Headers(t *testing.T) {
 			}
 			h := Middleware(headers)(test.handler)
 
-			url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
-			req, err := http.NewRequest(http.MethodGet, url, nil)
+			req, err := http.NewRequest(http.MethodGet, "/test", nil)
 			if err != nil {
 				t.Errorf("failed to create request: %v", err)
 			}
