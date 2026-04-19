@@ -1,4 +1,17 @@
 
+## [v5.15.2] - 2026-04-19
+### :zap: Performance Improvements
+- [`b3fd7a2`](https://github.com/rmhubbert/rmhttp/commit/b3fd7a28c3c53db89365d60f078b1fb4a4131e4d) - performance improvements *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`02c9452`](https://github.com/rmhubbert/rmhttp/commit/02c9452c994108967833b8129778b904116d0a53) - runtime performance tweaks *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`f6f321a`](https://github.com/rmhubbert/rmhttp/commit/f6f321a0f716a71f55f456649290bf87f405b5e9) - runtime performance tweak *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`74a2f6b`](https://github.com/rmhubbert/rmhttp/commit/74a2f6b707f84b0081e05a23169edf2ea92e542a) - deliberately ignore Write return values *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`7572b1a`](https://github.com/rmhubbert/rmhttp/commit/7572b1a78aaf432431662e9a8a1359828ce9a7cb) - add comprehensive benchmark tests *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.14.0] - 2026-03-14
 ### :recycle: Refactors
 - [`1b51453`](https://github.com/rmhubbert/rmhttp/commit/1b514536e00ed4f96a340aa19d4fe342af2ee5b7) - go fix *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -450,3 +463,4 @@
 [v5.12.0]: https://github.com/rmhubbert/rmhttp/compare/v5.11.0...v5.12.0
 [v5.13.1]: https://github.com/rmhubbert/rmhttp/compare/v5.13.0...v5.13.1
 [v5.14.0]: https://github.com/rmhubbert/rmhttp/compare/v5.13.1...v5.14.0
+[v5.15.2]: https://github.com/rmhubbert/rmhttp/compare/v5.15.1...v5.15.2
