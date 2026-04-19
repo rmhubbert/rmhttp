@@ -1,7 +1,6 @@
 package httplogger
 
 import (
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -23,7 +22,7 @@ func Middleware() func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// NOTE: CaptureMetrics triggers next.ServeHTTP(w, r) for you, so do not run it manually as well.
 			m := httpsnoop.CaptureMetrics(next, w, r)
-			duration := fmt.Sprintf("%dms", m.Duration.Milliseconds())
+			durationMs := m.Duration.Milliseconds()
 			code := m.Code
 			written := m.Written
 
@@ -67,7 +66,7 @@ func Middleware() func(http.Handler) http.Handler {
 					"ua", sanitizedAgent,
 					"proto", sanitizedProto,
 					"size", written,
-					"duration", duration,
+					"duration", durationMs,
 				)
 				return
 			}
@@ -85,7 +84,7 @@ func Middleware() func(http.Handler) http.Handler {
 				"ua", sanitizedAgent,
 				"proto", sanitizedProto,
 				"size", written,
-				"duration", duration,
+				"duration", durationMs,
 			)
 		})
 	}
