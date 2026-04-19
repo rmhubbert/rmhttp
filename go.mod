@@ -1,6 +1,6 @@
 module github.com/rmhubbert/rmhttp/v5
 
-go 1.25.1
+go 1.26.0
 
 retract (
 	v5.1.0 // Invalid module path - missing /v5 suffix
@@ -11,7 +11,7 @@ require (
 	dario.cat/mergo v1.0.2
 	github.com/caarlos0/env/v11 v11.4.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/grokify/mogo v0.74.0
+	github.com/grokify/mogo v0.74.1
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.11.1
 )
