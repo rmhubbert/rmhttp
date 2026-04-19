@@ -77,9 +77,9 @@ func Test_CaptureWriter_AccumulatesBodyChunks(t *testing.T) {
 	cw := NewCaptureWriter(w)
 
 	// Simulate multiple Write calls (e.g., from json.Encoder, io.Copy, etc.)
-	cw.Write([]byte("hello"))
-	cw.Write([]byte(" "))
-	cw.Write([]byte("world"))
+	_, _ = cw.Write([]byte("hello"))
+	_, _ = cw.Write([]byte(" "))
+	_, _ = cw.Write([]byte("world"))
 
 	assert.Equal(t, "hello world", cw.Body, "body should accumulate all chunks")
 	assert.Equal(t, "hello world", w.Body.String(), "underlying writer should have full body")
@@ -91,7 +91,7 @@ func Test_CaptureWriter_PassThroughFalseSkipsBodyCapture(t *testing.T) {
 	cw.PassThrough = false
 
 	cw.WriteHeader(http.StatusNoContent)
-	cw.Write([]byte("should not be captured"))
+	_, _ = cw.Write([]byte("should not be captured"))
 
 	assert.Equal(t, http.StatusNoContent, cw.Code, "status should still be captured")
 	assert.Empty(t, cw.Body, "body should not be captured when PassThrough is false")
@@ -114,7 +114,7 @@ func Test_CaptureWriter_CapturesStatusCodeAndBody(t *testing.T) {
 	cw := NewCaptureWriter(w)
 
 	cw.WriteHeader(http.StatusBadRequest)
-	cw.Write([]byte("bad request"))
+	_, _ = cw.Write([]byte("bad request"))
 
 	assert.Equal(t, http.StatusBadRequest, cw.Code, "captured status should match")
 	assert.Equal(t, "bad request", cw.Body, "captured body should match")

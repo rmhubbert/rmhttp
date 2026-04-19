@@ -29,6 +29,7 @@ func NewCaptureWriter(w http.ResponseWriter) *CaptureWriter {
 		Writer:      w,
 		Code:        http.StatusOK,
 		PassThrough: true,
+		bodyAcc:     make([]byte, 0, 1024), // Pre-allocate 1KB buffer to reduce reallocations
 	}
 }
 
