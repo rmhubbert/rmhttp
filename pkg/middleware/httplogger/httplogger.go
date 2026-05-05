@@ -27,7 +27,7 @@ func Middleware() func(http.Handler) http.Handler {
 			written := m.Written
 
 			ip := realIp(r)
-			host := strings.Join(r.Header.Values("X-Forwarded-For"), ",")
+			host := strings.Join(r.Header.Values("X-Forwarded-Host"), ",")
 			if host == "" {
 				host = r.Host
 			}
