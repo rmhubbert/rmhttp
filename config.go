@@ -20,12 +20,12 @@ import (
 // as well as some additional timeout related properties. The server properties correlate to
 // those found at https://pkg.go.dev/net/http#Server.
 type ServerConfig struct {
-	TCPReadTimeout               int    `env:"TCP_READ_TIMEOUT"          envDefault:"2"`
-	TCPReadHeaderTimeout         int    `env:"TCP_READ_HEADER_TIMEOUT"   envDefault:"1"`
+	TCPReadTimeout               int    `env:"TCP_READ_TIMEOUT"          envDefault:"17"`
+	TCPReadHeaderTimeout         int    `env:"TCP_READ_HEADER_TIMEOUT"   envDefault:"5"`
 	TCPIdleTimeout               int    `env:"TCP_IDLE_TIMEOUT"          envDefault:"120"`
-	TCPWriteTimeout              int    `env:"TCP_WRITE_TIMEOUT"         envDefault:"5"`
+	TCPWriteTimeout              int    `env:"TCP_WRITE_TIMEOUT"         envDefault:"12"`
 	TCPWriteTimeoutPadding       int    `env:"TCP_WRITE_TIMEOUT_PADDING" envDefault:"1"`
-	RequestTimeout               int    `env:"HTTP_REQUEST_TIMEOUT"      envDefault:"5"`
+	RequestTimeout               int    `env:"HTTP_REQUEST_TIMEOUT"      envDefault:"10"`
 	TimeoutMessage               string `env:"HTTP_TIMEOUT_MESSAGE"      envDefault:"Request Timeout"`
 	MaxHeaderBytes               int    `env:"HTTP_MAX_HEADER_BYTES"`
 	Host                         string `env:"HOST"`
