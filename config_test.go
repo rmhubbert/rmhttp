@@ -13,12 +13,12 @@ import (
 // ------------------------------------------------------------------------------------------------
 
 var defaultServerConfig = ServerConfig{
-	TCPReadTimeout:         2,
-	TCPReadHeaderTimeout:   1,
+	TCPReadTimeout:         17,
+	TCPReadHeaderTimeout:   5,
 	TCPIdleTimeout:         120,
-	TCPWriteTimeout:        5,
+	TCPWriteTimeout:        12,
 	TCPWriteTimeoutPadding: 1,
-	RequestTimeout:         5,
+	RequestTimeout:         10,
 	TimeoutMessage:         "Request Timeout",
 	Port:                   8080,
 }
