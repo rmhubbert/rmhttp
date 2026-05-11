@@ -1,4 +1,12 @@
 
+## [v5.16.4] - 2026-05-11
+### :white_check_mark: Tests
+- [`cbfb3da`](https://github.com/rmhubbert/rmhttp/commit/cbfb3da04cb4edda7d96ea57723680e23c6fc720) - update tests to reflect new default values *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :wrench: Chores
+- [`6fcba2d`](https://github.com/rmhubbert/rmhttp/commit/6fcba2db92fd8a4d5c92402de4b745590ff66200) - relax default config timeouts *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.15.2] - 2026-04-19
 ### :zap: Performance Improvements
 - [`b3fd7a2`](https://github.com/rmhubbert/rmhttp/commit/b3fd7a28c3c53db89365d60f078b1fb4a4131e4d) - performance improvements *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -464,3 +472,4 @@
 [v5.13.1]: https://github.com/rmhubbert/rmhttp/compare/v5.13.0...v5.13.1
 [v5.14.0]: https://github.com/rmhubbert/rmhttp/compare/v5.13.1...v5.14.0
 [v5.15.2]: https://github.com/rmhubbert/rmhttp/compare/v5.15.1...v5.15.2
+[v5.16.4]: https://github.com/rmhubbert/rmhttp/compare/v5.16.3...v5.16.4
