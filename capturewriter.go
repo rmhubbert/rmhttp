@@ -2,6 +2,7 @@ package rmhttp
 
 import (
 	"bufio"
+	"bytes"
 	"net"
 	"net/http"
 )
@@ -18,8 +19,7 @@ import (
 type CaptureWriter struct {
 	Writer      http.ResponseWriter
 	Code        int
-	Body        string
-	bodyAcc     []byte
+	buf         *bytes.Buffer
 	PassThrough bool
 }
 
@@ -29,16 +29,26 @@ func NewCaptureWriter(w http.ResponseWriter) *CaptureWriter {
 		Writer:      w,
 		Code:        http.StatusOK,
 		PassThrough: true,
-		bodyAcc:     make([]byte, 0, 1024), // Pre-allocate 1KB buffer to reduce reallocations
+		buf:         &bytes.Buffer{},
 	}
+}
+
+// Body returns the captured response body as a string.
+// It performs a single O(n) conversion, so call it only once after the handler completes.
+// This is a breaking change from the previous Body field — the method enforces lazy evaluation
+// to avoid O(n²) string conversions on every Write call.
+func (cw *CaptureWriter) Body() string {
+	if cw.buf == nil {
+		return ""
+	}
+	return cw.buf.String()
 }
 
 // Write implements part of the http.ResponseWriter interface. It overrides the underlying Write
 // to capture the response body, before optionally writing to the underlying ResponseWriter.
 func (cw *CaptureWriter) Write(body []byte) (int, error) {
 	if cw.PassThrough {
-		cw.bodyAcc = append(cw.bodyAcc, body...)
-		cw.Body = string(cw.bodyAcc)
+		cw.buf.Write(body)
 		return cw.Writer.Write(body)
 	}
 	// When PassThrough is false, skip body capture and pass-through entirely.
