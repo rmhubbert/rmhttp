@@ -905,7 +905,7 @@ func Benchmark_HTTP2_WarmPool(b *testing.B) {
 		TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		MaxIdleConns:          poolSize,
 		MaxIdleConnsPerHost:   poolSize,
-		IdleConnTimeout:       90 * time.Second,
+		IdleConnTimeout:       30 * time.Second,
 		ResponseHeaderTimeout: 10 * time.Second,
 	}
 
@@ -939,4 +939,148 @@ func Benchmark_HTTP2_WarmPool(b *testing.B) {
 			resp.Body.Close()
 		}
 	})
+}
+
+// ------------------------------------------------------------------------------------------------
+// ERROR PATH BENCHMARKS
+// ------------------------------------------------------------------------------------------------
+
+// Benchmark_ErrorPath_404 measures the performance of 404 error handling.
+// This exercises the CaptureWriter pool and avoids double dispatch.
+func Benchmark_ErrorPath_404(b *testing.B) {
+	app := rmhttp.New()
+	app.Get("/exists", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("OK"))
+	})
+	app.Compile()
+
+	req := httptest.NewRequest(http.MethodGet, "/notfound", nil)
+
+	b.ResetTimer()
+	for b.Loop() {
+		w := httptest.NewRecorder()
+		app.Router.ServeHTTP(w, req)
+	}
+}
+
+// Benchmark_ErrorPath_404_CustomHandler measures 404 handling with a custom error handler.
+// This exercises the CaptureWriter pool, RWMutex, and custom handler dispatch.
+func Benchmark_ErrorPath_404_CustomHandler(b *testing.B) {
+	app := rmhttp.New()
+	app.Get("/exists", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("OK"))
+	})
+	app.StatusNotFoundHandler(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte("Not Found"))
+	})
+	app.Compile()
+
+	req := httptest.NewRequest(http.MethodGet, "/notfound", nil)
+
+	b.ResetTimer()
+	for b.Loop() {
+		w := httptest.NewRecorder()
+		app.Router.ServeHTTP(w, req)
+	}
+}
+
+// Benchmark_ErrorPath_405 measures the performance of 405 error handling.
+func Benchmark_ErrorPath_405(b *testing.B) {
+	app := rmhttp.New()
+	app.Get("/pattern", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("OK"))
+	})
+	app.Compile()
+
+	req := httptest.NewRequest(http.MethodPost, "/pattern", nil)
+
+	b.ResetTimer()
+	for b.Loop() {
+		w := httptest.NewRecorder()
+		app.Router.ServeHTTP(w, req)
+	}
+}
+
+// Benchmark_ErrorPath_Concurrent404 measures concurrent 404 handling.
+// This exercises the RWMutex read path under concurrent load.
+func Benchmark_ErrorPath_Concurrent404(b *testing.B) {
+	app := rmhttp.New()
+	app.Get("/exists", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("OK"))
+	})
+	app.StatusNotFoundHandler(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte("Not Found"))
+	})
+	app.Compile()
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			req := httptest.NewRequest(http.MethodGet, "/notfound", nil)
+			w := httptest.NewRecorder()
+			app.Router.ServeHTTP(w, req)
+		}
+	})
+}
+
+// ------------------------------------------------------------------------------------------------
+// TIMEOUT BENCHMARKS
+// ------------------------------------------------------------------------------------------------
+
+// Benchmark_TimeoutRoute measures the performance of a route with a timeout.
+// The http.TimeoutHandler is now created at compile time, not per-request.
+func Benchmark_TimeoutRoute(b *testing.B) {
+	app := rmhttp.New()
+	app.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("OK"))
+	}).WithTimeout(5*time.Second, "timeout")
+	app.Compile()
+
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+
+	b.ResetTimer()
+	for b.Loop() {
+		w := httptest.NewRecorder()
+		app.Router.ServeHTTP(w, req)
+	}
+}
+
+// Benchmark_TimeoutRoute_Concurrent measures concurrent requests to a timeout route.
+func Benchmark_TimeoutRoute_Concurrent(b *testing.B) {
+	app := rmhttp.New()
+	app.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("OK"))
+	}).WithTimeout(5*time.Second, "timeout")
+	app.Compile()
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			req := httptest.NewRequest(http.MethodGet, "/test", nil)
+			w := httptest.NewRecorder()
+			app.Router.ServeHTTP(w, req)
+		}
+	})
+}
+
+// Benchmark_TimeoutRoute_WithMiddleware measures a timeout route with additional middleware.
+func Benchmark_TimeoutRoute_WithMiddleware(b *testing.B) {
+	app := rmhttp.New()
+	app.Use(headers.Middleware(map[string]string{
+		"X-Custom-Header": "value",
+	}))
+	app.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("OK"))
+	}).WithTimeout(5*time.Second, "timeout")
+	app.Compile()
+
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+
+	b.ResetTimer()
+	for b.Loop() {
+		w := httptest.NewRecorder()
+		app.Router.ServeHTTP(w, req)
+	}
 }
