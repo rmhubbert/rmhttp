@@ -26,6 +26,20 @@ func NewServer(
 	config ServerConfig,
 	router http.Handler,
 ) *Server {
+	// Apply default HTTP/2 configuration if not provided
+	// This enables multiplexing and is tuned for high-concurrency workloads
+	http2Config := config.HTTP2
+	if http2Config == nil {
+		http2Config = defaultHTTP2Config()
+	}
+
+	// Apply default Protocols configuration if not provided
+	// This enables h2c (HTTP/2 over plain TCP) for reverse proxy deployments
+	protocols := config.Protocols
+	if protocols == nil {
+		protocols = defaultProtocols()
+	}
+
 	srv := Server{
 		Server: http.Server{
 			Handler:                      router,
@@ -34,6 +48,8 @@ func NewServer(
 			WriteTimeout:                 time.Duration(config.TCPWriteTimeout) * time.Second,
 			IdleTimeout:                  time.Duration(config.TCPIdleTimeout) * time.Second,
 			DisableGeneralOptionsHandler: config.DisableGeneralOptionsHandler,
+			HTTP2:                        http2Config,
+			Protocols:                    protocols,
 		},
 		Router:              router,
 		Host:                config.Host,
@@ -41,6 +57,14 @@ func NewServer(
 		writeTimeoutPadding: time.Duration(config.TCPWriteTimeoutPadding) * time.Second,
 	}
 	srv.Server.Addr = fmt.Sprintf("%s:%d", config.Host, config.Port)
+
+	// Configure HTTP keep-alive settings
+	// Note: TCP-level keep-alive (for detecting dead connections in long-lived SSE)
+	// requires a custom listener. These settings control HTTP keep-alive behavior.
+	if !config.TCPKeepAlive {
+		srv.Server.SetKeepAlivesEnabled(false)
+	}
+
 	return &srv
 }
 

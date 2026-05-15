@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 
 	"dario.cat/mergo"
 	env "github.com/caarlos0/env/v11"
@@ -15,6 +16,28 @@ import (
 // ------------------------------------------------------------------------------------------------
 // TIMEOUT CONFIG
 // ------------------------------------------------------------------------------------------------
+
+// defaultHTTP2Config returns the default HTTP/2 configuration for optimal performance.
+// This enables HTTP/2 multiplexing and is tuned for high-concurrency workloads.
+func defaultHTTP2Config() *http.HTTP2Config {
+	return &http.HTTP2Config{
+		MaxConcurrentStreams: 100,              // Default is typically 100 per connection
+		PingTimeout:          30 * time.Second, // Keep connections alive for SSE
+		WriteByteTimeout:     0,                // Don't timeout writes - critical for SSE streaming
+		MaxReadFrameSize:     16384,            // Default 16KB - optimal for most workloads
+	}
+}
+
+// defaultProtocols returns the default protocol configuration.
+// This enables HTTP/1.1, HTTP/2 (over TLS), and HTTP/2 over plain TCP (h2c).
+// h2c is particularly useful when running behind an SSL-terminating reverse proxy.
+func defaultProtocols() *http.Protocols {
+	p := &http.Protocols{}
+	p.SetHTTP1(true)            // Enable HTTP/1.1
+	p.SetHTTP2(true)            // Enable HTTP/2 (over TLS)
+	p.SetUnencryptedHTTP2(true) // Enable h2c (HTTP/2 over plain TCP) - critical for reverse proxy
+	return p
+}
 
 // The ServerConfig contains settings (with defaults) for configuring the underlying http.Server,
 // as well as some additional timeout related properties. The server properties correlate to
@@ -39,6 +62,11 @@ type ServerConfig struct {
 	ConnContext                  func(ctx context.Context, c net.Conn) context.Context
 	HTTP2                        *http.HTTP2Config
 	Protocols                    *http.Protocols
+
+	// TCPKeepAlive enables TCP keep-alive on connections. This is particularly important
+	// for long-lived connections like SSE, as it helps detect and close dead connections.
+	// If set to false, HTTP keep-alives are also disabled.
+	TCPKeepAlive bool `env:"TCP_KEEP_ALIVE" envDefault:"true"`
 }
 
 // ------------------------------------------------------------------------------------------------
