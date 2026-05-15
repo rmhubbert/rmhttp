@@ -1,4 +1,19 @@
 
+## [v5.17.0] - 2026-05-15
+### :sparkles: New Features
+- [`78cd7e7`](https://github.com/rmhubbert/rmhttp/commit/78cd7e7f2cd2d2a1e590fc04dfa7b9af97a1c62a) - add default http2 and protocol settings *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`2f179c1`](https://github.com/rmhubbert/rmhttp/commit/2f179c10290b0cf95001519b73c49cd4c7a7771a) - capturewriter performance improvements *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`90dbf97`](https://github.com/rmhubbert/rmhttp/commit/90dbf97ab08d8ee744f4035d16f9ecbab3ab538f) - skip allocation on every request by directly using net/http timeout handler *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`2d5a3fb`](https://github.com/rmhubbert/rmhttp/commit/2d5a3fbc7c2496d8891148c6f336cb7c057d8fba) - reduce per request allocations by using a sync.Pool *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`cc7de09`](https://github.com/rmhubbert/rmhttp/commit/cc7de0996a29404a6e776e7cfc137996486c4b8d) - update tests to reflect new functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`08bda32`](https://github.com/rmhubbert/rmhttp/commit/08bda3270409d9d747fc703f36465f1096b64b80) - update tests to reflect new functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`eba38cb`](https://github.com/rmhubbert/rmhttp/commit/eba38cb98c2587dce897823bec0f9f52fd81613e) - update benchmarks to reflect new functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.16.4] - 2026-05-11
 ### :white_check_mark: Tests
 - [`cbfb3da`](https://github.com/rmhubbert/rmhttp/commit/cbfb3da04cb4edda7d96ea57723680e23c6fc720) - update tests to reflect new default values *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -473,3 +488,4 @@
 [v5.14.0]: https://github.com/rmhubbert/rmhttp/compare/v5.13.1...v5.14.0
 [v5.15.2]: https://github.com/rmhubbert/rmhttp/compare/v5.15.1...v5.15.2
 [v5.16.4]: https://github.com/rmhubbert/rmhttp/compare/v5.16.3...v5.16.4
+[v5.17.0]: https://github.com/rmhubbert/rmhttp/compare/v5.16.4...v5.17.0
