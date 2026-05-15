@@ -21,6 +21,7 @@ var defaultServerConfig = ServerConfig{
 	RequestTimeout:         10,
 	TimeoutMessage:         "Request Timeout",
 	Port:                   8080,
+	TCPKeepAlive:           true,
 }
 
 var defaultConfig = Config{
@@ -79,6 +80,7 @@ func Test_LoadConfig_from_env(t *testing.T) {
 		TimeoutMessage:         timeoutMessage,
 		Host:                   host,
 		Port:                   port,
+		TCPKeepAlive:           true,
 	}
 
 	vars := map[string]string{
@@ -158,6 +160,7 @@ func Test_LoadConfig_with_user_defined_config(t *testing.T) {
 		TimeoutMessage:         timeoutMessage,
 		Port:                   port,
 		Host:                   host,
+		TCPKeepAlive:           true,
 	}
 
 	userConfig := Config{
