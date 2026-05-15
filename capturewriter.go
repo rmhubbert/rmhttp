@@ -5,11 +5,22 @@ import (
 	"bytes"
 	"net"
 	"net/http"
+	"sync"
 )
 
 // ------------------------------------------------------------------------------------------------
 // CAPTURE WRITER
 // ------------------------------------------------------------------------------------------------
+
+// captureWriterPool provides a pool of CaptureWriter instances to reduce per-request allocations.
+var captureWriterPool = sync.Pool{
+	New: func() any {
+		return &CaptureWriter{
+			Code:        http.StatusOK,
+			PassThrough: true,
+		}
+	},
+}
 
 // A CaptureWriter wraps a http.ResponseWriter in order to capture the HTTP response code & body
 // that handlers will set. This allows reading these values after they have been set,
@@ -25,12 +36,12 @@ type CaptureWriter struct {
 
 // NewCaptureWriter creates, instantiates, and returns a new CaptureWriter.
 func NewCaptureWriter(w http.ResponseWriter) *CaptureWriter {
-	return &CaptureWriter{
-		Writer:      w,
-		Code:        http.StatusOK,
-		PassThrough: true,
-		buf:         &bytes.Buffer{},
-	}
+	cw := captureWriterPool.Get().(*CaptureWriter)
+	cw.Writer = w
+	cw.Code = http.StatusOK
+	cw.PassThrough = true
+	cw.buf = nil
+	return cw
 }
 
 // Body returns the captured response body as a string.
@@ -48,6 +59,9 @@ func (cw *CaptureWriter) Body() string {
 // to capture the response body, before optionally writing to the underlying ResponseWriter.
 func (cw *CaptureWriter) Write(body []byte) (int, error) {
 	if cw.PassThrough {
+		if cw.buf == nil {
+			cw.buf = &bytes.Buffer{}
+		}
 		cw.buf.Write(body)
 		return cw.Writer.Write(body)
 	}
