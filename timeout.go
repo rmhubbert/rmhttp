@@ -31,12 +31,11 @@ func NewTimeout(duration time.Duration, message string) Timeout {
 // ------------------------------------------------------------------------------------------------
 
 // TimeoutMiddleware creates, initialises and returns a middleware function that will wrap the next
-// handler in the stack with a timeout handler.
+// handler in the stack with a timeout handler. The http.TimeoutHandler is created once when the
+// middleware is applied (at compile time), not per-request, avoiding per-request goroutine,
+// channel, and context allocations.
 func TimeoutMiddleware(timeout Timeout) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			th := http.TimeoutHandler(next, timeout.Duration, timeout.Message)
-			th.ServeHTTP(w, r)
-		})
+		return http.TimeoutHandler(next, timeout.Duration, timeout.Message)
 	}
 }
