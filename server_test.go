@@ -140,6 +140,94 @@ func Test_NewServer(t *testing.T) {
 				assert.True(t, srv.Server.DisableGeneralOptionsHandler)
 			},
 		},
+		{
+			name: "partial_http2_config_merges_with_defaults",
+			config: ServerConfig{
+				Host: "localhost",
+				Port: 8080,
+				HTTP2: &http.HTTP2Config{
+					MaxConcurrentStreams: 200, // User overrides only this field
+				},
+			},
+			router: http.NewServeMux(),
+			validate: func(t *testing.T, srv *Server) {
+				http2 := srv.Server.HTTP2
+				require.NotNil(t, http2)
+				// User override should be preserved
+				assert.Equal(t, 200, http2.MaxConcurrentStreams)
+				// Default values should be merged in for fields the user didn't set
+				assert.Equal(t, 30*time.Second, http2.PingTimeout)
+				assert.Equal(t, time.Duration(0), http2.WriteByteTimeout)
+				assert.Equal(t, 16384, http2.MaxReadFrameSize)
+			},
+		},
+		{
+			name: "full_http2_config_overrides_all_defaults",
+			config: ServerConfig{
+				Host: "localhost",
+				Port: 8080,
+				HTTP2: &http.HTTP2Config{
+					MaxConcurrentStreams: 50,
+					PingTimeout:          10 * time.Second,
+					WriteByteTimeout:     5 * time.Second,
+					MaxReadFrameSize:     32768,
+				},
+			},
+			router: http.NewServeMux(),
+			validate: func(t *testing.T, srv *Server) {
+				http2 := srv.Server.HTTP2
+				require.NotNil(t, http2)
+				assert.Equal(t, 50, http2.MaxConcurrentStreams)
+				assert.Equal(t, 10*time.Second, http2.PingTimeout)
+				assert.Equal(t, 5*time.Second, http2.WriteByteTimeout)
+				assert.Equal(t, 32768, http2.MaxReadFrameSize)
+			},
+		},
+		{
+			name: "partial_protocols_config_merges_with_defaults",
+			config: ServerConfig{
+				Host: "localhost",
+				Port: 8080,
+				Protocols: func() *http.Protocols {
+					p := &http.Protocols{}
+					p.SetHTTP1(true) // User only sets HTTP/1.1
+					return p
+				}(),
+			},
+			router: http.NewServeMux(),
+			validate: func(t *testing.T, srv *Server) {
+				protocols := srv.Server.Protocols
+				require.NotNil(t, protocols)
+				// User override should be preserved
+				assert.True(t, protocols.HTTP1())
+				// Default values should be merged in for protocols the user didn't set
+				assert.True(t, protocols.HTTP2())
+				assert.True(t, protocols.UnencryptedHTTP2())
+			},
+		},
+		{
+			name: "partial_protocols_adds_to_defaults",
+			config: ServerConfig{
+				Host: "localhost",
+				Port: 8080,
+				Protocols: func() *http.Protocols {
+					p := &http.Protocols{}
+					p.SetHTTP1(true)
+					p.SetHTTP2(true) // User enables HTTP/2 (already default)
+					return p
+				}(),
+			},
+			router: http.NewServeMux(),
+			validate: func(t *testing.T, srv *Server) {
+				protocols := srv.Server.Protocols
+				require.NotNil(t, protocols)
+				// User settings applied
+				assert.True(t, protocols.HTTP1())
+				assert.True(t, protocols.HTTP2())
+				// Default values should be merged in for protocols the user didn't set
+				assert.True(t, protocols.UnencryptedHTTP2())
+			},
+		},
 	}
 
 	for _, tt := range tests {
