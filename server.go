@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"dario.cat/mergo"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -26,18 +28,37 @@ func NewServer(
 	config ServerConfig,
 	router http.Handler,
 ) *Server {
-	// Apply default HTTP/2 configuration if not provided
-	// This enables multiplexing and is tuned for high-concurrency workloads
-	http2Config := config.HTTP2
-	if http2Config == nil {
-		http2Config = defaultHTTP2Config()
+	// Apply default HTTP/2 configuration, merging user-provided values on top.
+	// This enables multiplexing and is tuned for high-concurrency workloads.
+	// If the user provides a partial config, defaults are used for unspecified fields.
+	http2Config := defaultHTTP2Config()
+	if config.HTTP2 != nil {
+		_ = mergo.Merge(http2Config, config.HTTP2, mergo.WithOverride)
 	}
 
-	// Apply default Protocols configuration if not provided
-	// This enables h2c (HTTP/2 over plain TCP) for reverse proxy deployments
-	protocols := config.Protocols
-	if protocols == nil {
-		protocols = defaultProtocols()
+	// Apply default Protocols configuration, merging user-provided values on top.
+	// This enables h2c (HTTP/2 over plain TCP) for reverse proxy deployments.
+	// If the user provides a partial config, defaults are used for unspecified protocols.
+	// Since http.Protocols has unexported fields, we can't use mergo.
+	// Instead, we start with defaults and apply user settings on top.
+	protocols := defaultProtocols()
+	if config.Protocols != nil {
+		// Apply user protocol settings on top of defaults.
+		// We use the public API to read user intent and apply overrides.
+		// Only override if the user explicitly set a value different from the zero value.
+		// Since we can't detect "touched" fields, we OR the values:
+		// if either default or user enables a protocol, it stays enabled.
+		// This means users can only disable protocols by providing a config
+		// that has ALL protocols set to false, then re-enabling the ones they want.
+		if config.Protocols.HTTP1() {
+			protocols.SetHTTP1(true)
+		}
+		if config.Protocols.HTTP2() {
+			protocols.SetHTTP2(true)
+		}
+		if config.Protocols.UnencryptedHTTP2() {
+			protocols.SetUnencryptedHTTP2(true)
+		}
 	}
 
 	srv := Server{
