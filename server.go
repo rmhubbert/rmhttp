@@ -110,6 +110,7 @@ func (srv *Server) setBestRouter() {
 	if r, ok := srv.Router.(*Router); ok {
 		if !r.HasErrorHandlers() {
 			srv.Router = r.Mux
+			srv.Server.Handler = r.Mux
 		}
 	}
 }
