@@ -1,4 +1,12 @@
 
+## [v5.19.0] - 2026-06-01
+### :bug: Bug Fixes
+- [`ac091a9`](https://github.com/rmhubbert/rmhttp/commit/ac091a9640fa434f944b79142d59c36c0b2aa156) - default router not properly set when there are no custom error handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :zap: Performance Improvements
+- [`f3552d9`](https://github.com/rmhubbert/rmhttp/commit/f3552d988fdfd2626e0322f43a1e2bd44c5492ad) - reduce allocations in httplogger *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.18.0] - 2026-05-16
 ### :sparkles: New Features
 - [`dc51515`](https://github.com/rmhubbert/rmhttp/commit/dc51515e2f9ee6e286586e8cfc1b6ea7696ea0f5) - merge user configs for http2 and protocols *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -498,3 +506,4 @@
 [v5.16.4]: https://github.com/rmhubbert/rmhttp/compare/v5.16.3...v5.16.4
 [v5.17.0]: https://github.com/rmhubbert/rmhttp/compare/v5.16.4...v5.17.0
 [v5.18.0]: https://github.com/rmhubbert/rmhttp/compare/v5.17.0...v5.18.0
+[v5.19.0]: https://github.com/rmhubbert/rmhttp/compare/v5.18.0...v5.19.0
