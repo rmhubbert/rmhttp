@@ -1,4 +1,9 @@
 
+## [v5.20.0] - 2026-06-01
+### :zap: Performance Improvements
+- [`ab132ca`](https://github.com/rmhubbert/rmhttp/commit/ab132ca08bf3eaaa32db85d96f743551f364ab54) - reduce more allocations *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.19.0] - 2026-06-01
 ### :bug: Bug Fixes
 - [`ac091a9`](https://github.com/rmhubbert/rmhttp/commit/ac091a9640fa434f944b79142d59c36c0b2aa156) - default router not properly set when there are no custom error handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -507,3 +512,4 @@
 [v5.17.0]: https://github.com/rmhubbert/rmhttp/compare/v5.16.4...v5.17.0
 [v5.18.0]: https://github.com/rmhubbert/rmhttp/compare/v5.17.0...v5.18.0
 [v5.19.0]: https://github.com/rmhubbert/rmhttp/compare/v5.18.0...v5.19.0
+[v5.20.0]: https://github.com/rmhubbert/rmhttp/compare/v5.19.0...v5.20.0
