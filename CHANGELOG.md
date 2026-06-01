@@ -1,4 +1,12 @@
 
+## [v5.18.0] - 2026-05-16
+### :sparkles: New Features
+- [`dc51515`](https://github.com/rmhubbert/rmhttp/commit/dc51515e2f9ee6e286586e8cfc1b6ea7696ea0f5) - merge user configs for http2 and protocols *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`8bcf9c1`](https://github.com/rmhubbert/rmhttp/commit/8bcf9c1d7914be775d2b08500d7fe8b0284a44be) - update tests to reflect new functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.17.0] - 2026-05-15
 ### :sparkles: New Features
 - [`78cd7e7`](https://github.com/rmhubbert/rmhttp/commit/78cd7e7f2cd2d2a1e590fc04dfa7b9af97a1c62a) - add default http2 and protocol settings *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -489,3 +497,4 @@
 [v5.15.2]: https://github.com/rmhubbert/rmhttp/compare/v5.15.1...v5.15.2
 [v5.16.4]: https://github.com/rmhubbert/rmhttp/compare/v5.16.3...v5.16.4
 [v5.17.0]: https://github.com/rmhubbert/rmhttp/compare/v5.16.4...v5.17.0
+[v5.18.0]: https://github.com/rmhubbert/rmhttp/compare/v5.17.0...v5.18.0
