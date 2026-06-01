@@ -27,16 +27,15 @@ func Middleware() func(http.Handler) http.Handler {
 			written := m.Written
 
 			ip := realIp(r)
-			host := strings.Join(r.Header.Values("X-Forwarded-Host"), ",")
+			host := r.Header.Get("X-Forwarded-Host")
 			if host == "" {
 				host = r.Host
 			}
 
 			url := r.URL
 			path := url.EscapedPath()
-			query := url.RawQuery
-			if query != "" {
-				path += "?" + query
+			if url.RawQuery != "" {
+				path = path + "?" + url.RawQuery
 			}
 			agent := r.UserAgent()
 			referer := r.Referer()
