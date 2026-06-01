@@ -42,8 +42,6 @@ func Middleware() func(http.Handler) http.Handler {
 			proto := r.Proto
 			logType := "http"
 
-			// Sanitize user-controlled input to prevent log injection (CWE-117)
-			// The sanitize.String() function removes/repaces control characters
 			// #nosec G706 - values are sanitized using github.com/grokify/mogo/log/sanitize
 			sanitizedPath := SanitizedString(sanitize.String(path))
 			sanitizedReferer := SanitizedString(sanitize.String(referer))
@@ -98,8 +96,8 @@ func removePort(ra string) string {
 	return ra[:index]
 }
 
-// requestGetRemoteAddress returns ip address of the client making the request,
-// taking into account http proxies
+// requestGetRemoteAddress returns the ip address of the client making the request, while taking
+// http proxies into account.
 func realIp(r *http.Request) string {
 	header := r.Header
 	xRealIP := header.Get("X-Real-Ip")
@@ -108,11 +106,9 @@ func realIp(r *http.Request) string {
 		return removePort(r.RemoteAddr)
 	}
 	if xForwardedFor != "" {
-		parts := strings.Split(xForwardedFor, ",")
-		for i, p := range parts {
-			parts[i] = strings.TrimSpace(p)
+		if first, _, ok := strings.Cut(xForwardedFor, ","); ok {
+			return strings.TrimSpace(first)
 		}
-		return parts[0]
 	}
 	return xRealIP
 }
