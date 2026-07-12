@@ -19,6 +19,7 @@ func Benchmark_CaptureWriter_Write_SmallChunks(b *testing.B) {
 			_, _ = cw.Write(chunk)
 		}
 		_ = cw.Body()
+		cw.Reset()
 	}
 }
 
@@ -33,6 +34,7 @@ func Benchmark_CaptureWriter_Write_MediumChunks(b *testing.B) {
 			_, _ = cw.Write(chunk)
 		}
 		_ = cw.Body()
+		cw.Reset()
 	}
 }
 
@@ -47,6 +49,7 @@ func Benchmark_CaptureWriter_Write_LargeChunks(b *testing.B) {
 			_, _ = cw.Write(chunk)
 		}
 		_ = cw.Body()
+		cw.Reset()
 	}
 }
 
@@ -59,6 +62,7 @@ func Benchmark_CaptureWriter_Write_SingleChunk(b *testing.B) {
 		cw := NewCaptureWriter(w)
 		_, _ = cw.Write(chunk)
 		_ = cw.Body()
+		cw.Reset()
 	}
 }
 
@@ -73,6 +77,7 @@ func Benchmark_CaptureWriter_PassThroughFalse(b *testing.B) {
 		for range 1000 {
 			_, _ = cw.Write(chunk)
 		}
+		cw.Reset()
 	}
 }
 
@@ -83,5 +88,6 @@ func Benchmark_CaptureWriter_WriteHeader(b *testing.B) {
 	for b.Loop() {
 		cw := NewCaptureWriter(w)
 		cw.WriteHeader(200)
+		cw.Reset()
 	}
 }

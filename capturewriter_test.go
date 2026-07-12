@@ -119,3 +119,47 @@ func Test_CaptureWriter_CapturesStatusCodeAndBody(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, cw.Code, "captured status should match")
 	assert.Equal(t, "bad request", cw.Body(), "captured body should match")
 }
+
+func Test_CaptureWriter_Reset(t *testing.T) {
+	w := httptest.NewRecorder()
+	cw := NewCaptureWriter(w)
+
+	// Use the CaptureWriter
+	cw.WriteHeader(http.StatusBadRequest)
+	_, _ = cw.Write([]byte("bad request"))
+
+	// Reset the CaptureWriter
+	cw.Reset()
+
+	// Verify that the CaptureWriter is reset
+	assert.Equal(t, http.StatusOK, cw.Code, "Code should be reset to 200")
+	assert.Equal(t, true, cw.PassThrough, "PassThrough should be reset to true")
+	assert.Nil(t, cw.Writer, "Writer should be reset to nil")
+	assert.Nil(t, cw.buf, "buf should be reset to nil")
+}
+
+func Test_CaptureWriter_ResetReturnsToPool(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	// Get a CaptureWriter from the pool
+	cw := NewCaptureWriter(w)
+	cw.WriteHeader(http.StatusBadRequest)
+	_, _ = cw.Write([]byte("bad request"))
+
+	// Reset and return to pool
+	cw.Reset()
+
+	// Verify the CaptureWriter is reset after being returned to the pool
+	assert.Equal(t, http.StatusOK, cw.Code, "Code should be reset to 200")
+	assert.Equal(t, true, cw.PassThrough, "PassThrough should be reset to true")
+	assert.Nil(t, cw.Writer, "Writer should be reset to nil")
+	assert.Nil(t, cw.buf, "buf should be reset to nil")
+
+	// Get another CaptureWriter from the pool — should be usable immediately
+	cw2 := NewCaptureWriter(w)
+	cw2.WriteHeader(http.StatusOK)
+	_, _ = cw2.Write([]byte("ok"))
+
+	assert.Equal(t, http.StatusOK, cw2.Code, "reused CaptureWriter should capture status code")
+	assert.Equal(t, "ok", cw2.Body(), "reused CaptureWriter should capture body")
+}
