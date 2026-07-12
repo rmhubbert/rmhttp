@@ -133,7 +133,7 @@ func Test_CaptureWriter_Reset(t *testing.T) {
 
 	// Verify that the CaptureWriter is reset
 	assert.Equal(t, http.StatusOK, cw.Code, "Code should be reset to 200")
-	assert.Equal(t, true, cw.PassThrough, "PassThrough should be reset to true")
+	assert.True(t, cw.PassThrough, "PassThrough should be reset to true")
 	assert.Nil(t, cw.Writer, "Writer should be reset to nil")
 	assert.Nil(t, cw.buf, "buf should be reset to nil")
 }
@@ -151,7 +151,7 @@ func Test_CaptureWriter_ResetReturnsToPool(t *testing.T) {
 
 	// Verify the CaptureWriter is reset after being returned to the pool
 	assert.Equal(t, http.StatusOK, cw.Code, "Code should be reset to 200")
-	assert.Equal(t, true, cw.PassThrough, "PassThrough should be reset to true")
+	assert.True(t, cw.PassThrough, "PassThrough should be reset to true")
 	assert.Nil(t, cw.Writer, "Writer should be reset to nil")
 	assert.Nil(t, cw.buf, "buf should be reset to nil")
 

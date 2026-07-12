@@ -40,37 +40,39 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler, pattern := rt.Mux.Handler(r)
 
 	// When ServeMux.Handler() returns an empty pattern, it means either:
-		// 1. No route matched (404)
-		// 2. Method not allowed for matched pattern (405)
-		// In both cases, we capture the response and check for custom error handlers
-		if pattern == "" && handler != nil {
-			// If pattern is empty, we have an internal error handler (404 or 405).
-			// Check to see if we have a custom error handler for this error code.
-			cw := NewCaptureWriter(w)
-			cw.PassThrough = false
-			handler.ServeHTTP(cw, r)
+	//
+	// 1. No route matched (404)
+	// 2. Method not allowed for matched pattern (405)
+	//
+	// In both cases, we capture the response and check for custom error handlers.
+	if pattern == "" && handler != nil {
+		// If pattern is empty, we have an internal error handler (404 or 405). Check to see if we have a
+		// custom error handler for this error code.
+		cw := NewCaptureWriter(w)
+		cw.PassThrough = false
+		handler.ServeHTTP(cw, r)
 
-			// Only use error handler if we captured a non-200 status
-			var customHandler http.Handler
-			if cw.Code != 0 && cw.Code != http.StatusOK {
-				if h, ok := rt.errorHandlers.Load(cw.Code); ok {
-					customHandler = h.(http.Handler)
-				}
+		// Only use error handler if we captured a non-200 status.
+		var customHandler http.Handler
+		if cw.Code != 0 && cw.Code != http.StatusOK {
+			if h, ok := rt.errorHandlers.Load(cw.Code); ok {
+				customHandler = h.(http.Handler)
 			}
-
-			// Return CaptureWriter to the pool before using the custom handler
-			cw.Reset()
-
-			// Use the custom error handler
-			if customHandler != nil {
-				customHandler.ServeHTTP(w, r)
-			} else {
-				handler.ServeHTTP(w, r)
-			}
-			return
 		}
 
-	// For normal requests, use the mux's ServeHTTP to ensure path values are extracted
+		// Return CaptureWriter to the pool before using the custom handler.
+		cw.Reset()
+
+		// Use the custom error handler
+		if customHandler != nil {
+			customHandler.ServeHTTP(w, r)
+		} else {
+			handler.ServeHTTP(w, r)
+		}
+		return
+	}
+
+	// For normal requests, use the mux's ServeHTTP to ensure path values are extracted.
 	rt.Mux.ServeHTTP(w, r)
 }
 
@@ -80,6 +82,7 @@ func (rt *Router) AddErrorHandler(code int, handler http.Handler) {
 	rt.errorHandlers.LoadOrStore(code, handler)
 }
 
+// HasErrorHandlers returns true if the Router has any error handlers registered.
 func (rt *Router) HasErrorHandlers() bool {
 	var count int
 	rt.errorHandlers.Range(func(key, value any) bool {
