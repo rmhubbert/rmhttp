@@ -5,11 +5,9 @@
 - **Run single test**: `go test -v -run TestName ./path/to/package`
 - **Lint**: `golangci-lint run` (uses `.golangci.yml` config)
 - **Build**: `go build ./...`
-- **Format**: Uses `goimports` and `golines` formatters
+- **Format**: `golangci-lint fmt` (uses `.golangci.yml` config)
 
 ## Code Style
-- **Go version**: 1.25.1
-- **Imports**: Use `goimports` for automatic sorting/grouping (stdlib, external, internal)
 - **Testing**: Use `github.com/stretchr/testify/assert` for assertions
 - **Naming**: Use camelCase for unexported, PascalCase for exported; descriptive names
 - **Comments**: Exported functions/types must have godoc comments starting with the name
