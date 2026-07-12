@@ -44,10 +44,10 @@ func NewCaptureWriter(w http.ResponseWriter) *CaptureWriter {
 	return cw
 }
 
-// Body returns the captured response body as a string.
-// It performs a single O(n) conversion, so call it only once after the handler completes.
-// This is a breaking change from the previous Body field — the method enforces lazy evaluation
-// to avoid O(n²) string conversions on every Write call.
+// Body returns the captured response body as a string. It performs a single O(n) conversion, so
+// call it only once after the handler completes. This is a breaking change from the previous
+// Body field — the method enforces lazy evaluation to avoid O(n²) string conversions on
+// every Write call.
 func (cw *CaptureWriter) Body() string {
 	if cw.buf == nil {
 		return ""
@@ -112,4 +112,14 @@ func (cw *CaptureWriter) Flush() {
 // instances to work more easily with the standard library.
 func (cw *CaptureWriter) Unwrap() http.ResponseWriter {
 	return cw.Writer
+}
+
+// Reset resets the CaptureWriter to its zero value and returns it to the pool. It should be called
+// when the CaptureWriter is no longer needed to avoid memory leaks.
+func (cw *CaptureWriter) Reset() {
+	cw.Writer = nil
+	cw.Code = http.StatusOK
+	cw.PassThrough = true
+	cw.buf = nil
+	captureWriterPool.Put(cw)
 }
