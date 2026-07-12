@@ -1,4 +1,15 @@
 
+## [v5.22.0] - 2026-07-12
+### :bug: Bug Fixes
+- [`26d59d4`](https://github.com/rmhubbert/rmhttp/commit/26d59d462dd08c6035df116d211677bf8218bf3d) - caprturewriter pool is never returned to *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`ffceb5d`](https://github.com/rmhubbert/rmhttp/commit/ffceb5d0398a44a77a697e3a2ec3a3050c514902) - update tests to reflect new functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :wrench: Chores
+- [`333a750`](https://github.com/rmhubbert/rmhttp/commit/333a750ae08db53b5ca13986c5a11959bc268822) - linting fixes *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.20.0] - 2026-06-01
 ### :zap: Performance Improvements
 - [`ab132ca`](https://github.com/rmhubbert/rmhttp/commit/ab132ca08bf3eaaa32db85d96f743551f364ab54) - reduce more allocations *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -513,3 +524,4 @@
 [v5.18.0]: https://github.com/rmhubbert/rmhttp/compare/v5.17.0...v5.18.0
 [v5.19.0]: https://github.com/rmhubbert/rmhttp/compare/v5.18.0...v5.19.0
 [v5.20.0]: https://github.com/rmhubbert/rmhttp/compare/v5.19.0...v5.20.0
+[v5.22.0]: https://github.com/rmhubbert/rmhttp/compare/v5.21.2...v5.22.0
