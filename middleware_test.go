@@ -64,3 +64,69 @@ func Test_Middleware_ApplyMiddleware(t *testing.T) {
 	assert.Equal(t, "mw1", res.Header.Get("x-mw1"), "they should be equal")
 	assert.Equal(t, "mw2", res.Header.Get("x-mw2"), "they should be equal")
 }
+
+func Test_Middleware_Order(t *testing.T) {
+	// Test that middleware order is maintained. The first middleware added
+	// should execute first on the request and last on the response.
+	var executionOrder []string
+
+	// Create middleware that records when it executes
+	mw1 := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			executionOrder = append(executionOrder, "mw1")
+			next.ServeHTTP(w, r)
+			executionOrder = append(executionOrder, "mw1-response")
+		})
+	}
+	mw2 := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			executionOrder = append(executionOrder, "mw2")
+			next.ServeHTTP(w, r)
+			executionOrder = append(executionOrder, "mw2-response")
+		})
+	}
+	mw3 := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			executionOrder = append(executionOrder, "mw3")
+			next.ServeHTTP(w, r)
+			executionOrder = append(executionOrder, "mw3-response")
+		})
+	}
+
+	testPattern := "/test-order"
+	route := NewRoute(
+		http.MethodGet,
+		testPattern,
+		http.HandlerFunc(createTestHandlerFunc(http.StatusOK, "")),
+	)
+	route.Use(mw1, mw2, mw3)
+
+	// Apply the route middleware
+	route.Handler = applyMiddleware(route.Handler, route.ComputedMiddleware())
+
+	// Create a request
+	url := fmt.Sprintf("http://%s%s", testAddress, testPattern)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		t.Errorf("failed to create request: %v", err)
+	}
+
+	// Call ServeHTTP
+	w := httptest.NewRecorder()
+	route.Handler.ServeHTTP(w, req)
+	res := w.Result()
+	defer func() {
+		err := res.Body.Close()
+		if err != nil {
+			t.Errorf("failed to close response body: %v", err)
+		}
+	}()
+
+	// Verify execution order: middleware added first should execute first on request
+	// Request flow: mw1 -> mw2 -> mw3 -> handler
+	// Response flow: handler -> mw3 -> mw2 -> mw1
+	expectedOrder := []string{
+		"mw1", "mw2", "mw3", "mw3-response", "mw2-response", "mw1-response",
+	}
+	assert.Equal(t, expectedOrder, executionOrder, "middleware order should be maintained")
+}
