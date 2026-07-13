@@ -1,4 +1,9 @@
 
+## [v5.23.0] - 2026-07-13
+### :recycle: Refactors
+- [`fa1ee1b`](https://github.com/rmhubbert/rmhttp/commit/fa1ee1b1fcfb3e18e057521e7deb114f231260b7) - modernise code *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.22.0] - 2026-07-12
 ### :bug: Bug Fixes
 - [`26d59d4`](https://github.com/rmhubbert/rmhttp/commit/26d59d462dd08c6035df116d211677bf8218bf3d) - caprturewriter pool is never returned to *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -525,3 +530,4 @@
 [v5.19.0]: https://github.com/rmhubbert/rmhttp/compare/v5.18.0...v5.19.0
 [v5.20.0]: https://github.com/rmhubbert/rmhttp/compare/v5.19.0...v5.20.0
 [v5.22.0]: https://github.com/rmhubbert/rmhttp/compare/v5.21.2...v5.22.0
+[v5.23.0]: https://github.com/rmhubbert/rmhttp/compare/v5.22.0...v5.23.0
