@@ -1,4 +1,9 @@
 
+## [v5.24.0] - 2026-07-13
+### :white_check_mark: Tests
+- [`5f7f810`](https://github.com/rmhubbert/rmhttp/commit/5f7f810c6cfd38abdcfb61a568eb34448410efce) - ensure middleware ordering is maintained *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.23.0] - 2026-07-13
 ### :recycle: Refactors
 - [`fa1ee1b`](https://github.com/rmhubbert/rmhttp/commit/fa1ee1b1fcfb3e18e057521e7deb114f231260b7) - modernise code *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -531,3 +536,4 @@
 [v5.20.0]: https://github.com/rmhubbert/rmhttp/compare/v5.19.0...v5.20.0
 [v5.22.0]: https://github.com/rmhubbert/rmhttp/compare/v5.21.2...v5.22.0
 [v5.23.0]: https://github.com/rmhubbert/rmhttp/compare/v5.22.0...v5.23.0
+[v5.24.0]: https://github.com/rmhubbert/rmhttp/compare/v5.23.0...v5.24.0
