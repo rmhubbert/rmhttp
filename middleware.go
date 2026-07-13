@@ -1,6 +1,9 @@
 package rmhttp
 
-import "net/http"
+import (
+	"net/http"
+	"slices"
+)
 
 // ------------------------------------------------------------------------------------------------
 // MIDDLEWARE
@@ -24,8 +27,8 @@ func applyMiddleware(
 		return next
 	}
 	// loop backwards to maintain middlewares order
-	for i := len(middlewares) - 1; i >= 0; i-- {
-		next = middlewares[i](next)
+	for _, middleware := range slices.Backward(middlewares) {
+		next = middleware(next)
 	}
 	return next
 }
