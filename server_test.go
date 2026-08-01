@@ -562,15 +562,22 @@ func Test_ListenAndServe_calls_setBestRouter(t *testing.T) {
 
 // Test_ListenAndServe_returns_error_on_invalid_port tests that ListenAndServe returns an error on invalid port.
 func Test_ListenAndServe_returns_error_on_invalid_port(t *testing.T) {
+	// Occupy a port so the subsequent ListenAndServe is guaranteed to fail.
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer ln.Close()
+
+	port := ln.Addr().(*net.TCPAddr).Port
+
 	config := ServerConfig{
-		Host: "localhost",
-		Port: 1, // Privileged port - likely to fail
+		Host: "127.0.0.1",
+		Port: port,
 	}
 
 	srv := NewServer(config, http.NewServeMux())
 
-	// Try to start - should fail
-	err := srv.ListenAndServe()
+	// Try to start - should fail with "address already in use"
+	err = srv.ListenAndServe()
 	assert.Error(t, err)
 }
 
