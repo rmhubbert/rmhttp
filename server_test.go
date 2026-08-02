@@ -565,7 +565,11 @@ func Test_ListenAndServe_returns_error_on_invalid_port(t *testing.T) {
 	// Occupy a port so the subsequent ListenAndServe is guaranteed to fail.
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
-	defer ln.Close()
+	defer func() {
+		if err := ln.Close(); err != nil {
+			t.Errorf("failed to close listener: %v", err)
+		}
+	}()
 
 	port := ln.Addr().(*net.TCPAddr).Port
 
