@@ -1,4 +1,10 @@
 
+## [v5.25.0] - 2026-08-02
+### :white_check_mark: Tests
+- [`a9deee8`](https://github.com/rmhubbert/rmhttp/commit/a9deee83f874fb853eb56e7d770f93b97c0220b4) - remove assumption that test is not being run by root user *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`d55532a`](https://github.com/rmhubbert/rmhttp/commit/d55532a134c4959db4f0ff8f89d039202c6abf01) - linting error *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.24.0] - 2026-07-13
 ### :white_check_mark: Tests
 - [`5f7f810`](https://github.com/rmhubbert/rmhttp/commit/5f7f810c6cfd38abdcfb61a568eb34448410efce) - ensure middleware ordering is maintained *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -537,3 +543,4 @@
 [v5.22.0]: https://github.com/rmhubbert/rmhttp/compare/v5.21.2...v5.22.0
 [v5.23.0]: https://github.com/rmhubbert/rmhttp/compare/v5.22.0...v5.23.0
 [v5.24.0]: https://github.com/rmhubbert/rmhttp/compare/v5.23.0...v5.24.0
+[v5.25.0]: https://github.com/rmhubbert/rmhttp/compare/v5.24.0...v5.25.0
