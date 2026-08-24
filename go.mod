@@ -13,7 +13,7 @@ require (
 	github.com/felixge/httpsnoop v1.1.0
 	github.com/grokify/mogo v0.74.7
 	github.com/rs/cors v1.11.1
-	github.com/stretchr/testify v1.12.0
+	github.com/stretchr/testify v1.12.1
 )
 
-require gopkg.in/yaml.v3 v3.0.1 // indirect
+require go.yaml.in/yaml/v3 v3.0.5 // indirect
