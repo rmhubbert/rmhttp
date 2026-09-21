@@ -4,8 +4,8 @@ github.com/caarlos0/env/v11 v11.4.1 h1:fYwH0sWEsBSMPG7t4e/PEfTFzrWrpjyygXyUnWiSw
 github.com/caarlos0/env/v11 v11.4.1/go.mod h1:qupehSf/Y0TUTsxKywqRt/vJjN5nz6vauiYEUUr8P4U=
 github.com/felixge/httpsnoop v1.1.0 h1:3YtUj32ZZkqZtt3sZZsClsymw/QDuVfpNhoA31zeORc=
 github.com/felixge/httpsnoop v1.1.0/go.mod h1:Zqxgdd+1Rkcz8euOqdr7lqgCRJztwr5hp9vDSi5UZCE=
-github.com/grokify/mogo v0.74.8 h1:0Qw2PE5ECsVjPimqkvhHTTlwWx+ylztaX1ho47WgCfo=
-github.com/grokify/mogo v0.74.8/go.mod h1:ja5XQFqMYRksrryvkxsMgVptn081BizWOXDA+Y5wlEg=
+github.com/grokify/mogo v0.74.9 h1:kNByiqh2cskqioePUtjnz1pj1t/Z71rgQF0OUEy0/h0=
+github.com/grokify/mogo v0.74.9/go.mod h1:MuKguiqlqmBt83ebEzdc0fRLhC3tz7W3PvTJglVjLaw=
 github.com/rs/cors v1.11.1 h1:eU3gRzXLRK57F5rKMGMZURNdIG4EoAmX8k94r9wXWHA=
 github.com/rs/cors v1.11.1/go.mod h1:XyqrcTp5zjWr1wsJ8PIRZssZ8b/WMcMf71DJnit4EMU=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
