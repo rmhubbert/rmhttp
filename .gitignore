@@ -13,3 +13,5 @@ go.work.sum
 
 # OS X specific
 .DS_Store
+
+agent-context*
