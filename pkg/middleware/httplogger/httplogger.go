@@ -3,7 +3,6 @@ package httplogger
 import (
 	"log/slog"
 	"net/http"
-	"strings"
 
 	"github.com/felixge/httpsnoop"
 	"github.com/grokify/mogo/log/sanitize"
@@ -17,6 +16,16 @@ func (s SanitizedString) LogValue() slog.Value {
 	return slog.StringValue(string(s))
 }
 
+// Middleware returns an HTTP middleware that logs each request via slog.
+//
+// The client IP recorded in the log is resolved with a trust-all policy: the leftmost usable
+// X-Forwarded-For entry, then X-Real-IP, then the connection peer address. Candidates are
+// validated and normalized (netip) and the value is sanitized, so an unparseable or
+// absent client IP degrades to an empty field and a log entry is always emitted.
+//
+// Because proxy headers are trusted from any peer, the logged IP can be spoofed by clients unless
+// you terminate behind a proxy you control. To only believe headers from known proxies, resolve
+// the client IP in a trusted-proxy-aware middleware and log that value instead.
 func Middleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +35,9 @@ func Middleware() func(http.Handler) http.Handler {
 			code := m.Code
 			written := m.Written
 
-			ip := realIp(r)
+			// clientIP returns a validated "203.0.113.7"-style address or "", so a plain conversion keeps
+			// the log field sanitized.
+			ip := SanitizedString(clientIP(r))
 			host := r.Header.Get("X-Forwarded-Host")
 			if host == "" {
 				host = r.Host
@@ -85,30 +96,4 @@ func Middleware() func(http.Handler) http.Handler {
 			)
 		})
 	}
-}
-
-// Request.RemoteAddress contains the port, which is not desired.
-func removePort(ra string) string {
-	index := strings.LastIndex(ra, ":")
-	if index == -1 {
-		return ra
-	}
-	return ra[:index]
-}
-
-// requestGetRemoteAddress returns the ip address of the client making the request, while taking
-// http proxies into account.
-func realIp(r *http.Request) string {
-	header := r.Header
-	xRealIP := header.Get("X-Real-Ip")
-	xForwardedFor := header.Get("X-Forwarded-For")
-	if xRealIP == "" && xForwardedFor == "" {
-		return removePort(r.RemoteAddr)
-	}
-	if xForwardedFor != "" {
-		if first, _, ok := strings.Cut(xForwardedFor, ","); ok {
-			return strings.TrimSpace(first)
-		}
-	}
-	return xRealIP
 }
