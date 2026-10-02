@@ -33,13 +33,13 @@ type Route struct {
 func NewRoute(method string, pattern string, handler http.Handler) *Route {
 	m := strings.ToUpper(method)
 	if !slices.Contains(ValidHTTPMethods(), m) {
-		method = http.MethodGet
+		m = http.MethodGet
 	}
 	if err := newURLPatternValidator().validate(pattern); err != nil {
 		panic(fmt.Sprintf("invalid route pattern: %v", err))
 	}
 	return &Route{
-		Method:  method,
+		Method:  m,
 		Pattern: strings.ToLower(pattern),
 		Handler: handler,
 		Headers: make(map[string]string),
