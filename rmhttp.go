@@ -103,10 +103,12 @@ func New(c ...Config) *App {
 
 	rootGroup := NewGroup("")
 
-	errorHandlers := map[int]http.Handler{
-		http.StatusNotFound:         createDefaultHandler(http.StatusNotFound),
-		http.StatusMethodNotAllowed: createDefaultHandler(http.StatusMethodNotAllowed),
-	}
+	// An App starts with no error handlers: unmatched requests are then served by the mux
+	// itself with the stdlib bytes, and nothing puts the Router's interception probe on the
+	// hot path. Registering a handler through StatusNotFoundHandler,
+	// StatusMethodNotAllowedHandler, or Router.AddErrorHandler switches interception on
+	// for as long as one is registered.
+	errorHandlers := map[int]http.Handler{}
 
 	return &App{
 		Server:        server,
@@ -320,12 +322,12 @@ func (app *App) Compile() {
 	for _, route := range routes {
 		middleware := []func(http.Handler) http.Handler{}
 
-		if len(route.ComputedHeaders()) > 0 {
-			middleware = append(middleware, headers.Middleware(route.ComputedHeaders()))
+		if computedHeaders := route.ComputedHeaders(); len(computedHeaders) > 0 {
+			middleware = append(middleware, headers.Middleware(computedHeaders))
 		}
 
-		if len(route.ComputedMiddleware()) > 0 {
-			middleware = append(middleware, route.ComputedMiddleware()...)
+		if computedMiddleware := route.ComputedMiddleware(); len(computedMiddleware) > 0 {
+			middleware = append(middleware, computedMiddleware...)
 		}
 
 		if timeout := route.ComputedTimeout(); timeout.Enabled {
@@ -333,7 +335,7 @@ func (app *App) Compile() {
 			// timeout before the request. It will only update if this timeout is longer than the
 			// existing TCP timeout.
 			app.Server.maybeUpdateTimeout(timeout.Duration)
-			middleware = append(middleware, TimeoutMiddleware(route.ComputedTimeout()))
+			middleware = append(middleware, TimeoutMiddleware(timeout))
 		}
 
 		var handler = route.Handler
