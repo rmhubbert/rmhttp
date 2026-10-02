@@ -2,6 +2,7 @@ package rmhttp
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -11,6 +12,49 @@ import (
 // ------------------------------------------------------------------------------------------------
 // ROUTE TESTS
 // ------------------------------------------------------------------------------------------------
+
+// Test_NewRoute_LowercaseMethod checks that NewRoute stores the validated, uppercased method:
+// a lowercase registration must actually serve instead of silently landing on the 404 path,
+// and unsupported methods must still fall back to GET.
+func Test_NewRoute_LowercaseMethod(t *testing.T) {
+	t.Run("a lowercase method is uppercased and serves", func(t *testing.T) {
+		route := NewRoute(
+			"get",
+			"/lowercase",
+			http.HandlerFunc(createTestHandlerFunc(http.StatusOK, "lower ok")),
+		)
+		assert.Equal(t, http.MethodGet, route.Method, "they should be equal")
+
+		app := New()
+		app.Route(route)
+		app.Compile()
+
+		req := httptest.NewRequest(http.MethodGet, "/lowercase", nil)
+		w := httptest.NewRecorder()
+		app.Router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code, "they should be equal")
+		assert.Equal(t, "lower ok", w.Body.String(), "they should be equal")
+	})
+
+	t.Run("a mixed-case method is uppercased", func(t *testing.T) {
+		route := NewRoute(
+			"pOsT",
+			"/mixed",
+			http.HandlerFunc(createTestHandlerFunc(http.StatusOK, "mixed ok")),
+		)
+		assert.Equal(t, http.MethodPost, route.Method, "they should be equal")
+	})
+
+	t.Run("an unsupported method still falls back to GET", func(t *testing.T) {
+		route := NewRoute(
+			"scream",
+			"/fallback",
+			http.HandlerFunc(createTestHandlerFunc(http.StatusOK, "fallback ok")),
+		)
+		assert.Equal(t, http.MethodGet, route.Method, "they should be equal")
+	})
+}
 
 // Test_Route_WithMiddleware checks that middleware can be added to a Route.
 func Test_Route_WithMiddleware(t *testing.T) {

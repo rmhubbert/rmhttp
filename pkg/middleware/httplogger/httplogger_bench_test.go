@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"log/slog"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -209,6 +210,32 @@ func Benchmark_Middleware_Minimal(b *testing.B) {
 
 	handler := Middleware()(http.HandlerFunc(createTestHandlerFunc(http.StatusOK, "")))
 	req := newBenchRequest("203.0.113.7:52000", nil, "")
+	w := newReuseWriter()
+
+	for b.Loop() {
+		out.Reset()
+		w.reset()
+		handler.ServeHTTP(w, req)
+	}
+
+	benchIPSink = w.body.String()
+}
+
+// Benchmark_Middleware_Discarded measures the short-circuit path: the default logger is retargeted
+// to a level that discards every record, so the middleware must skip IP resolution, sanitization,
+// the query concatenation, and the attribute build. The log sink swap is restored on exit; benches
+// in this package run in series because they share it.
+func Benchmark_Middleware_Discarded(b *testing.B) {
+	b.ReportAllocs()
+
+	previous := slog.Default()
+	slog.SetDefault(slog.New(slog.NewJSONHandler(out, &slog.HandlerOptions{
+		Level: slog.Level(100),
+	})))
+	b.Cleanup(func() { slog.SetDefault(previous) })
+
+	handler := Middleware()(http.HandlerFunc(createTestHandlerFunc(http.StatusOK, "body")))
+	req := benchMiddlewareRequest("limit=10&offset=20", []string{"203.0.113.7, 198.51.100.9"})
 	w := newReuseWriter()
 
 	for b.Loop() {

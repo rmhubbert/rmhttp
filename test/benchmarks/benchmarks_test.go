@@ -42,12 +42,11 @@ func Benchmark_RequestHandling(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/users/123", nil)
-	w := httptest.NewRecorder()
+	w := newReuseWriter()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
+		w.reset()
 		app.Router.ServeHTTP(w, req)
-		w = httptest.NewRecorder() // Reset recorder
 	}
 }
 
@@ -63,9 +62,12 @@ func Benchmark_ConcurrentRequests(b *testing.B) {
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
+		// Per-goroutine request and writer, created outside the timed loop.
+		req := httptest.NewRequest(http.MethodGet, "/users/123", nil)
+		w := newReuseWriter()
+		defer w.release()
 		for pb.Next() {
-			req := httptest.NewRequest(http.MethodGet, "/users/123", nil)
-			w := httptest.NewRecorder()
+			w.reset()
 			app.Router.ServeHTTP(w, req)
 		}
 	})
@@ -82,12 +84,11 @@ func Benchmark_RouteMatching(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/users/123/posts/456", nil)
-	w := httptest.NewRecorder()
+	w := newReuseWriter()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
+		w.reset()
 		app.Router.ServeHTTP(w, req)
-		w = httptest.NewRecorder()
 	}
 }
 
@@ -108,12 +109,12 @@ func Benchmark_MiddlewareStack(b *testing.B) {
 
 	req := httptest.NewRequest(http.MethodGet, "/test", nil)
 	req.Header.Set("x-api-key", "key1")
-	w := httptest.NewRecorder()
+	w := newReuseWriter()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
+		out.Reset() // keep the shared log sink at steady-state capacity
+		w.reset()
 		app.Router.ServeHTTP(w, req)
-		w = httptest.NewRecorder()
 	}
 }
 
@@ -131,12 +132,11 @@ func Benchmark_HeadersMiddleware(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/test", nil)
-	w := httptest.NewRecorder()
+	w := newReuseWriter()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
+		w.reset()
 		app.Router.ServeHTTP(w, req)
-		w = httptest.NewRecorder()
 	}
 }
 
@@ -154,12 +154,11 @@ func Benchmark_APIKeyMiddleware(b *testing.B) {
 
 	req := httptest.NewRequest(http.MethodGet, "/test", nil)
 	req.Header.Set("x-api-key", "key5")
-	w := httptest.NewRecorder()
+	w := newReuseWriter()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
+		w.reset()
 		app.Router.ServeHTTP(w, req)
-		w = httptest.NewRecorder()
 	}
 }
 
@@ -178,12 +177,11 @@ func Benchmark_PathValue(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/users/123/posts/456/comments/789", nil)
-	w := httptest.NewRecorder()
+	w := newReuseWriter()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
+		w.reset()
 		app.Router.ServeHTTP(w, req)
-		w = httptest.NewRecorder()
 	}
 }
 
@@ -197,12 +195,11 @@ func Benchmark_WildcardPath(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/files/path/to/file.txt", nil)
-	w := httptest.NewRecorder()
+	w := newReuseWriter()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
+		w.reset()
 		app.Router.ServeHTTP(w, req)
-		w = httptest.NewRecorder()
 	}
 }
 
@@ -222,12 +219,11 @@ func Benchmark_GroupedRoutes(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/users/123", nil)
-	w := httptest.NewRecorder()
+	w := newReuseWriter()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
+		w.reset()
 		app.Router.ServeHTTP(w, req)
-		w = httptest.NewRecorder()
 	}
 }
 
@@ -603,7 +599,7 @@ func Benchmark_HTTP2_LongLivedConnections(b *testing.B) {
 	client := &http.Client{Transport: transport}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		req, _ := http.NewRequest(http.MethodGet, ts.URL+"/stream", nil)
 		resp, err := client.Do(req)
 		if err != nil {
@@ -633,7 +629,7 @@ func Benchmark_HTTP2_PingPong(b *testing.B) {
 	client := &http.Client{Transport: transport}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		req, _ := http.NewRequest(http.MethodGet, ts.URL+"/ping", nil)
 		resp, err := client.Do(req)
 		if err != nil {
@@ -875,7 +871,7 @@ func Benchmark_HTTP2_Pipelining(b *testing.B) {
 
 	// Now measure sequential requests over same connection
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		req, _ := http.NewRequest(http.MethodGet, ts.URL+"/test", nil)
 		resp, err := client.Do(req)
 		if err != nil {
@@ -946,7 +942,8 @@ func Benchmark_HTTP2_WarmPool(b *testing.B) {
 // ------------------------------------------------------------------------------------------------
 
 // Benchmark_ErrorPath_404 measures the performance of 404 error handling.
-// This exercises the CaptureWriter pool and avoids double dispatch.
+// The router runs the mux's NotFound handler into the pooled CaptureWriter, then dispatches the
+// custom or default handler.
 func Benchmark_ErrorPath_404(b *testing.B) {
 	app := rmhttp.New()
 	app.Get("/exists", func(w http.ResponseWriter, r *http.Request) {
@@ -955,16 +952,16 @@ func Benchmark_ErrorPath_404(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/notfound", nil)
+	w := newReuseWriter()
 
-	b.ResetTimer()
 	for b.Loop() {
-		w := httptest.NewRecorder()
+		w.reset()
 		app.Router.ServeHTTP(w, req)
 	}
 }
 
 // Benchmark_ErrorPath_404_CustomHandler measures 404 handling with a custom error handler.
-// This exercises the CaptureWriter pool, RWMutex, and custom handler dispatch.
+// This exercises the CaptureWriter pool and the custom handler dispatch.
 func Benchmark_ErrorPath_404_CustomHandler(b *testing.B) {
 	app := rmhttp.New()
 	app.Get("/exists", func(w http.ResponseWriter, r *http.Request) {
@@ -977,10 +974,10 @@ func Benchmark_ErrorPath_404_CustomHandler(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/notfound", nil)
+	w := newReuseWriter()
 
-	b.ResetTimer()
 	for b.Loop() {
-		w := httptest.NewRecorder()
+		w.reset()
 		app.Router.ServeHTTP(w, req)
 	}
 }
@@ -994,16 +991,15 @@ func Benchmark_ErrorPath_405(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodPost, "/pattern", nil)
+	w := newReuseWriter()
 
-	b.ResetTimer()
 	for b.Loop() {
-		w := httptest.NewRecorder()
+		w.reset()
 		app.Router.ServeHTTP(w, req)
 	}
 }
 
 // Benchmark_ErrorPath_Concurrent404 measures concurrent 404 handling.
-// This exercises the RWMutex read path under concurrent load.
 func Benchmark_ErrorPath_Concurrent404(b *testing.B) {
 	app := rmhttp.New()
 	app.Get("/exists", func(w http.ResponseWriter, r *http.Request) {
@@ -1017,9 +1013,12 @@ func Benchmark_ErrorPath_Concurrent404(b *testing.B) {
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
+		// Per-goroutine request and writer, created outside the timed loop.
+		req := httptest.NewRequest(http.MethodGet, "/notfound", nil)
+		w := newReuseWriter()
+		defer w.release()
 		for pb.Next() {
-			req := httptest.NewRequest(http.MethodGet, "/notfound", nil)
-			w := httptest.NewRecorder()
+			w.reset()
 			app.Router.ServeHTTP(w, req)
 		}
 	})
@@ -1030,7 +1029,7 @@ func Benchmark_ErrorPath_Concurrent404(b *testing.B) {
 // ------------------------------------------------------------------------------------------------
 
 // Benchmark_TimeoutRoute measures the performance of a route with a timeout.
-// The http.TimeoutHandler is now created at compile time, not per-request.
+// The http.TimeoutHandler is created at compile time, not per-request.
 func Benchmark_TimeoutRoute(b *testing.B) {
 	app := rmhttp.New()
 	app.Get("/test", func(w http.ResponseWriter, r *http.Request) {
@@ -1039,10 +1038,10 @@ func Benchmark_TimeoutRoute(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	w := newReuseWriter()
 
-	b.ResetTimer()
 	for b.Loop() {
-		w := httptest.NewRecorder()
+		w.reset()
 		app.Router.ServeHTTP(w, req)
 	}
 }
@@ -1057,9 +1056,11 @@ func Benchmark_TimeoutRoute_Concurrent(b *testing.B) {
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
+		req := httptest.NewRequest(http.MethodGet, "/test", nil)
+		w := newReuseWriter()
+		defer w.release()
 		for pb.Next() {
-			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			w := httptest.NewRecorder()
+			w.reset()
 			app.Router.ServeHTTP(w, req)
 		}
 	})
@@ -1077,10 +1078,10 @@ func Benchmark_TimeoutRoute_WithMiddleware(b *testing.B) {
 	app.Compile()
 
 	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	w := newReuseWriter()
 
-	b.ResetTimer()
 	for b.Loop() {
-		w := httptest.NewRecorder()
+		w.reset()
 		app.Router.ServeHTTP(w, req)
 	}
 }
