@@ -33,6 +33,25 @@ func Middleware() func(http.Handler) http.Handler {
 			code := rec.status
 			written := rec.written
 
+			level := slog.LevelInfo
+			if code >= http.StatusBadRequest {
+				level = slog.LevelError
+			}
+
+			// The default logger is resolved per request on purpose: test suites and applications
+			// retarget slog.Default(), and a logger captured when the middleware was built would keep
+			// writing to the old destination.
+			logger := slog.Default()
+
+			// Everything below this check is per-request work that only exists to fill the log
+			// record, so a logger that discards this level must not pay for it: client IP resolution,
+			// the five sanitize.String passes, the path+"?"+query concatenation and the attribute
+			// build. The level is derived from the captured status first, so an error-only logger
+			// still logs error responses.
+			if !logger.Enabled(r.Context(), level) {
+				return
+			}
+
 			// clientIP returns a validated "203.0.113.7"-style address or "", so it needs no further
 			// sanitization: anything else it could have been is already rejected by net/netip.
 			ip := clientIP(r)
@@ -57,11 +76,6 @@ func Middleware() func(http.Handler) http.Handler {
 			sanitizedAgent := sanitize.String(r.UserAgent())
 			sanitizedHost := sanitize.String(host)
 			sanitizedProto := sanitize.String(r.Proto)
-
-			level := slog.LevelInfo
-			if code >= http.StatusBadRequest {
-				level = slog.LevelError
-			}
 
 			// Building the attributes in a stack array and handing them to LogAttrs allocates nothing
 			// of its own: slog.String stores the string without copying it and integers are stored
@@ -89,11 +103,8 @@ func Middleware() func(http.Handler) http.Handler {
 				slog.Int64("duration", durationMs),
 			}
 
-			// The default logger is resolved per request on purpose: test suites and applications
-			// retarget slog.Default(), and a logger captured when the middleware was built would keep
-			// writing to the old destination.
 			// #nosec G706 - values are sanitized using github.com/grokify/mogo/log/sanitize
-			slog.Default().LogAttrs(r.Context(), level, http.StatusText(code), attrs[:]...)
+			logger.LogAttrs(r.Context(), level, http.StatusText(code), attrs[:]...)
 		})
 	}
 }
