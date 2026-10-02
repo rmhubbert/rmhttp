@@ -103,6 +103,7 @@ func Test_HTTPLogger(t *testing.T) {
 type logEntry struct {
 	Level  string `json:"level"`
 	Status int    `json:"status"`
+	Size   int    `json:"size"`
 	IP     string `json:"ip"`
 }
 
