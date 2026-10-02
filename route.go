@@ -2,6 +2,7 @@ package rmhttp
 
 import (
 	"fmt"
+	"maps"
 	"net/http"
 	"slices"
 	"strings"
@@ -62,12 +63,16 @@ func (route *Route) buildPattern(pattern string, parent *Group) string {
 }
 
 // ComputedHeaders dynamically calculates the HTTP headers that have been added to the Route and
-// any parent Groups.
+// any parent Groups. The Route's own Headers map is copied, never merged into, so computing
+// headers twice — or re-parenting the Route — cannot leave stale parent headers behind.
 func (route *Route) ComputedHeaders() map[string]string {
-	return route.findHeaders(route.Headers, route.Parent)
+	headers := make(map[string]string, len(route.Headers))
+	maps.Copy(headers, route.Headers)
+	return route.findHeaders(headers, route.Parent)
 }
 
-// findHeaders collects all of the headers set on the Route, plus any parent groups.
+// findHeaders collects all of the headers set on the Route, plus any parent groups. The passed
+// headers map must be owned by the caller: it is mutated in place as parent headers are merged.
 func (route *Route) findHeaders(headers map[string]string, parent *Group) map[string]string {
 	if parent == nil {
 		return headers
@@ -105,7 +110,10 @@ func (route *Route) ComputedMiddleware() []func(http.Handler) http.Handler {
 	return route.findMiddleware(route.Parent, route.Middleware)
 }
 
-// findMiddleware searches for any middleware in any parent Group.
+// findMiddleware searches for any middleware in any parent Group. Each level builds a fresh
+// slice: appending the Route's middleware directly onto parent.Middleware would write into the
+// Group's backing array whenever it had spare capacity, so a later ComputedMiddleware() call for
+// a sibling Route could silently overwrite an earlier Route's returned slice.
 func (route *Route) findMiddleware(
 	parent *Group,
 	middleware []func(http.Handler) http.Handler,
@@ -113,8 +121,14 @@ func (route *Route) findMiddleware(
 	if parent == nil {
 		return middleware
 	}
-	middleware = append(parent.Middleware, middleware...)
-	return route.findMiddleware(parent.Parent, middleware)
+	combined := make(
+		[]func(http.Handler) http.Handler,
+		0,
+		len(parent.Middleware)+len(middleware),
+	)
+	combined = append(combined, parent.Middleware...)
+	combined = append(combined, middleware...)
+	return route.findMiddleware(parent.Parent, combined)
 }
 
 // WithMiddleware adds Middleware handlers to the receiver Route.

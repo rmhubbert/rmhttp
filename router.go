@@ -28,20 +28,27 @@ type Router struct {
 	errorMu       sync.Mutex
 	errorHandlers atomic.Pointer[map[int]http.Handler]
 
-	// routes maps the exact pattern strings registered through Handle (e.g. "GET /users/{id}")
-	// to the wrapper handler registered on the Mux plus the path parameters parsed from the
-	// pattern. A pattern's presence and handler identity is what enables the single-match fast
-	// path in ServeHTTP; anything else the mux may return (stdlib-generated redirect handlers,
-	// patterns registered directly on the Mux) keeps the full stdlib path. The map is written
-	// only during registration — which completes before the server starts, as with Mux.Handle
-	// itself — and read-only while serving.
-	routes map[string]registeredRoute
+	// routeMu serializes Handle writes; serving reads the immutable snapshot held in routes, so
+	// the hot lookup is a single atomic load plus a map index — no locking. Writes clone-on-store,
+	// matching errorHandlers above, so route registration stays safe for concurrent use (as the
+	// package doc promises) even if it races with serving.
+	routeMu sync.Mutex
+	routes  atomic.Pointer[map[string]registeredRoute]
 }
 
 // registeredRoute records what Router.Handle registered for one pattern.
 type registeredRoute struct {
 	handler http.Handler
 	params  []routeParam
+
+	// nativeMatch marks patterns where ServeHTTP should let the mux perform the (second) match
+	// itself rather than re-derive path values with SetPathValue. For one or two plain
+	// wildcards the mux's own match is cheaper: it attaches its matched values to the request
+	// directly, while SetPathValue on a fresh request allocates a backing map and turns every
+	// PathValue read into a map lookup. Exact routes (no params) and patterns the second match
+	// is worst at — three or more wildcards, or a trailing "{name...}" — stay on the direct
+	// call instead. Decided once at registration.
+	nativeMatch bool
 }
 
 // routedHandler marks the handlers Router.Handle registers on the Mux so ServeHTTP can recognize
@@ -63,12 +70,12 @@ type routeParam struct {
 
 // NewRouter intialises, creates, and then returns a pointer to a Router.
 func NewRouter() *Router {
-	rt := &Router{
-		Mux:    http.NewServeMux(),
-		routes: make(map[string]registeredRoute),
-	}
-	empty := map[int]http.Handler{}
-	rt.errorHandlers.Store(&empty)
+	rt := &Router{Mux: http.NewServeMux()}
+
+	emptyHandlers := map[int]http.Handler{}
+	rt.errorHandlers.Store(&emptyHandlers)
+	emptyRoutes := map[string]registeredRoute{}
+	rt.routes.Store(&emptyRoutes)
 	return rt
 }
 
@@ -76,18 +83,30 @@ func NewRouter() *Router {
 // a handler for the underlying HTTP request multiplexer (which by default is a http.ServeMux).
 //
 // We also intercept any error handlers returned by the underlying mux, and replace them with any
-// custom error handlers that have been registered.
+// custom error handlers that have been registered. When no error handler is registered at all —
+// a bare Router, or an App that registers no custom handlers — nothing can be intercepted, so
+// every request goes straight to the mux and costs exactly what plain net/http would.
 //
-// Matching is delegated to the Mux exactly once per request. The mux's Handler method does not
-// populate named path wildcards (only its ServeHTTP does), so for patterns registered through
-// Handle we re-apply the wildcards the mux matched — using pattern metadata parsed at
-// registration time — and call the matched handler directly. Anything we did not register
-// ourselves (stdlib-generated canonical/host-slash redirects and the like) keeps the full
-// stdlib ServeHTTP behavior, path values included.
+// When interception is active, the mux's Handler method answers a single match per request. That
+// method does not populate named path wildcards (only ServeHTTP does), so matched patterns fall
+// into one of two dispatch styles: exact and heavyweight patterns call the registered handler
+// directly and re-apply the wildcards the mux matched, using pattern metadata parsed at
+// registration time; one or two wildcard patterns instead let the mux re-match and fill its path
+// values natively, because the second match is cheaper than the re-derivation. Anything we did
+// not register ourselves (stdlib-generated canonical/host-slash redirects and the like) keeps the
+// full stdlib ServeHTTP behavior, path values included.
 //
 // Note: the per-request errorCapture instance used on the error path is pooled and must not be
 // shared across concurrent requests.
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Nothing registered means nothing to intercept: the mux's ServeHTTP is the final word for
+	// every request, including its native 404/405 responses and its OPTIONS "*" answer. One
+	// atomic load gates the entire interception machinery.
+	if len(*rt.errorHandlers.Load()) == 0 {
+		rt.Mux.ServeHTTP(w, r)
+		return
+	}
+
 	// The mux answers the OPTIONS "*" request form with 400 inside ServeHTTP, before any
 	// pattern matching. Hand that special case straight to the stdlib.
 	if r.RequestURI == "*" {
@@ -138,10 +157,12 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Single-pass fast path: the mux returned the very handler rmhttp registered for this
-	// pattern, so there is no stdlib-generated behavior to replicate. Apply the path values
-	// the mux matched but will not expose, then run the handler directly.
-	if route, ok := rt.routes[pattern]; ok && handler == route.handler {
+	// Direct-dispatch fast path: the mux returned the very handler rmhttp registered for this
+	// pattern, so there is no stdlib-generated behavior to replicate and, for exact and
+	// heavyweight patterns, no reason to let it match twice. Apply the path values the mux
+	// matched but will not expose, then run the handler directly.
+	route, registered := (*rt.routes.Load())[pattern]
+	if registered && handler == route.handler && !route.nativeMatch {
 		if len(route.params) > 0 {
 			// Matching used the escaped path (cleaned); the identity check above guarantees the
 			// mux matched it without a redirect, so a leading slash is expected. CONNECT requests
@@ -159,9 +180,10 @@ func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Stdlib-generated handler (canonical-path or host-slash redirect, etc.) or a pattern that
-	// was registered directly on the Mux: let the mux reproduce its exact behavior, path values
-	// included.
+	// Everything else is served by the mux itself, reproducing its exact behavior, path values
+	// included: stdlib-generated handlers (canonical-path or host-slash redirect, etc.),
+	// patterns registered directly on the Mux, and lightweight rmhttp patterns flagged for a
+	// native second match (see registeredRoute.nativeMatch).
 	rt.Mux.ServeHTTP(w, r)
 }
 
@@ -196,8 +218,26 @@ func (rt *Router) Handle(method string, pattern string, handler http.Handler) {
 	route := registeredRoute{handler: wrapped}
 	if params, ok := parsePathParams(pattern); ok {
 		route.params = params
+		// A "{name...}" wildcard may only be the final segment, so checking the last param
+		// covers the tail case. See registeredRoute.nativeMatch for the trade-off.
+		route.nativeMatch = len(params) > 0 && len(params) <= 2 && !params[len(params)-1].tail
+	} else if strings.Contains(pattern, "{") {
+		// A wildcarded shape the fast path cannot re-derive (a wildcard before a trailing slash,
+		// say): the mux must serve the request so no path value is lost.
+		route.nativeMatch = true
 	}
-	rt.routes[key] = route
+
+	// Clone-on-store so a concurrent ServeHTTP never observes a partially updated map. A request
+	// that matches in the Mux just before the snapshot lands simply misses the fast path and
+	// falls through to the full stdlib route — correct, if briefly unoptimized.
+	rt.routeMu.Lock()
+	defer rt.routeMu.Unlock()
+
+	old := *rt.routes.Load()
+	next := make(map[string]registeredRoute, len(old)+1)
+	maps.Copy(next, old)
+	next[key] = route
+	rt.routes.Store(&next)
 }
 
 // parsePathParams extracts the path parameters from a registered path pattern. Patterns that the
