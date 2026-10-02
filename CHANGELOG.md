@@ -1,4 +1,18 @@
 
+## [v5.28.0] - 2026-10-02
+### :bug: Bug Fixes
+- [`65b22c2`](https://github.com/rmhubbert/rmhttp/commit/65b22c2de7531a7a578b15760d3caa3cdab97483) - computing headers broken *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :zap: Performance Improvements
+- [`15ec336`](https://github.com/rmhubbert/rmhttp/commit/15ec3367bd5edd57681fb9cbb7f5650ace3cb3b3) - more performance improvements *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`c39744b`](https://github.com/rmhubbert/rmhttp/commit/c39744be8f899935abf4a90f69347c38a3555e55) - match std lib expected behaviour *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`9d7a293`](https://github.com/rmhubbert/rmhttp/commit/9d7a293c43a65ef58049ab3de20e6e5362b838e4) - update tests to reflect new functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.27.0] - 2026-10-02
 ### :bug: Bug Fixes
 - [`85466bf`](https://github.com/rmhubbert/rmhttp/commit/85466bf765e7e104c2a153302f121cbfba282082) - package shadowing *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -571,3 +585,4 @@
 [v5.25.0]: https://github.com/rmhubbert/rmhttp/compare/v5.24.0...v5.25.0
 [v5.26.5]: https://github.com/rmhubbert/rmhttp/compare/v5.26.4...v5.26.5
 [v5.27.0]: https://github.com/rmhubbert/rmhttp/compare/v5.26.5...v5.27.0
+[v5.28.0]: https://github.com/rmhubbert/rmhttp/compare/v5.27.0...v5.28.0
