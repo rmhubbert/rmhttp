@@ -26,58 +26,6 @@ func errorResponder(t *testing.T, app *App, method, path string) *httptest.Respo
 	return w
 }
 
-func Test_Router_DefaultErrorResponses(t *testing.T) {
-	tests := []struct {
-		name       string
-		method     string
-		path       string
-		wantStatus int
-		wantAllow  string
-		wantHasAll bool // whether the Allow header must be present at all
-		wantBody   string
-	}{
-		{
-			name:       "404 default",
-			method:     http.MethodGet,
-			path:       "/missing",
-			wantStatus: http.StatusNotFound,
-			wantBody:   "Not Found",
-		},
-		{
-			name:       "405 default",
-			method:     http.MethodPost,
-			path:       "/exists",
-			wantStatus: http.StatusMethodNotAllowed,
-			wantAllow:  "GET, HEAD",
-			wantHasAll: true,
-			wantBody:   "Method Not Allowed",
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			app := New()
-			app.Get("/exists", func(w http.ResponseWriter, _ *http.Request) {
-				_, _ = w.Write([]byte("OK"))
-			})
-
-			w := errorResponder(t, app, test.method, test.path)
-
-			assert.Equal(t, test.wantStatus, w.Code)
-			// The stdlib error handler ran once into the capture writer and left its headers
-			// behind; those headers are part of today's observable response and stay so.
-			assert.Equal(t, "text/plain; charset=utf-8", w.Header().Get("Content-Type"))
-			assert.Equal(t, "nosniff", w.Header().Get("X-Content-Type-Options"))
-			if test.wantHasAll {
-				assert.Equal(t, test.wantAllow, w.Header().Get("Allow"))
-			} else {
-				assert.Empty(t, w.Header().Get("Allow"))
-			}
-			assert.Equal(t, test.wantBody, w.Body.String())
-		})
-	}
-}
-
 func Test_Router_CustomErrorHandlerRunsExactlyOnce(t *testing.T) {
 	var notFoundCalls, methodCalls int
 

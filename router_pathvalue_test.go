@@ -1,6 +1,7 @@
 package rmhttp
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -208,4 +209,95 @@ func Test_Router_OptionStarPreserved(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Equal(t, "close", w.Header().Get("Connection"))
 	assert.False(t, called, "the OPTIONS * request must not reach any registered handler")
+}
+
+// Test_Router_PathValue_Intercepted pins that both interception dispatch styles hand handlers the
+// same path values a bare ServeMux would: one and two wildcard patterns re-match through the mux
+// (nativeMatch), while three-plus wildcards and trailing "{name...}" re-apply the probe's match
+// with SetPathValue. Escaped inputs pin the unescaping behavior of both.
+func Test_Router_PathValue_Intercepted(t *testing.T) {
+	tests := []struct {
+		pattern string
+		path    string
+		param   string
+		want    string
+	}{
+		{"/users/{id}", "/users/123", "id", "123"},
+		{"/users/{id}", "/users/a%20b", "id", "a b"},
+		{"/users/{id}", "/users/a%2Fb", "id", "a/b"},
+		{"/api/{v}/users/{id}", "/api/v2/users/42", "v", "v2"},
+		{"/api/{v}/users/{id}", "/api/v2/users/42", "id", "42"},
+		{"/a/{x}/b/{y}/c/{z}", "/a/1/b/2/c/3", "z", "3"},
+		{"/a/{x}/b/{y}/c/{z}", "/a/%41/b/2/c/3", "x", "A"},
+		{"/files/{path...}", "/files/a/b/c.txt", "path", "a/b/c.txt"},
+		{"/files/{path...}", "/files/a%20b/c", "path", "a b/c"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.pattern+test.path, func(t *testing.T) {
+			router := intercept(NewRouter())
+			var got string
+			router.Handle(http.MethodGet, test.pattern, http.HandlerFunc(
+				func(w http.ResponseWriter, r *http.Request) {
+					got = r.PathValue(test.param)
+				},
+			))
+
+			req := httptest.NewRequest(http.MethodGet, test.path, nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, http.StatusOK, w.Code)
+			assert.Equal(
+				t,
+				test.want,
+				got,
+				"PathValue must match stdlib semantics under interception",
+			)
+		})
+	}
+}
+
+// Test_Router_PathValue_UnparseablePatterns pins that wildcard shapes the direct-dispatch fast
+// path cannot re-derive — here, a wildcard before a trailing slash — are served by the mux
+// natively so no path value is lost, under interception as well as without.
+func Test_Router_PathValue_UnparseablePatterns(t *testing.T) {
+	tests := []struct {
+		name    string
+		pattern string
+		path    string
+		param   string
+		want    string
+	}{
+		{"wildcard before trailing slash", "/x/{id}/", "/x/7/", "id", "7"},
+	}
+
+	for _, interceptOn := range []bool{false, true} {
+		for _, test := range tests {
+			t.Run(fmt.Sprintf("%v/%s", interceptOn, test.name), func(t *testing.T) {
+				router := NewRouter()
+				if interceptOn {
+					intercept(router)
+				}
+				var got string
+				router.Handle(http.MethodGet, test.pattern, http.HandlerFunc(
+					func(w http.ResponseWriter, r *http.Request) {
+						got = r.PathValue(test.param)
+					},
+				))
+
+				req := httptest.NewRequest(http.MethodGet, test.path, nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+
+				assert.Equal(t, http.StatusOK, w.Code)
+				assert.Equal(
+					t,
+					test.want,
+					got,
+					"the mux must own path values the fast path cannot re-derive",
+				)
+			})
+		}
+	}
 }

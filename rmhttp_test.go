@@ -124,3 +124,59 @@ func Benchmark_Compile(b *testing.B) {
 		app.Compile()
 	}
 }
+
+// serveCompiled sends one request through a freshly compiled App's router.
+func serveCompiled(app *App, method, path string) *httptest.ResponseRecorder {
+	app.Compile()
+	req := httptest.NewRequest(method, path, nil)
+	w := httptest.NewRecorder()
+	app.Router.ServeHTTP(w, req)
+	return w
+}
+
+// Test_App_ErrorResponseModes pins the two error-response modes: an App with no error
+// handlers (the default: stdlib bytes, pure mux serving) and a custom handler registered
+// through the public API (interception active).
+func Test_App_ErrorResponseModes(t *testing.T) {
+	t.Run("the default produces the stdlib error bytes", func(t *testing.T) {
+		app := New()
+		app.Get("/exists", func(w http.ResponseWriter, _ *http.Request) {})
+
+		notFound := serveCompiled(app, http.MethodGet, "/missing")
+		assert.Equal(t, http.StatusNotFound, notFound.Code, "they should be equal")
+		assert.Equal(t, "404 page not found\n", notFound.Body.String(), "they should be equal")
+		assert.Equal(
+			t,
+			"text/plain; charset=utf-8",
+			notFound.Header().Get("Content-Type"),
+			"they should be equal",
+		)
+
+		app2 := New()
+		app2.Get("/exists", func(w http.ResponseWriter, _ *http.Request) {})
+
+		notAllowed := serveCompiled(app2, http.MethodPost, "/exists")
+		assert.Equal(
+			t,
+			http.StatusMethodNotAllowed,
+			notAllowed.Code,
+			"they should be equal",
+		)
+		assert.Equal(t, "Method Not Allowed\n", notAllowed.Body.String(), "they should be equal")
+		assert.Equal(t, "GET, HEAD", notAllowed.Header().Get("Allow"), "they should be equal")
+	})
+
+	t.Run("custom handlers intercept under the default config", func(t *testing.T) {
+		app := New()
+		app.Get("/exists", func(w http.ResponseWriter, _ *http.Request) {})
+		app.StatusNotFoundHandler(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+			_, _ = w.Write([]byte("custom 404"))
+		})
+
+		w := serveCompiled(app, http.MethodGet, "/missing")
+
+		assert.Equal(t, http.StatusNotFound, w.Code, "they should be equal")
+		assert.Equal(t, "custom 404", w.Body.String(), "they should be equal")
+	})
+}

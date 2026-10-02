@@ -263,3 +263,71 @@ func Test_Route_ComputedHeaders(t *testing.T) {
 		assert.Equal(t, "h1", headers["x-h1"], "they should be equal")
 	})
 }
+
+// Test_Route_ComputedHeaders_DoesNotMutateRoute pins that computing headers never merges parent
+// headers back into the Route's own Headers map: a re-parented Route must see its new parent's
+// headers, not stale headers left behind by an earlier computation.
+func Test_Route_ComputedHeaders_DoesNotMutateRoute(t *testing.T) {
+	handler := createTestHandlerFunc(http.StatusOK, "test body")
+	route := NewRoute(http.MethodGet, "/route", http.HandlerFunc(handler))
+
+	first := NewGroup("/first")
+	first.WithHeader("x-source", "first")
+	first.Route(route)
+	assert.Equal(t, "first", route.ComputedHeaders()["x-source"], "they should be equal")
+
+	second := NewGroup("/second")
+	second.WithHeader("x-source", "second")
+	second.Route(route)
+
+	assert.Empty(t, route.Headers, "computation must not write into the Route's own headers")
+	assert.Equal(
+		t,
+		"second",
+		route.ComputedHeaders()["x-source"],
+		"the new parent's header must win after re-parenting",
+	)
+}
+
+// Test_Route_ComputedMiddleware_SiblingsDoNotAlias pins that a ComputedMiddleware slice stays
+// valid after a sibling Route computes its own: merging into the parent Group's slice previously
+// wrote into spare backing-array capacity, so the later computation could overwrite the earlier
+// Route's returned slice.
+func Test_Route_ComputedMiddleware_SiblingsDoNotAlias(t *testing.T) {
+	handler := createTestHandlerFunc(http.StatusOK, "test body")
+
+	group := NewGroup("/group")
+	// Five handlers leave the group's slice with spare capacity, which is where the aliasing
+	// used to bite.
+	group.WithMiddleware(
+		createTestMiddlewareHandler("m1", "1"),
+		createTestMiddlewareHandler("m2", "2"),
+		createTestMiddlewareHandler("m3", "3"),
+		createTestMiddlewareHandler("m4", "4"),
+		createTestMiddlewareHandler("m5", "5"),
+	)
+
+	routeOne := NewRoute(http.MethodGet, "/one", http.HandlerFunc(handler))
+	routeOne.WithMiddleware(createTestMiddlewareHandler("own", "one"))
+	group.Route(routeOne)
+	outOne := routeOne.ComputedMiddleware()
+
+	routeTwo := NewRoute(http.MethodGet, "/two", http.HandlerFunc(handler))
+	routeTwo.WithMiddleware(createTestMiddlewareHandler("own", "two"))
+	group.Route(routeTwo)
+	outTwo := routeTwo.ComputedMiddleware()
+
+	assert.Len(t, outOne, 6, "they should be equal")
+	assert.Len(t, outTwo, 6, "they should be equal")
+
+	served := httptest.NewRecorder()
+	outOne[len(outOne)-1](
+		http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}),
+	).ServeHTTP(served, httptest.NewRequest(http.MethodGet, "/one", nil))
+	assert.Equal(
+		t,
+		"one",
+		served.Header().Get("own"),
+		"the sibling's computation must not have overwritten the first Route's middleware",
+	)
+}
