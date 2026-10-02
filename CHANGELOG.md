@@ -1,4 +1,21 @@
 
+## [v5.27.0] - 2026-10-02
+### :bug: Bug Fixes
+- [`85466bf`](https://github.com/rmhubbert/rmhttp/commit/85466bf765e7e104c2a153302f121cbfba282082) - package shadowing *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :zap: Performance Improvements
+- [`236cca4`](https://github.com/rmhubbert/rmhttp/commit/236cca43fe5139175c4a671612b5fd1923980c9e) - remove body alloc on every request *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`ecbf506`](https://github.com/rmhubbert/rmhttp/commit/ecbf506498c0432dd5e8b136085c9ff3f6144bcc) - discard if log level is not supported *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`af5c947`](https://github.com/rmhubbert/rmhttp/commit/af5c94772f86404bb5dca76e7e513022cfd0ea23) - pool error handlers *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :recycle: Refactors
+- [`de46ff4`](https://github.com/rmhubbert/rmhttp/commit/de46ff4986af1f6b00dee44ea4f24c6a8fbc2838) - remove best router check *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+### :white_check_mark: Tests
+- [`6ca1149`](https://github.com/rmhubbert/rmhttp/commit/6ca1149b0508e4afee032eedc3439bbd436701ce) - update tests to reflect new functionality *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+- [`e509d6b`](https://github.com/rmhubbert/rmhttp/commit/e509d6b9ef361ac9e1e24f37c286ad6fbd06a101) - perf tests *(commit by [@rmhubbert](https://github.com/rmhubbert))*
+
+
 ## [v5.26.5] - 2026-10-02
 ### :zap: Performance Improvements
 - [`492780b`](https://github.com/rmhubbert/rmhttp/commit/492780ba6273b3f6090ef038bd46481870f961e4) - httplogger performance refactor *(commit by [@rmhubbert](https://github.com/rmhubbert))*
@@ -553,3 +570,4 @@
 [v5.24.0]: https://github.com/rmhubbert/rmhttp/compare/v5.23.0...v5.24.0
 [v5.25.0]: https://github.com/rmhubbert/rmhttp/compare/v5.24.0...v5.25.0
 [v5.26.5]: https://github.com/rmhubbert/rmhttp/compare/v5.26.4...v5.26.5
+[v5.27.0]: https://github.com/rmhubbert/rmhttp/compare/v5.26.5...v5.27.0
