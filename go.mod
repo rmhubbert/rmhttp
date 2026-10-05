@@ -10,7 +10,7 @@ retract (
 require (
 	dario.cat/mergo v1.0.2
 	github.com/caarlos0/env/v11 v11.4.1
-	github.com/grokify/mogo v0.74.9
+	github.com/grokify/mogo v0.75.0
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.12.1
 )
